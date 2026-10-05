@@ -159,7 +159,13 @@ function listen(w){
     if(!answered && last){ heard.textContent='Terdengar: '+last+' · belum tepat, coba lagi'; app.querySelector('.voicebox')?.classList.add('shake'); setTimeout(()=>app.querySelector('.voicebox')?.classList.remove('shake'),600);} };
   try{ r.start(); }catch(e){ rec=null; micFail(note,mic); }
 }
+function voiceFoot(){
+  nextBtn.textContent='Tidak tahu, lihat jawaban';
+  nextBtn.onclick=()=>{ if(rec){try{rec.abort()}catch(e){} rec=null;} if(!answered) check(false); };
+}
 function micFail(note,mic){
+  const f=app.querySelector('#tf'); if(f) f.hidden=false;
+  showFoot('check');
   rec=null; micBlocked=true;
   if(mic){ mic.classList.remove('on'); mic.hidden=true; }
   const inp=app.querySelector('#typed'); if(inp) setTimeout(()=>inp.focus(),50);
@@ -298,8 +304,8 @@ function ask(){
       <div class="card"><span class="tag">${useSit?'situasi':'bahasa Indonesia'}</span><span class="big id" ${useSit?'style="font-size:1.3rem;line-height:1.45"':''}>${esc(useSit?w.sit:w.arti)}</span></div>
       ${SR&&!micBlocked?`<button type="button" class="mic" id="mic" aria-label="Tekan lalu bicara"><span class="dot"></span><span id="micTxt">Tekan lalu bicara</span></button>`:''}
       <p class="heard" id="heard" hidden></p>
-      <form class="typebox voicebox" id="tf" autocomplete="off"><input id="typed" lang="ja" placeholder="atau ketik / pakai mic keyboard" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Jawaban">
-      <p id="vnote">${SR&&!micBlocked?'Tekan tombol mikrofon lalu ucapkan jawabannya. Jawaban yang benar langsung diterima.':'Browser ini tidak punya pengenal suara. Pakai ikon mikrofon di keyboard HP (bahasa Jepang).'}</p></form>`;
+      <form class="typebox voicebox" id="tf" autocomplete="off" ${SR&&!micBlocked?'hidden':''}><input id="typed" lang="ja" placeholder="ketik / pakai mic keyboard" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Jawaban">
+      <p id="vnote">${SR&&!micBlocked?'':'Browser ini tidak punya pengenal suara. Pakai ikon mikrofon di keyboard HP (bahasa Jepang).'}</p></form>`;
   } else {
     body = `<p class="prompt">Tulis dalam bahasa Jepang</p>
       <div class="card"><span class="tag">bahasa Indonesia</span><span class="big id">${esc(w.arti)}</span></div>
@@ -316,6 +322,7 @@ function ask(){
     } else setTimeout(()=>inp.focus(),50);
     app.querySelector('#tf').onsubmit=e=>{e.preventDefault(); if(!answered && inp.value.trim()) check(matchTyped(inp.value,w));};
     showFoot('check');
+    if(cur.type==='voice' && SR && !micBlocked) voiceFoot();
   } else {
     app.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{ if(answered) return;
       app.querySelectorAll('.opt').forEach(x=>x.classList.remove('sel')); b.classList.add('sel');
