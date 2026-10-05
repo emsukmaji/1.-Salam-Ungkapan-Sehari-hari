@@ -250,6 +250,7 @@ em.gm{font-style:normal;color:var(--accent);font-weight:700;border-bottom:2px so
 .cform{color:var(--accent)}
 details.panel summary{cursor:pointer;color:var(--ink)}
 .nav button{font-size:.68rem}
+.webappnote{margin:0;text-align:center}
 @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
 </style>
 
@@ -555,8 +556,9 @@ function ask(){
     body=`<p class="prompt">Ucapkan dalam bahasa Jepang</p>
       <div class="card"><span class="tag">${useSit?'situasi':'bahasa Indonesia'}</span><span class="big ${useSit?'sit':'id'}">${esc(useSit?w.sit:w.arti)}</span></div>
       ${SR&&!micBlocked?`<button type="button" class="mic" id="mic"><span class="dot"></span><span id="micTxt">Tekan lalu bicara</span></button>`:''}
+      ${IOS_APP&&!micBlocked?`<p class="num webappnote">Kamu membuka game sebagai <b>Web App</b>. iPhone sering memblokir pengenal suara di mode ini. Kalau tombol di atas tidak jalan, pakai <b>ikon mikrofon di keyboard</b> pada kolom di bawah.</p>`:''}
       <p class="heard" id="heard" hidden></p>
-      <form class="typebox voicebox" id="tf" autocomplete="off" ${SR&&!micBlocked?'hidden':''}><input id="typed" lang="ja" placeholder="ketik / pakai mic keyboard" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Jawaban">
+      <form class="typebox voicebox" id="tf" autocomplete="off" ${SR&&!micBlocked&&!IOS_APP?'hidden':''}><input id="typed" lang="ja" placeholder="ketik / pakai mic keyboard" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Jawaban">
       <p id="vnote">Mikrofon tidak bisa dipakai di sini. Pakai ikon mikrofon di keyboard HP (bahasa Jepang).</p></form>`;
   } else {
     body=`<p class="prompt">Tulis dalam bahasa Jepang</p><div class="card"><span class="tag">bahasa Indonesia</span><span class="big id">${esc(w.arti)}</span></div>
@@ -615,6 +617,7 @@ function matchOne(t,w){
 
 /* ---------- mikrofon ---------- */
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+const IOS_APP = !!(window.navigator.standalone || (window.matchMedia && matchMedia('(display-mode: standalone)').matches)) && /iPhone|iPad|iPod/.test(navigator.userAgent);
 let rec=null, micBlocked=false;
 function stopRec(){ if(rec){ try{rec.abort()}catch(e){} rec=null; } }
 function listen(w){
