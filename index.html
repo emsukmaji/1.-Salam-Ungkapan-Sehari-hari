@@ -594,9 +594,17 @@ function norm(s){
     .replace(/ou/g,'o').replace(/oo/g,'o').replace(/uu/g,'u').replace(/aa/g,'a').replace(/ii/g,'i').replace(/ee/g,'e').replace(/ei/g,'e');
 }
 function toHira(s){return s.replace(/[ァ-ヶ]/g,c=>String.fromCharCode(c.charCodeAt(0)-0x60))}
+let HOMO=null; // kanji → set kana, dari semua kosakata
+function homoMap(){ if(HOMO) return HOMO; HOMO={}; DECKS.forEach(d=>d.items.forEach(x=>{ if(x.kanji){ const k=clean(x.kanji); (HOMO[k]=HOMO[k]||new Set()).add(toHira(clean(x.kana))); } })); return HOMO; }
 function matchTyped(v,w){
-  const t=v.trim().replace(/[。、！!？?．，,\s　]/g,'');
+  let t=v.trim().replace(/[。、！!？?．，,\s　]/g,'');
   if(!t) return false;
+  if(matchOne(t,w)) return true;
+  const cut=t.replace(/(です|でした|だ|ですね|ですよ|ね|よ)$/,''); if(cut!==t && cut && matchOne(cut,w)) return true;
+  return false;
+}
+function matchOne(t,w){
+  const hm=homoMap()[t]; if(hm && hm.has(toHira(clean(w.kana)))) return true;
   if((ALT[w.kana]||[]).includes(t)) return true;
   if(/[぀-ヿ一-龯]/.test(t)){
     const a=toHira(t), b=toHira(clean(w.kana));
@@ -627,7 +635,11 @@ function listen(w){
     }
     heard.hidden=false; heard.textContent='Terdengar: '+last;
   };
-  r.onerror=e=>{ if(['not-allowed','service-not-allowed','audio-capture'].includes(e.error)) micFail(); else if(e.error==='no-speech'){ heard.hidden=false; heard.textContent='Tidak terdengar suara. Coba lagi.'; } };
+  r.onerror=e=>{ heard.hidden=false;
+    if(['not-allowed','service-not-allowed','audio-capture'].includes(e.error)) micFail(e.error);
+    else if(e.error==='no-speech') heard.textContent='Tidak terdengar suara. Tekan tombol lalu langsung bicara.';
+    else if(e.error==='network') heard.textContent='Pengenal suara butuh koneksi internet. Cek sinyal lalu coba lagi.';
+    else if(e.error!=='aborted') heard.textContent='Mic error ('+e.error+'). Coba tekan lagi.'; };
   r.onend=()=>{ rec=null; if(micBlocked || !app.contains(mic)) return; mic.classList.remove('on'); txt.textContent='Tekan lalu bicara';
     if(!answered && last){ heard.textContent='Terdengar: '+last+' · belum tepat, coba lagi'; const vb=app.querySelector('.card'); vb.classList.add('shake'); setTimeout(()=>vb.classList.remove('shake'),600); } };
   try{ r.start(); }catch(e){ rec=null; micFail(); }
@@ -636,10 +648,17 @@ function voiceFoot(){
   nextBtn.textContent='Tidak tahu, lihat jawaban';
   nextBtn.onclick=()=>{ stopRec(); if(!answered) check(false); };
 }
-function micFail(){
+function micFail(code){
   rec=null; micBlocked=true;
   const mic=app.querySelector('#mic'); if(mic) mic.hidden=true;
   const f=app.querySelector('#tf'); if(f) f.hidden=false;
+  const note=app.querySelector('#vnote');
+  if(note){ note.innerHTML = (code==='service-not-allowed'
+      ? 'Pengenal suara tidak aktif di perangkat ini. Di iPhone: <b>Pengaturan → Siri & Pencarian</b> dan <b>Papan Ketik → Aktifkan Dikte</b> harus menyala.'
+      : 'Mikrofon tidak diizinkan untuk halaman ini. Di Safari: ketuk <b>aA</b> di bilah alamat → <b>Pengaturan Situs Web</b> → <b>Mikrofon → Izinkan</b>, lalu tekan tombol di bawah. Di aplikasi Claude, mic memang selalu diblokir — buka link GitHub di Safari.')
+      + ' Sementara itu, kamu bisa memakai ikon mikrofon di keyboard.'
+      + '<br><button type="button" class="btn ghost sm" id="micretry" style="margin-top:8px">🎤 Coba mikrofon lagi</button>';
+    note.querySelector('#micretry').onclick=()=>{ micBlocked=false; ask(); }; }
   showFoot('check');
   const inp=app.querySelector('#typed'); if(inp) setTimeout(()=>inp.focus(),50);
 }
