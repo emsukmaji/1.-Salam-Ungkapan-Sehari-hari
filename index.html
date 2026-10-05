@@ -152,6 +152,14 @@ select{width:100%;font:inherit;padding:12px;border-radius:12px;border:1.5px soli
 .statrow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 12px;align-items:center}
 .statrow .bar{grid-column:1/-1}
 .statrow .bar>i{background:var(--c)}
+.revcard{background:var(--surface);border:1.5px solid var(--accent);border-bottom-width:4px;border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.revcard.done{border-color:var(--good)}
+.revcard b{display:block;font-size:1.1rem}
+.revcard span{color:var(--muted);font-size:.9rem}
+.revcard .big{font-size:1.6rem;font-weight:800;color:var(--accent);font-variant-numeric:tabular-nums}
+.due{color:var(--accent);font-weight:800}
+.revtag{font-size:.7rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--accent-ink);background:var(--accent);padding:3px 8px;border-radius:99px}
+.statrow .lv{grid-column:1/-1;font-size:.75rem}
 @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
 </style>
 
@@ -193,10 +201,28 @@ const store = {
   set(k,v){try{localStorage.setItem('aisatsu:'+k,JSON.stringify(v))}catch(e){}}
 };
 (function migrate(){ const old=store.get('mastery',null); if(old && !store.get('m:salam',null)) store.set('m:salam',old); })();
-const MCACHE={};
-const M = id => MCACHE[id] || (MCACHE[id]=store.get('m:'+id,{}));
-const saveM = id => store.set('m:'+id, M(id));
-const mastered = d => d.items.filter(w=>(M(d.id)[w.id]||0)>=2).length;
+/* SRS: tiap kata punya level 0–8; level naik saat dijawab benar ketika jatuh tempo, jarak ulasan makin panjang */
+const INT=[0,1,3,7,14,30,60,120,240];
+const today=()=>{const n=new Date();return Math.floor((n.getTime()-n.getTimezoneOffset()*60000)/86400000)};
+const SCACHE={};
+function migrateSRS(id){ const old=store.get('m:'+id,{}), t=today(), s={}; for(const k in old){ if(old[k]>=1) s[k]={lv:old[k]>=2?2:1,due:t}; } store.set('s:'+id,s); return s; }
+const SRS = id => SCACHE[id] || (SCACHE[id]=store.get('s:'+id,null)||migrateSRS(id));
+const saveS = id => store.set('s:'+id, SRS(id));
+const lvOf = (d,w) => (SRS(d.id)[w.id]||{lv:0}).lv;
+const isDue = (d,w,t=today()) => { const r=SRS(d.id)[w.id]; return !!r && r.due<=t; };
+const dueItems = (d,t=today()) => d.items.filter(w=>isDue(d,w,t));
+const dueAll = (t=today()) => DECKS.reduce((a,d)=>a+dueItems(d,t).length,0);
+const mastered = d => d.items.filter(w=>lvOf(d,w)>=3).length;
+function grade(d,w,ok){
+  const s=SRS(d.id), t=today(), r=s[w.id];
+  if(ok){
+    if(!r) s[w.id]={lv:1,due:t+1};
+    else if(r.due<=t){ r.lv=Math.min(r.lv+1,INT.length-1); r.due=t+INT[r.lv]; }
+  } else s[w.id]={lv:r?Math.max(1,r.lv-2):1, due:t+1};
+  saveS(d.id);
+}
+const intText = lv => { const n=INT[Math.min(lv,INT.length-1)]; return n>=30? Math.round(n/30)+' bulan' : n+' hari'; };
+const REVIEW_MAX=30;
 
 const VOCAB_MODES = [
   ['id2jp','Indonesia → Jepang','pilih kata Jepangnya'],
@@ -243,28 +269,35 @@ function go(v){ stopRec(); VIEW=v; foot.hidden=true; R=null; ({home,kana:kanaVie
 
 /* ---------- beranda ---------- */
 function deckCard(d){
-  const m=mastered(d), n=d.items.length;
+  const m=mastered(d), n=d.items.length, dd=dueItems(d).length;
   return `<button type="button" class="deck" data-deck="${d.id}" style="--c:var(--${d.color})">
     <span class="badge ${/^N\d$/.test(d.short)?'':'jp'}">${esc(d.short)}</span>
-    <span class="meta"><b>${esc(d.title)}</b><span class="num">${m} / ${n} dikuasai</span><span class="bar"><i style="width:${pct(m,n)}%"></i></span></span>
+    <span class="meta"><b>${esc(d.title)}</b><span class="num">${m} / ${n} dikuasai${dd?` · <span class="due">${dd} ulasan</span>`:''}</span><span class="bar"><i style="width:${pct(m,n)}%"></i></span></span>
     <span class="chev" aria-hidden="true">›</span></button>`;
 }
 function home(){
   const vocab=DECKS.filter(d=>d.kind==='vocab'), kana=DECKS.filter(d=>d.kind==='kana');
   app.innerHTML = `
     <div class="hero"><div class="eyebrow">日本語 · latihan harian</div><h1>Hafalan Nihongo</h1>
-      <p class="sub">Pilih game. Jawaban yang salah muncul lagi di akhir ronde sampai benar.</p></div>
+      <p class="sub">Ulas dulu yang jatuh tempo, lalu pelajari kata baru dari game di bawah.</p></div>
+    ${reviewCard()}
     <h2>Kosakata</h2><div class="decks">${vocab.map(deckCard).join('')}</div>
     <h2>Huruf</h2><div class="decks">${kana.map(deckCard).join('')}</div>`;
   app.querySelectorAll('[data-deck]').forEach(b=>b.onclick=()=>setup(DECK[b.dataset.deck]));
+  const rv=app.querySelector('#rev'); if(rv) rv.onclick=()=>startReview();
+}
+function reviewCard(){
+  const t=today(), due=dueAll(t), tmr=dueAll(t+1)-due;
+  if(!due) return `<div class="revcard done"><div><b>Ulasan hari ini beres</b><span>${tmr?`Besok ada ${tmr} ulasan.`:'Belum ada ulasan terjadwal.'} Kata yang kamu jawab benar di game akan dijadwalkan untuk diulas.</span></div></div>`;
+  return `<div class="revcard"><div><b>Ulasan hari ini</b><span><span class="big">${due}</span> kata & huruf menunggu${due>REVIEW_MAX?` · per sesi ${REVIEW_MAX} soal`:''}</span></div><button class="btn" id="rev">Mulai ulasan</button></div>`;
 }
 
 /* ---------- huruf ---------- */
 const GRID_BASIC = ['a i u e o','ka ki ku ke ko','sa shi su se so','ta chi tsu te to','na ni nu ne no','ha hi fu he ho','ma mi mu me mo','ya - yu - yo','ra ri ru re ro','wa - - - wo','n - - - -'];
 function kanaView(){
-  const d=DECK[KTAB], mm=M(d.id);
+  const d=DECK[KTAB];
   const byRom = r => d.items.find(w=>w.sec===0 && w.rom===r);
-  const cell = w => w ? `<button type="button" class="kcell" data-k="${w.id}"><span class="k">${esc(w.kana)}</span><span class="r">${esc(w.rom)}</span><span class="bar"><i style="width:${Math.min(mm[w.id]||0,3)/3*100}%"></i></span></button>` : `<span class="kcell empty" aria-hidden="true"></span>`;
+  const cell = w => w ? `<button type="button" class="kcell" data-k="${w.id}"><span class="k">${esc(w.kana)}</span><span class="r">${esc(w.rom)}</span><span class="bar"><i style="width:${Math.min(lvOf(d,w),5)/5*100}%"></i></span></button>` : `<span class="kcell empty" aria-hidden="true"></span>`;
   const basic = GRID_BASIC.map(r=>r.split(' ').map(x=>cell(x==='-'?null:byRom(x))).join('')).join('');
   const daku = d.items.filter(w=>w.sec===1).map(cell).join('');
   const yoon = d.items.filter(w=>w.sec===2).map(cell).join('');
@@ -276,7 +309,7 @@ function kanaView(){
     <div class="hero"><h1>Yuk, belajar ${name}!</h1>
       <p class="sub">${KTAB==='hira'?'Huruf utama untuk menulis kata asli Jepang.':'Huruf untuk kata serapan asing, nama, dan istilah.'} Ketuk huruf untuk mendengar bunyinya.</p></div>
     <button class="btn" id="learn" style="background:var(--n4);box-shadow:0 4px 0 color-mix(in srgb,var(--n4) 60%,#000);color:var(--surface)">Latih ${name}</button>
-    <span class="num">${mastered(d)} / ${d.items.length} huruf dikuasai · bar terisi penuh setelah 3× benar</span>
+    <span class="num">${mastered(d)} / ${d.items.length} huruf dikuasai · bar terisi seiring ulasan berhasil${dueItems(d).length?` · <span class="due">${dueItems(d).length} ulasan</span>`:''}</span>
     <h2>Dasar</h2><div class="kgrid">${basic}</div>
     <h2>Dakuten & Handakuten</h2><div class="kgrid">${daku}</div>
     <h2>Kombinasi (Yōon)</h2><div class="kgrid c3">${yoon}</div>`;
@@ -288,10 +321,12 @@ function kanaView(){
 /* ---------- progres ---------- */
 function stats(){
   const tot=DECKS.reduce((a,d)=>a+mastered(d),0), all=DECKS.reduce((a,d)=>a+d.items.length,0);
+  const dist = d => { const c=[0,0,0]; d.items.forEach(w=>{const l=lvOf(d,w); if(l>=5)c[2]++; else if(l>=3)c[1]++; else if(l>=1)c[0]++;}); return c; };
   app.innerHTML = `
     <div class="hero"><div class="eyebrow">Progres</div><h1>${tot} kata & huruf dikuasai</h1>
-      <p class="sub">Dihitung dikuasai setelah 2× benar berturut-turut. Salah sekali, hitungannya mulai lagi.</p></div>
-    <div class="panel">${DECKS.map(d=>{const m=mastered(d),n=d.items.length;return `<div class="statrow" style="--c:var(--${d.color})"><b>${esc(d.title)}</b><span class="num">${m} / ${n}</span><span class="bar"><i style="width:${pct(m,n)}%"></i></span></div>`}).join('')}</div>
+      <p class="sub">Dikuasai artinya sudah lolos ulasan sampai jarak 7 hari. Jarak ulasan: 1 → 3 → 7 → 14 hari → 1 → 2 → 4 → 8 bulan. Salah saat ulasan, jaraknya mundur.</p></div>
+    <div class="score"><div><b>${dueAll()}</b><span>Ulasan hari ini</span></div><div><b>${dueAll(today()+1)-dueAll()}</b><span>Besok</span></div><div><b>${DECKS.reduce((a,d)=>a+Object.keys(SRS(d.id)).length,0)}</b><span>Sudah dipelajari</span></div></div>
+    <div class="panel">${DECKS.map(d=>{const m=mastered(d),n=d.items.length;const c=dist(d);return `<div class="statrow" style="--c:var(--${d.color})"><b>${esc(d.title)}</b><span class="num">${m} / ${n}</span><span class="bar"><i style="width:${pct(m,n)}%"></i></span><span class="num lv">Belajar ${c[0]} · Mengingat ${c[1]} · Kuat ${c[2]}</span></div>`}).join('')}</div>
     <span class="num">Total ${tot} / ${all}. Progres tersimpan di browser HP ini.</span>`;
 }
 
@@ -311,6 +346,7 @@ function setup(d){
       <select id="sec">
         <option value="all" ${S.sec==='all'?'selected':''}>Semua (${d.items.length})</option>
         <option value="weak" ${S.sec==='weak'?'selected':''}>Belum dikuasai saja</option>
+        <option value="new" ${S.sec==='new'?'selected':''}>Kata baru saja (belum pernah benar)</option>
         ${secOpts}
       </select>
       <label class="lbl">JENIS SOAL</label>
@@ -322,7 +358,8 @@ function setup(d){
         <label class="toggle"><input type="checkbox" id="voice" ${S.voice?'checked':''}> Bacakan suara</label>
       </div>
     </div>
-    <button class="btn" id="start">Mulai</button>`;
+    <button class="btn" id="start">Mulai</button>
+    ${dueItems(d).length?`<button class="btn ghost" id="rev">Ulas yang jatuh tempo (${dueItems(d).length})</button>`:''}`;
   app.querySelector('#back').onclick=()=>go(d.kind==='kana'?'kana':'home');
   app.querySelector('#sec').onchange=e=>{S.sec=e.target.value;save()};
   app.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>{S.mode=b.dataset.mode;save();setup(d)});
@@ -330,29 +367,30 @@ function setup(d){
   const rom=app.querySelector('#rom'); if(rom) rom.onchange=e=>{S.romaji=e.target.checked;save()};
   app.querySelector('#voice').onchange=e=>{S.voice=e.target.checked;save()};
   app.querySelector('#start').onclick=()=>startRound();
+  const rv=app.querySelector('#rev'); if(rv) rv.onclick=()=>startReview(d);
   window.scrollTo(0,0);
 }
 
 /* ---------- ronde ---------- */
 let R=null, cur=null, answered=false;
 function poolFor(){
-  const d=CUR, mm=M(d.id);
+  const d=CUR;
   if(S.sec==='all') return d.items;
-  if(S.sec==='weak'){const p=d.items.filter(w=>(mm[w.id]||0)<2); return p.length?p:d.items;}
+  if(S.sec==='weak'){const p=d.items.filter(w=>lvOf(d,w)<3); return p.length?p:d.items;}
+  if(S.sec==='new'){const p=d.items.filter(w=>!SRS(d.id)[w.id]); return p.length?p:d.items;}
   return d.items.filter(w=>w.sec===+S.sec);
 }
-function pickType(w){
-  const modes = modesFor(CUR).map(m=>m[0]).filter(m=>m!=='mix');
-  let t = S.mode==='mix' ? modes[Math.random()*modes.length|0] : S.mode;
+function pickType(w,d=CUR,review=false){
+  const modes = review ? (d.kind==='kana'?['k2r','r2k','listen']:['id2jp','jp2id','sit']) : modesFor(d).map(m=>m[0]).filter(m=>m!=='mix');
+  let t = (review || S.mode==='mix') ? modes[Math.random()*modes.length|0] : S.mode;
   if(t==='sit' && !w.sit) t='id2jp';
   return t;
 }
-function startRound(list){
-  const d=CUR, mm=M(d.id), pool=list||poolFor();
+function startRound(){
+  const d=CUR, pool=poolFor();
   let picked;
-  if(list) picked=shuffle(list);
-  else{
-    const sorted=shuffle(pool).sort((a,b)=>(mm[a.id]||0)-(mm[b.id]||0));
+  {
+    const sorted=shuffle(pool).sort((a,b)=>lvOf(d,a)-lvOf(d,b));
     picked=[];
     const first=shuffle(sorted.slice(0,Math.min(S.len,pool.length)));
     picked.push(...first);
@@ -363,7 +401,19 @@ function startRound(list){
     }
     picked=picked.slice(0,S.len);
   }
-  R={queue:picked.map(w=>({w,type:pickType(w)})), total:picked.length, done:0, firstTry:0, streak:0, best:0, wrong:new Map(), missed:new Set()};
+  R=newRound(picked.map(w=>({w,d,type:pickType(w,d)})), false);
+  VIEW='game'; setNav(false); ask();
+}
+function newRound(queue,review){ return {queue, review, total:queue.length, done:0, firstTry:0, streak:0, best:0, wrong:new Map(), missed:new Set()}; }
+function startReview(only){
+  stopRec(); const t=today(); let items=[];
+  for(const d of (only?[only]:DECKS)) for(const w of d.items) if(isDue(d,w,t)) items.push({w,d,due:SRS(d.id)[w.id].due});
+  if(!items.length) return go('home');
+  items.sort((a,b)=>a.due-b.due);
+  items=shuffle(items.slice(0,REVIEW_MAX));
+  S=Object.assign({romaji:true,voice:true}, only?settingsFor(only):store.get('set:review',{}));
+  R=newRound(items.map(x=>({w:x.w,d:x.d,type:pickType(x.w,x.d,true)})), true);
+  R.only=only||null; CUR=items[0].d;
   VIEW='game'; setNav(false); ask();
 }
 function distractors(w,n,key){
@@ -375,7 +425,7 @@ function distractors(w,n,key){
   return out;
 }
 function header(){
-  return `<div class="top"><button class="x" id="quit" aria-label="Keluar">✕</button><div class="bar"><i style="width:${R.done/R.total*100}%"></i></div><span class="streak">${R.streak?R.streak+'🔥':''}</span></div>`;
+  return `<div class="top"><button class="x" id="quit" aria-label="Keluar">✕</button>${R.review?'<span class="revtag">Ulasan</span>':''}<div class="bar"><i style="width:${R.done/R.total*100}%"></i></div><span class="streak">${R.streak?R.streak+'🔥':''}</span></div>`;
 }
 function jpBlock(w){
   return `${w.kanji?`<span class="j">${esc(clean(w.kanji))}</span><span class="k">${esc(clean(w.kana))}</span>`:`<span class="j">${esc(clean(w.kana))}</span>`}${S.romaji?`<span class="r">${esc(w.rom)}</span>`:''}`;
@@ -383,7 +433,7 @@ function jpBlock(w){
 function ask(){
   stopRec(); foot.hidden=true; answered=false;
   if(!R.queue.length) return result();
-  cur=R.queue[0]; const w=cur.w, t=cur.type;
+  cur=R.queue[0]; CUR=cur.d; const w=cur.w, t=cur.type;
   let body='';
   const optsJp = () => shuffle([w,...distractors(w,3,x=>jpMain(x))]).map(o=>`<button class="opt" data-id="${o.id}">${jpBlock(o)}</button>`).join('');
   if(t==='id2jp'){
@@ -419,7 +469,7 @@ function ask(){
       <form class="typebox" id="tf" autocomplete="off"><input id="typed" placeholder="contoh: mizu / みず" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Jawaban"><p>Boleh pakai romaji atau hiragana/katakana. Huruf panjang (ou/oo) dianggap sama.</p></form>`;
   }
   app.innerHTML = header()+body;
-  app.querySelector('#quit').onclick=()=>setup(CUR);
+  app.querySelector('#quit').onclick=()=> R.review ? (R.only?setup(R.only):go('home')) : setup(CUR);
   const say=app.querySelector('#say'); if(say) say.onclick=()=>speak(w.kana);
   if(t==='type'||t==='voice'){
     const inp=app.querySelector('#typed');
@@ -503,17 +553,18 @@ function micFail(){
 /* ---------- cek jawaban ---------- */
 function check(ok,btn){
   answered=true; stopRec();
-  const w=cur.w, d=CUR, mm=M(d.id);
+  const w=cur.w, d=cur.d, key=d.id+':'+w.id;
   R.queue.shift();
   if(ok){
     R.streak++; R.best=Math.max(R.best,R.streak);
-    if(!R.missed.has(w.id)){ R.firstTry++; mm[w.id]=(mm[w.id]||0)+1; }
+    if(!R.missed.has(key)){ R.firstTry++; grade(d,w,true); }
     R.done++;
   } else {
-    R.streak=0; R.missed.add(w.id); R.wrong.set(w.id,w); mm[w.id]=0;
-    R.queue.push({w,type:cur.type});
+    R.streak=0;
+    if(!R.missed.has(key)) grade(d,w,false);
+    R.missed.add(key); R.wrong.set(key,{w,d});
+    R.queue.push({w,d,type:cur.type});
   }
-  saveM(d.id);
   if(btn){
     app.querySelectorAll('.opt').forEach(b=>{b.disabled=true; if(+b.dataset.id===w.id) b.classList.add('good');});
     if(!ok){ btn.classList.add('bad','shake'); }
@@ -546,26 +597,31 @@ document.addEventListener('keydown',e=>{ if(R && !foot.hidden && answered && e.k
 /* ---------- hasil ---------- */
 function result(){
   foot.hidden=true; VIEW='result';
-  const d=CUR, acc=Math.round(R.firstTry/R.total*100), wrong=[...R.wrong.values()];
+  const rv=R.review, base=rv?(R.only||null):CUR, acc=Math.round(R.firstTry/R.total*100), wrong=[...R.wrong.values()];
   const msg = acc===100?'Sempurna! すごい！':acc>=80?'Bagus sekali! よくできました':acc>=50?'Lumayan, ulangi yang salah ya':'Pelan-pelan saja, がんばって！';
-  const unit = d.kind==='kana'?'huruf':'kata';
+  const left = R.only ? dueItems(R.only).length : dueAll();
+  const backKana = base && base.kind==='kana';
   app.innerHTML = `
-    <div><div class="eyebrow">${esc(d.title)} · ronde selesai</div><h1>${msg}</h1></div>
+    <div><div class="eyebrow">${rv?'Ulasan':esc(base.title)} · selesai</div><h1>${msg}</h1></div>
     <div class="score">
       <div><b>${acc}%</b><span>Benar sekali jawab</span></div>
       <div><b>${R.total}</b><span>Soal</span></div>
-      <div><b>${R.best}</b><span>Beruntun terbaik</span></div>
+      <div><b>${left}</b><span>Ulasan tersisa hari ini</span></div>
     </div>
+    <p class="sub">Yang benar dijadwalkan muncul lagi beberapa hari lagi. Yang salah dijadwalkan ulang besok.</p>
     <div class="panel">
       <label class="lbl">PERLU DIULANG (${wrong.length})</label>
-      ${wrong.length?`<ul class="review">${wrong.map(w=>`<li><div><span class="jp">${esc(jpMain(w))}</span>${w.kanji?`<div class="meta">${esc(clean(w.kana))}</div>`:''}${d.kind==='vocab'?`<div class="meta">${esc(w.rom)}</div>`:''}</div><div>${esc(d.kind==='kana'?w.rom:w.arti)}</div></li>`).join('')}</ul>`:`<p class="empty">Tidak ada. Semua dijawab benar pada percobaan pertama.</p>`}
+      ${wrong.length?`<ul class="review">${wrong.map(({w,d})=>`<li><div><span class="jp">${esc(jpMain(w))}</span>${w.kanji?`<div class="meta">${esc(clean(w.kana))}</div>`:''}${d.kind==='vocab'?`<div class="meta">${esc(w.rom)}</div>`:''}</div><div>${esc(d.kind==='kana'?w.rom:w.arti)}${rv?`<div class="meta">${esc(d.title)}</div>`:''}</div></li>`).join('')}</ul>`:`<p class="empty">Tidak ada. Semua dijawab benar pada percobaan pertama.</p>`}
     </div>
-    ${wrong.length?`<button class="btn" id="again-wrong">Latih ${wrong.length} ${unit} yang salah</button>`:''}
-    <button class="btn ${wrong.length?'ghost':''}" id="again">Ronde baru</button>
-    <button class="btn ghost" id="home">Kembali ke ${d.kind==='kana'?'Huruf':'Beranda'}</button>`;
-  const aw=app.querySelector('#again-wrong'); if(aw) aw.onclick=()=>startRound(wrong);
-  app.querySelector('#again').onclick=()=>startRound();
-  app.querySelector('#home').onclick=()=>go(d.kind==='kana'?'kana':'home');
+    ${wrong.length?`<button class="btn" id="again-wrong">Latih lagi ${wrong.length} yang salah</button>`:''}
+    ${rv && left?`<button class="btn ${wrong.length?'ghost':''}" id="more">Lanjut ulasan (${left})</button>`:''}
+    ${!rv?`<button class="btn ${wrong.length?'ghost':''}" id="again">Ronde baru</button>`:''}
+    <button class="btn ghost" id="home">Kembali ke ${backKana?'Huruf':'Beranda'}</button>`;
+  const prev=R;
+  const aw=app.querySelector('#again-wrong'); if(aw) aw.onclick=()=>{ R=newRound(shuffle(wrong).map(x=>({w:x.w,d:x.d,type:pickType(x.w,x.d,prev.review)})), false); R.only=prev.only; VIEW='game'; setNav(false); ask(); };
+  const mo=app.querySelector('#more'); if(mo) mo.onclick=()=>startReview(prev.only||undefined);
+  const ag=app.querySelector('#again'); if(ag) ag.onclick=()=>startRound();
+  app.querySelector('#home').onclick=()=>go(backKana?'kana':'home');
   window.scrollTo(0,0);
 }
 
