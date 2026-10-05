@@ -160,6 +160,37 @@ select{width:100%;font:inherit;padding:12px;border-radius:12px;border:1.5px soli
 .due{color:var(--accent);font-weight:800}
 .revtag{font-size:.7rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--accent-ink);background:var(--accent);padding:3px 8px;border-radius:99px}
 .statrow .lv{grid-column:1/-1;font-size:.75rem}
+.btn.sm{font-size:.8rem;padding:10px 12px;width:auto}
+.btn:disabled{opacity:.45;cursor:default}
+.exrow{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.exrow>div{display:flex;flex-direction:column;min-width:0}
+.exhead{display:flex;flex-direction:column;gap:2px}
+.exinstr{font-family:var(--f-jp);font-weight:700}
+.exq{align-items:stretch;text-align:left;min-height:0;padding:20px 18px}
+.exq .exn{align-self:flex-end}
+.exq .bigplay{align-self:center}
+.exs{font-family:var(--f-jp);font-size:1.25rem;line-height:1.9;margin:0}
+.exs u{text-underline-offset:5px;text-decoration-thickness:2px}
+.expass{font-family:var(--f-jp);font-size:1.05rem;line-height:1.9;background:var(--bg);border-radius:12px;padding:12px 14px;margin-bottom:6px}
+.bl{display:inline-block;width:3.2em;border-bottom:2px solid var(--ink);margin:0 4px;text-align:center;vertical-align:baseline}
+.bl.st{color:var(--accent);font-weight:800;border-color:var(--accent)}
+.exopts{display:flex;flex-direction:column;gap:10px}
+.exopt{font:inherit;font-family:var(--f-jp);font-size:1.1rem;text-align:left;background:var(--surface);color:var(--ink);border:1.5px solid var(--line);border-bottom-width:4px;border-radius:14px;padding:12px 14px;display:flex;gap:12px;align-items:center;cursor:pointer}
+.exopt.sel{border-color:var(--n4);background:color-mix(in srgb,var(--n4) 10%,var(--surface))}
+.exnum{flex:none;width:28px;height:28px;border-radius:50%;border:1.5px solid var(--line);display:grid;place-items:center;font-family:var(--f-ui);font-weight:800;font-size:.85rem}
+.exopt.sel .exnum{background:var(--n4);border-color:var(--n4);color:var(--surface)}
+.exnav{flex-direction:row!important}
+.exnav .btn{flex:1}
+.exconfirm{background:var(--surface);border:1.5px solid var(--accent);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.exgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(40px,1fr));gap:6px}
+.exgrid button{font:inherit;font-weight:700;padding:8px 0;border-radius:10px;border:1.5px solid var(--bad);background:var(--bad-bg);color:var(--ink);cursor:pointer}
+.exgrid button.ok{border-color:var(--line);background:var(--chip)}
+.exrv.good{border-color:var(--good)}
+.exrv.bad{border-color:var(--bad)}
+.exans{margin:0;padding-left:1.4em;font-family:var(--f-jp);display:flex;flex-direction:column;gap:4px}
+.exans li.c{color:var(--good);font-weight:700}
+.exans li.w{color:var(--bad);text-decoration:line-through}
+[data-f][aria-pressed="true"]{box-shadow:inset 0 0 0 2px var(--accent)}
 @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
 </style>
 
@@ -169,6 +200,7 @@ select{width:100%;font:inherit;padding:12px;border-radius:12px;border:1.5px soli
   <button type="button" data-tab="kana"><span class="ic">あ</span>Huruf</button>
   <button type="button" data-tab="stats"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 20V12M12 20V5M19 20v-9"/></svg></span>Progres</button>
 </div></nav>
+<div class="foot" id="exfoot" hidden></div>
 <div class="foot" id="foot" hidden><div class="in"><div class="verdict" id="verdict"></div><button class="btn" id="next">Lanjut</button></div></div>
 
 <script>
@@ -247,7 +279,7 @@ function settingsFor(d){
 }
 
 /* ---------- utilitas ---------- */
-const app=document.getElementById('app'), nav=document.getElementById('nav'), foot=document.getElementById('foot'), verdict=document.getElementById('verdict'), nextBtn=document.getElementById('next');
+const exfoot=document.getElementById('exfoot'), app=document.getElementById('app'), nav=document.getElementById('nav'), foot=document.getElementById('foot'), verdict=document.getElementById('verdict'), nextBtn=document.getElementById('next');
 const esc = s => String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const shuffle = a => {a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
 const clean = s => s.replace(/^～/,'');
@@ -265,7 +297,7 @@ function speak(text){
 let VIEW='home', KTAB='hira';
 function setNav(on){ nav.hidden=!on; nav.querySelectorAll('[data-tab]').forEach(b=>b.setAttribute('aria-current', b.dataset.tab===VIEW?'page':'false')); }
 nav.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>go(b.dataset.tab));
-function go(v){ stopRec(); VIEW=v; foot.hidden=true; R=null; ({home,kana:kanaView,stats})[v](); setNav(true); window.scrollTo(0,0); }
+function go(v){ stopRec(); VIEW=v; foot.hidden=true; exfoot.hidden=true; if(typeof exTimer!=='undefined') clearInterval(exTimer); try{speechSynthesis.cancel()}catch(e){} R=null; ({home,kana:kanaView,stats})[v](); setNav(true); window.scrollTo(0,0); }
 
 /* ---------- beranda ---------- */
 function deckCard(d){
@@ -282,9 +314,11 @@ function home(){
       <p class="sub">Ulas dulu yang jatuh tempo, lalu pelajari kata baru dari game di bawah.</p></div>
     ${reviewCard()}
     <h2>Kosakata</h2><div class="decks">${vocab.map(deckCard).join('')}</div>
-    <h2>Huruf</h2><div class="decks">${kana.map(deckCard).join('')}</div>`;
+    <h2>Huruf</h2><div class="decks">${kana.map(deckCard).join('')}</div>
+    <h2>Latihan Ujian</h2><div class="decks"><button type="button" class="deck" id="examcard" style="--c:var(--n5)"><span class="badge jp">試</span><span class="meta"><b>Simulasi JLPT N5</b><span class="num">${(()=>{const h=store.get('exhist',[]);return h.length?`Terakhir: ${h[0].pct}%${h[0].score!=null?` · ${h[0].score}/180`:''}`:'Format seperti ujian asli, soal acak'})()}</span></span><span class="chev" aria-hidden="true">›</span></button></div>`;
   app.querySelectorAll('[data-deck]').forEach(b=>b.onclick=()=>setup(DECK[b.dataset.deck]));
   const rv=app.querySelector('#rev'); if(rv) rv.onclick=()=>startReview();
+  app.querySelector('#examcard').onclick=()=>exHome();
 }
 function reviewCard(){
   const t=today(), due=dueAll(t), tmr=dueAll(t+1)-due;
@@ -622,6 +656,241 @@ function result(){
   const mo=app.querySelector('#more'); if(mo) mo.onclick=()=>startReview(prev.only||undefined);
   const ag=app.querySelector('#again'); if(ag) ag.onclick=()=>startRound();
   app.querySelector('#home').onclick=()=>go(backKana?'kana':'home');
+  window.scrollTo(0,0);
+}
+
+
+/* ---------- simulasi JLPT N5 ---------- */
+const EXB = {"kanji":[["【毎朝】 しちじに おきます。","毎朝","まいあさ","setiap pagi","Setiap pagi saya bangun jam tujuh."],["この 【山】は とても たかいです。","山","やま","gunung","Gunung ini sangat tinggi."],["つぎの かどを 【右】に まがって ください。","右","みぎ","kanan","Silakan belok kanan di tikungan berikutnya."],["【先週】 ともだちと うみへ いきました。","先週","せんしゅう","minggu lalu","Minggu lalu saya pergi ke laut bersama teman."],["その 【白い】 かばんは わたしのです。","白い","しろい","putih","Tas putih itu milik saya."],["【午後】 さんじに あいましょう。","午後","ごご","siang/sore (PM)","Mari bertemu jam tiga sore."],["えきの 【北】に こうえんが あります。","北","きた","utara","Ada taman di sebelah utara stasiun."],["そとは 【雨】が ふって います。","雨","あめ","hujan","Di luar sedang hujan."],["【父】は かいしゃいんです。","父","ちち","ayah (sendiri)","Ayah saya karyawan perusahaan."],["【来年】 だいがくに はいります。","来年","らいねん","tahun depan","Tahun depan saya masuk universitas."],["いすの 【下】に ねこが います。","下","した","bawah","Ada kucing di bawah kursi."],["すみません、【水】を ください。","水","みず","air","Permisi, minta air."],["ははと 【電話】で はなしました。","電話","でんわ","telepon","Saya berbicara dengan ibu lewat telepon."],["この みせの パンは 【安い】です。","安い","やすい","murah","Roti di toko ini murah."],["【毎日】 にほんごを べんきょうします。","毎日","まいにち","setiap hari","Setiap hari saya belajar bahasa Jepang."],["【外】で あそびましょう。","外","そと","luar","Ayo bermain di luar."],["ここに 【名前】を かいて ください。","名前","なまえ","nama","Silakan tulis nama di sini."],["あの 【車】は あたらしいです。","車","くるま","mobil","Mobil itu baru."],["【六日】に テストが あります。","六日","むいか","tanggal 6","Ada tes tanggal enam."],["【千円】 かして ください。","千円","せんえん","seribu yen","Tolong pinjamkan seribu yen."],["【東】の そらが あかるく なりました。","東","ひがし","timur","Langit di timur menjadi terang."],["きのう 【新しい】 くつを かいました。","新しい","あたらしい","baru","Kemarin saya membeli sepatu baru."],["【会社】まで バスで いきます。","会社","かいしゃ","perusahaan/kantor","Saya ke kantor naik bus."],["この まちには 【高い】 ビルが たくさん あります。","高い","たかい","tinggi","Di kota ini ada banyak gedung tinggi."],["まどを 【開けて】 ください。","開けて","あけて","membuka","Tolong buka jendelanya."],["【母】と かいものに いきました。","母","はは","ibu (sendiri)","Saya pergi belanja dengan ibu."],["あには 【大学】で えいごを べんきょうして います。","大学","だいがく","universitas","Kakak laki-laki saya belajar bahasa Inggris di universitas."],["かばんの 【中】に ほんが あります。","中","なか","dalam","Di dalam tas ada buku."],["【休み】の ひは なにを しますか。","休み","やすみ","libur","Apa yang kamu lakukan di hari libur?"],["この 【川】は きれいです。","川","かわ","sungai","Sungai ini bersih."],["にわに 【花】が さいて います。","花","はな","bunga","Bunga mekar di halaman."],["【九時】に じゅぎょうが はじまります。","九時","くじ","jam sembilan","Pelajaran mulai jam sembilan."],["きょうは 【天気】が いいですね。","天気","てんき","cuaca","Hari ini cuacanya bagus, ya."],["まいあさ おちゃを 【飲みます】。","飲みます","のみます","minum","Setiap pagi saya minum teh."],["ともだちに てがみを 【書きました】。","書きました","かきました","menulis","Saya menulis surat untuk teman."],["えきの 【前】で まって います。","前","まえ","depan","Saya menunggu di depan stasiun."],["【学校】は うちから ちかいです。","学校","がっこう","sekolah","Sekolah dekat dari rumah."],["わたしは 【魚】が すきです。","魚","さかな","ikan","Saya suka ikan."],["【長い】 じかん まちました。","長い","ながい","lama/panjang","Saya menunggu lama."],["でんしゃで しんぶんを 【読みます】。","読みます","よみます","membaca","Saya membaca koran di kereta."],["この ノートは 【八百円】です。","八百円","はっぴゃくえん","800 yen","Buku catatan ini 800 yen."],["【左】の てを あげて ください。","左","ひだり","kiri","Tolong angkat tangan kiri."],["【今月】は しごとが いそがしいです。","今月","こんげつ","bulan ini","Bulan ini pekerjaan sibuk."],["【少し】 まって ください。","少し","すこし","sedikit/sebentar","Tolong tunggu sebentar."],["どうぞ、へやに 【入って】 ください。","入って","はいって","masuk","Silakan masuk ke kamar."],["きょうは 【空】が あおいです。","空","そら","langit","Hari ini langitnya biru."],["【古い】 じしょを つかって います。","古い","ふるい","lama/tua","Saya memakai kamus lama."],["きのう ともだちが うちに 【来ました】。","来ました","きました","datang","Kemarin teman datang ke rumah."],["【四月】に にほんへ いきます。","四月","しがつ","April","Bulan April saya pergi ke Jepang."],["ケーキを 【半分】 たべました。","半分","はんぶん","setengah","Saya makan setengah kue."],["さいふに 【お金】が ありません。","お金","おかね","uang","Tidak ada uang di dompet."],["【南】の くにへ いきたいです。","南","みなみ","selatan","Saya ingin pergi ke negara di selatan."],["せんせいの はなしを よく 【聞いて】 ください。","聞いて","きいて","mendengarkan","Tolong dengarkan baik-baik cerita guru."],["【小さい】 いぬが います。","小さい","ちいさい","kecil","Ada anjing kecil."],["【二人】で レストランへ いきました。","二人","ふたり","dua orang","Kami berdua pergi ke restoran."],["あしたは 【何時】に おきますか。","何時","なんじ","jam berapa","Besok kamu bangun jam berapa?"],["【駅】まで あるいて いきます。","駅","えき","stasiun","Saya jalan kaki sampai stasiun."],["【銀行】は どこですか。","銀行","ぎんこう","bank","Di mana bank?"],["この がっこうには がくせいが 【百人】 います。","百人","ひゃくにん","seratus orang","Di sekolah ini ada seratus murid."],["いつか 【外国】に すみたいです。","外国","がいこく","luar negeri","Suatu hari saya ingin tinggal di luar negeri."]],"kata":[["この 【テレビ】は あたらしいです。","テレビ","televisi","Televisi ini baru."],["あさ 【コーヒー】を のみます。","コーヒー","kopi","Pagi hari saya minum kopi."],["えきの まえの 【ホテル】に とまります。","ホテル","hotel","Saya menginap di hotel depan stasiun."],["あの 【レストラン】は おいしいです。","レストラン","restoran","Restoran itu enak."],["【エレベーター】で 5かいへ いきます。","エレベーター","lift","Saya naik lift ke lantai 5."],["【スプーン】で スープを のみます。","スプーン","sendok","Saya makan sup dengan sendok."],["【ノート】に かんじを かきます。","ノート","buku catatan","Saya menulis kanji di buku catatan."],["あおい 【シャツ】を かいました。","シャツ","kemeja","Saya membeli kemeja biru."],["【ボールペン】を かして ください。","ボールペン","bolpoin","Tolong pinjamkan bolpoin."],["えきから 【タクシー】に のりました。","タクシー","taksi","Saya naik taksi dari stasiun."],["あさごはんに 【パン】を たべます。","パン","roti","Saya makan roti untuk sarapan."],["あたらしい 【カメラ】が ほしいです。","カメラ","kamera","Saya ingin kamera baru."],["【デパート】で くつを かいました。","デパート","department store","Saya membeli sepatu di department store."],["【ギター】を ひきます。","ギター","gitar","Saya bermain gitar."]],"ctx":[["きのう デパートで くつを （　）。",["かいました","あいました","ききました","まちました"],"Kemarin saya membeli sepatu di department store."],["さむいですから、まどを （　） ください。",["しめて","あけて","はいて","ならべて"],"Karena dingin, tolong tutup jendelanya."],["じしょで ことばの （　）を しらべます。",["いみ","なまえ","でんわ","しゃしん"],"Saya mencari arti kata di kamus."],["あたまが （　）ですから、くすりを のみました。",["いたい","あまい","ひくい","わかい"],"Karena kepala sakit, saya minum obat."],["シャワーを （　）から ねます。",["あびて","はいて","きて","かぶって"],"Saya tidur setelah mandi shower."],["ぼうしを （　） でかけます。",["かぶって","はいて","きて","しめて"],"Saya pergi dengan memakai topi."],["くつしたを （　） ください。",["はいて","かぶって","きて","かけて"],"Tolong pakai kaos kaki."],["つぎの かどを みぎに （　） ください。",["まがって","わたって","おりて","のって"],"Silakan belok kanan di tikungan berikutnya."],["はしを （　）、ひだりに いきます。",["わたって","まがって","のって","はいって"],"Seberangi jembatan, lalu ke kiri."],["つぎの えきで でんしゃを （　）。",["おります","わたります","まがります","はしります"],"Saya turun dari kereta di stasiun berikutnya."],["きょうは （　）ですから、あした あいましょう。",["いそがしい","やさしい","あかるい","すずしい"],"Hari ini sibuk, jadi mari bertemu besok."],["へやが くらいですから、でんきを （　） ください。",["つけて","けして","しめて","はって"],"Kamar gelap, tolong nyalakan lampunya."],["でかけるとき、ドアに かぎを （　）。",["かけます","とります","はります","いれます"],"Saat keluar, saya mengunci pintu."],["めがねを （　） しんぶんを よみます。",["かけて","はいて","かぶって","きて"],"Saya membaca koran dengan memakai kacamata."],["ゆうびんきょくで （　）を かいました。",["きって","きっぷ","ちず","しゃしん"],"Saya membeli perangko di kantor pos."],["えきで でんしゃの （　）を かいました。",["きっぷ","きって","はがき","ふうとう"],"Saya membeli tiket kereta di stasiun."],["あには ギターを じょうずに （　）。",["ひきます","うたいます","ききます","ふきます"],"Kakak laki-laki saya pandai bermain gitar."],["まいばん ねる まえに はを （　）。",["みがきます","ふきます","ひきます","きります"],"Setiap malam sebelum tidur saya menggosok gigi."],["あしたは （　）ですから、がっこうへ いきません。",["やすみ","しごと","じゅぎょう","しゅくだい"],"Besok libur, jadi saya tidak ke sekolah."],["そらが （　） いますから、くらいです。",["くもって","はれて","さいて","とんで"],"Langit mendung, jadi gelap."],["かぜが つよく （　） います。",["ふいて","ふって","さいて","ないて"],"Angin bertiup kencang."],["こうえんに さくらが （　） います。",["さいて","ないて","ふいて","ふって"],"Bunga sakura mekar di taman."],["リーさんは にほんごが （　）ですね。",["じょうず","じょうぶ","げんき","たいせつ"],"Bahasa Jepang Li-san mahir, ya."],["この かばんは （　）ですから、10ねん つかって います。",["じょうぶ","じょうず","しずか","ひま"],"Tas ini awet, jadi sudah saya pakai 10 tahun."],["やおやで （　）を かいます。",["やさい","くすり","ほん","きって"],"Saya membeli sayur di toko sayur."],["ほんやで （　）を かいました。",["ざっし","くすり","やさい","くだもの"],"Saya membeli majalah di toko buku."],["ぎゅうにゅうは （　）の なかに あります。",["れいぞうこ","げんかん","ほんだな","ポスト"],"Susu ada di dalam kulkas."],["としょかんで ほんを 3さつ （　）。",["かりました","かしました","うりました","おしえました"],"Saya meminjam 3 buku di perpustakaan."],["この りんごは （　） 100えんです。",["ひとつ","ひとり","いちまい","いっぽん"],"Apel ini satu buah 100 yen."],["かみを （　） ください。",["にまい","にほん","にだい","にさつ"],"Tolong beri dua lembar kertas."],["つくえの うえに えんぴつが （　） あります。",["さんぼん","さんまい","さんさつ","さんだい"],"Di atas meja ada tiga pensil."],["えきの まえで ほんを （　） かいました。",["にさつ","にまい","にほん","にだい"],"Saya membeli dua buku di depan stasiun."],["へやに ねこが （　） います。",["いっぴき","いっぽん","いちまい","いっさつ"],"Di kamar ada seekor kucing."],["つかれましたから、すこし （　）。",["やすみましょう","はたらきましょう","はしりましょう","いそぎましょう"],"Karena lelah, mari istirahat sebentar."],["わたしの へやは （　）ですから、ともだちが たくさん はいれません。",["せまい","ひろい","あかるい","あたらしい"],"Kamar saya sempit, jadi tidak muat banyak teman."],["この スープは （　）ですから、すこし まって ください。",["あつい","さむい","つめたい","すずしい"],"Sup ini panas, jadi tunggu sebentar."]],"para":[["この へやは くらいです。",["この へやは あかるくないです。","この へやは あかるいです。","この へやは しずかです。","この へやは ひろくないです。"],"Kamar ini gelap."],["きのう がっこうを やすみました。",["きのう がっこうへ いきませんでした。","きのう がっこうへ いきました。","きのう がっこうで べんきょうしました。","きのう がっこうで あそびました。"],"Kemarin saya tidak masuk sekolah."],["おととい デパートへ いきました。",["ふつかまえに デパートへ いきました。","ふつかあとに デパートへ いきます。","いちにちまえに デパートへ いきました。","みっかまえに デパートへ いきました。"],"Kemarin lusa saya pergi ke department store."],["この えいがは つまらなかったです。",["この えいがは おもしろくなかったです。","この えいがは おもしろかったです。","この えいがは ながくなかったです。","この えいがは たかかったです。"],"Film ini membosankan."],["あしたは しごとが やすみです。",["あしたは はたらきません。","あしたは はたらきます。","あしたは いそがしいです。","あしたは かいしゃへ いきます。"],"Besok libur kerja."],["ここは いりぐちです。",["ここから はいります。","ここから でます。","ここで まちます。","ここで かいます。"],"Ini pintu masuk."],["この みせは やすいです。",["この みせの ものは たかくないです。","この みせの ものは たかいです。","この みせの ものは おいしいです。","この みせの ものは あたらしいです。"],"Toko ini murah."],["あには けっこんして います。",["あには おくさんが います。","あには ともだちが います。","あには ひとりで すんで います。","あには まだ がくせいです。"],"Kakak laki-laki saya sudah menikah."],["まいばん 10じに ねます。",["よる 10じに ねます。","あさ 10じに ねます。","ひる 10じに ねます。","ごぜん 10じに ねます。"],"Setiap malam saya tidur jam 10."],["あねは だいがくで にほんごを おしえて います。",["あねは だいがくの せんせいです。","あねは だいがくせいです。","あねは にほんごを ならって います。","あねは だいがくで べんきょうして います。"],"Kakak perempuan saya mengajar bahasa Jepang di universitas."],["この こうえんは ひとが おおいです。",["この こうえんは にぎやかです。","この こうえんは しずかです。","この こうえんは ひろいです。","この こうえんは きれいです。"],"Taman ini banyak orang."],["すずきさんは わたしの となりに すんで います。",["すずきさんの うちは わたしの うちの となりです。","すずきさんは わたしの かぞくです。","すずきさんの うちは とおいです。","すずきさんは わたしの へやに います。"],"Suzuki-san tinggal di sebelah saya."],["わたしは ぎゅうにゅうが きらいです。",["わたしは ぎゅうにゅうが すきでは ありません。","わたしは ぎゅうにゅうが だいすきです。","わたしは ぎゅうにゅうを よく のみます。","わたしは ぎゅうにゅうを かいました。"],"Saya tidak suka susu."],["あさって テストが あります。",["ふつかあとに テストが あります。","あした テストが あります。","ふつかまえに テストが ありました。","きのう テストが ありました。"],"Lusa ada tes."],["この へやは しずかです。",["この へやは うるさくないです。","この へやは にぎやかです。","この へやは きたないです。","この へやは せまいです。"],"Kamar ini tenang."],["まいにち いちじかん さんぽします。",["まいにち 60ぷん あるきます。","まいにち 30ぷん あるきます。","まいにち いちじに あるきます。","まいにち 60ぷん はしります。"],"Setiap hari saya jalan-jalan selama satu jam."],["わたしは りょうりが へたです。",["わたしは りょうりが じょうずでは ありません。","わたしは りょうりが じょうずです。","わたしは りょうりが すきです。","わたしは りょうりを しません。"],"Saya tidak pandai memasak."],["やまださんは おととし けっこんしました。",["やまださんは 2ねんまえに けっこんしました。","やまださんは きょねん けっこんしました。","やまださんは 2ねんあとに けっこんします。","やまださんは らいねん けっこんします。"],"Yamada-san menikah dua tahun lalu."]],"gram":[["わたし（　） がくせいです。",["は","を","で","に"],"は menandai topik kalimat: 'Saya (adalah) mahasiswa'."],["まいあさ パン（　） たべます。",["を","が","に","で"],"を menandai objek langsung kata kerja たべます."],["バス（　） がっこうへ いきます。",["で","を","に","が"],"で menandai alat/sarana: naik bus."],["にちようびに ともだち（　） えいがを みました。",["と","を","で","が"],"と berarti 'bersama' seseorang."],["つくえの うえ（　） ほんが あります。",["に","で","を","へ"],"に menandai tempat keberadaan dengan あります/います."],["としょかん（　） べんきょうします。",["で","に","を","が"],"で menandai tempat terjadinya kegiatan."],["わたしは すし（　） すきです。",["が","を","で","に"],"すき memakai が untuk hal yang disukai."],["これは わたし（　） かさです。",["の","が","に","と"],"の menyatakan kepemilikan: payung saya."],["3じ（　） 5じまで はたらきます。",["から","まで","に","で"],"〜から〜まで = dari ... sampai ..."],["うちから えき（　） あるいて 10ぷんです。",["まで","から","に","を"],"から〜まで: dari rumah sampai stasiun."],["あした どこ（　） いきますか。",["へ","を","で","が"],"へ menandai arah tujuan pergi."],["これは なんです（　）。",["か","よ","ね","を"],"か di akhir kalimat membuat kalimat tanya."],["やまださんは がくせいです。たなかさん（　） がくせいです。",["も","は","が","を"],"も berarti 'juga'."],["コーヒーと こうちゃと、どちら（　） すきですか。",["が","を","に","で"],"Pola 〜と〜と どちらが〜ですか untuk membandingkan dua hal."],["ここ（　） たばこを すわないで ください。",["で","に","を","が"],"で menandai tempat kegiatan (merokok)."],["きのうは とても （　）。",["さむかったです","さむいでした","さむくでした","さむいだった"],"Bentuk lampau kata sifat -i: さむい → さむかったです."],["この へやは （　） ひろいです。",["しずかで","しずかくて","しずかな","しずかに"],"Menyambung kata sifat -na dengan で: しずかで ひろい."],["デパートへ くつを （　） いきます。",["かいに","かって","かう","かった"],"Pola [stem ます]+に いきます = pergi untuk melakukan sesuatu."],["まどを （　） ください。",["あけて","あけた","あける","あけ"],"〜てください untuk meminta: tolong buka."],["ここに なまえを （　） ください。",["かかないで","かかなくて","かきないで","かかない"],"〜ないでください = tolong jangan ..."],["ごはんを （　）、はを みがきます。",["たべてから","たべたから","たべるから","たべから"],"〜てから = setelah melakukan ..."],["ねる （　）、シャワーを あびます。",["まえに","あとで","ながら","だけ"],"[kata kerja kamus]+まえに = sebelum ..."],["しゅくだいを （　）、テレビを みます。",["した あとで","する あとで","して あとで","したの あとで"],"[bentuk た]+あとで = setelah ..."],["わたしは あたらしい くつが （　）。",["ほしいです","ほしがります","ほしくです","ほしいだ"],"ほしいです = ingin (memiliki) sesuatu."],["らいねん にほんへ （　）。",["いきたいです","いきたです","いくたいです","いったいです"],"[stem ます]+たいです = ingin melakukan."],["いま あめが （　）。",["ふって います","ふりて います","ふって あります","ふるて います"],"〜ています menyatakan sedang berlangsung: sedang hujan."],["いっしょに ひるごはんを （　）。",["たべませんか","たべませんでしたか","たべなかったか","たべないでか"],"〜ませんか untuk mengajak."],["へやを （　） しました。",["きれいに","きれいで","きれいな","きれいく"],"Kata sifat -na + に + する = membuat jadi ..."],["この りんごは （　）です。",["おいしくない","おいしいない","おいしくなく","おいしではない"],"Negatif kata sifat -i: おいしい → おいしくない."],["きょうは あついです（　）、あしたは さむいです。",["が","から","と","も"],"が di sini berarti 'tetapi'."],["あめが ふって います（　）、かさを もって いきます。",["から","が","まで","と"],"から di sini berarti 'karena'."],["バス（　） でんしゃの ほうが はやいです。",["より","ほど","から","まで"],"〜より〜のほうが = ... lebih ... daripada ..."],["くだもの（　） なかで なにが いちばん すきですか。",["の","に","で","と"],"〜のなかで〜がいちばん = di antara ..., yang paling ..."],["「この ケーキ、（　）でしたか。」「おいしかったです。」",["どう","どこ","だれ","いつ"],"どう = bagaimana; ditanya rasanya."],["「（　）と いきましたか。」「ともだちと いきました。」",["だれ","どこ","なに","いつ"],"だれ = siapa; jawabannya orang (teman)."],["「（　） にほんへ きましたか。」「きょねん きました。」",["いつ","どこ","どう","なぜ"],"いつ = kapan; jawabannya waktu."],["「この かばんは （　）ですか。」「3000えんです。」",["いくら","いくつ","どれ","どの"],"いくら = berapa harganya."],["「ごかぞくは （　）ですか。」「4にんです。」",["なんにん","なんさい","なんじ","なんぼん"],"なんにん = berapa orang."],["でんしゃに （　）、かいしゃへ いきます。",["のって","のりて","のんで","のて"],"Bentuk て dari のる adalah のって."],["ともだち（　） でんわを かけます。",["に","を","で","が"],"に menandai tujuan/penerima telepon."],["わたしは まだ ひるごはんを （　）。",["たべて いません","たべました","たべて います","たべたいです"],"まだ〜ていません = belum ..."],["「この ペンは （　）ですか。」「やまださんのです。」",["だれの","だれが","だれに","だれを"],"だれの = milik siapa."],["いもうとは え（　） じょうずです。",["が","を","に","で"],"じょうず memakai が: pandai menggambar."],["わたしは にほんご（　） すこし わかります。",["が","を","に","で"],"わかります memakai が."],["にほん（　） ともだちが います。",["に","で","を","へ"],"に menandai tempat keberadaan dengan います."],["まいあさ 7じに いえ（　） でます。",["を","に","で","が"],"を dengan でる menandai tempat yang ditinggalkan."],["9じに かいしゃ（　） つきました。",["に","を","で","と"],"つく memakai に untuk tempat tujuan."],["あかいの（　） しろいのと、どちらが いいですか。",["と","や","も","か"],"Pola 〜と〜と、どちらが untuk membandingkan."]],"star":[["わたしは",["きのう","ともだちと","えいがを","みに"],"いきました。","Kemarin saya pergi menonton film dengan teman."],["あの",["あかい","かばんを","もって","いる"],"ひとは だれですか。","Siapa orang yang membawa tas merah itu?"],["",["つくえの","うえに","ほんが","3さつ"],"あります。","Di atas meja ada 3 buku."],["わたしは",["まいあさ","パンと","たまごを","たべて"],"から、かいしゃへ いきます。","Setiap pagi saya makan roti dan telur, lalu ke kantor."],["これは",["きのう","デパートで","かった","ぼうし"],"です。","Ini topi yang saya beli kemarin di department store."],["",["しゅうまつ","こうえんへ","さんぽに","いき"],"ました。","Akhir pekan saya pergi jalan-jalan ke taman."],["やまださんは",["わたしより","せが","すこし","たかい"],"です。","Yamada-san sedikit lebih tinggi dari saya."],["",["この","みちを","まっすぐ","いって"],"ください。","Silakan jalan lurus di jalan ini."],["わたしの",["へやは","この","たてものの","3がい"],"です。","Kamar saya ada di lantai 3 gedung ini."],["あした",["ともだちが","うちへ","あそびに","きます"],"。","Besok teman datang main ke rumah."],["",["にほんごの","しゅくだいを","してから","ねます"],"。","Saya tidur setelah mengerjakan PR bahasa Jepang."],["いもうとは",["まいばん","9じに","おふろに","はいって"],"ねます。","Adik perempuan saya mandi berendam jam 9 setiap malam lalu tidur."],["",["えきの","まえに","おおきい","ほんやが"],"あります。","Di depan stasiun ada toko buku besar."],["その",["しろい","ねこは","となりの","うちの"],"ねこです。","Kucing putih itu kucing rumah sebelah."],["わたしは",["コーヒーに","さとうを","たくさん","いれて"],"のみます。","Saya minum kopi dengan banyak gula."],["",["きょうは","あたまが","いたい","ですから"],"はやく ねます。","Hari ini kepala sakit, jadi saya tidur cepat."],["",["だいがくの","ちかくに","あたらしい","レストランが"],"できました。","Ada restoran baru di dekat kampus."],["わたしは",["あねに","にほんの","おかしを","おくりました"],"。","Saya mengirim kue Jepang kepada kakak perempuan."]],"read":[["わたしは まいあさ 6じに おきます。それから こうえんを 30ぷん さんぽします。うちに かえって、シャワーを あびてから、あさごはんを たべます。8じに うちを でて、でんしゃで かいしゃへ いきます。","この ひとは さんぽの あとで、まず なにを しますか。",["シャワーを あびます。","あさごはんを たべます。","でんしゃに のります。","こうえんを はしります。"],"Setelah jalan-jalan, ia pulang lalu mandi shower dulu, baru sarapan."],["たなかさん\nきょう 3じに やまださんから でんわが ありました。あしたの かいぎは 10じからでは なくて、11じからに なりました。かいぎの まえに、やまださんに メールを して ください。\nすずき","たなかさんは あした かいぎの まえに なにを しますか。",["やまださんに メールを します。","やまださんに でんわを します。","すずきさんに メールを します。","10じに かいぎに でます。"],"Memo meminta Tanaka mengirim email ke Yamada sebelum rapat (rapat jadi jam 11)."],["わたしの かぞくは 4にんです。ちちと ははと あにと わたしです。あには とうきょうの だいがくで べんきょうして いますから、いま いっしょに すんで いません。なつやすみに うちへ かえって きます。","いま この ひとの うちには なんにん すんで いますか。",["3にん","2にん","4にん","5にん"],"Keluarga 4 orang, tapi kakak tinggal di Tokyo, jadi di rumah sekarang 3 orang."],["としょかんの おしらせ\n・あさ 9じから よる 7じまでです。\n・げつようびは やすみです。\n・ほんは ひとり 5さつまで、2しゅうかん かします。","どれが ただしいですか。",["かようびの ごご 2じに ほんを 3さつ かります。","げつようびの あさ 10じに ほんを かります。","すいようびの よる 8じに ほんを かります。","きんようびに ほんを 6さつ かります。"],"Senin tutup, buka 9:00–19:00, maksimal 5 buku. Hanya Selasa jam 2 siang, 3 buku yang sesuai."],["きのうは ともだちの たんじょうびでした。わたしは デパートで セーターを かいました。ともだちは あおい いろが すきですが、あおい セーターは ありませんでしたから、あかい セーターを かいました。ともだちは「ありがとう。とても きれいですね。」と いいました。","わたしは ともだちに なにを あげましたか。",["あかい セーター","あおい セーター","あおい ぼうし","あかい ぼうし"],"Sweter biru tidak ada, jadi ia membeli sweter merah."],["わたしは にほんごを べんきょうして います。ひらがなと カタカナは もう よめますが、かんじは まだ むずかしいです。ですから、まいにち かんじを 5つ おぼえます。","この ひとは まいにち なにを しますか。",["かんじを 5つ おぼえます。","ひらがなを べんきょうします。","カタカナを かきます。","にほんの ほんを よみます。"],"Hiragana dan katakana sudah bisa dibaca; setiap hari ia menghafal 5 kanji."],["リーさん\nあしたの パーティーは 6じからです。わたしの うちは えきから あるいて 5ふんです。えきに ついたら、でんわを ください。むかえに いきます。\nキム","リーさんは えきに ついたら、なにを しますか。",["キムさんに でんわを します。","キムさんの うちへ あるいて いきます。","パーティーへ いきます。","5ふん まちます。"],"Kim meminta Li menelepon saat tiba di stasiun, lalu Kim akan menjemput."],["わたしは きのう ともだちと やまに のぼりました。あさは はれて いましたが、ひるごろから くもって、ゆうがた あめが ふりました。やまの うえは とても さむかったです。","きのうの てんきは どうでしたか。",["はれ → くもり → あめ","あめ → くもり → はれ","くもり → はれ → あめ","はれ → あめ → くもり"],"Pagi cerah, siang mendung, sore hujan."]],"qr":[["おさきに しつれいします。",["おつかれさまでした。","いってらっしゃい。","おかえりなさい。"],"'Saya pulang duluan' dijawab 'Terima kasih atas kerja kerasnya'."],["おげんきですか。",["はい、げんきです。","はい、そうです。","いいえ、どういたしまして。"],"'Apa kabar?' dijawab 'Ya, baik'."],["この ペン、かりても いいですか。",["はい、どうぞ。","はい、かります。","いいえ、ありがとう。"],"Ditanya boleh pinjam pena, jawab 'Silakan'."],["ありがとうございました。",["どういたしまして。","いただきます。","ごちそうさまでした。"],"Terima kasih dijawab 'Sama-sama'."],["すみません、いま なんじですか。",["3じはんです。","3じかんです。","3かいです。"],"Ditanya jam berapa, jawab waktunya."],["いっしょに ひるごはんを たべませんか。",["ええ、たべましょう。","はい、たべました。","いいえ、たべませんでした。"],"Ajakan makan siang dijawab 'Ayo makan'."],["その かばん、すてきですね。",["ありがとうございます。","いいえ、どういたしまして。","はい、ください。"],"Dipuji tasnya, jawab terima kasih."],["どこから きましたか。",["インドネシアから きました。","きのう きました。","ひこうきで きました。"],"Ditanya dari mana, jawab asal negara."],["これ、いくらですか。",["500えんです。","5こです。","5まいです。"],"Ditanya harga, jawab dengan yen."],["いってきます。",["いってらっしゃい。","ただいま。","いらっしゃいませ。"],"'Saya berangkat' dijawab 'Hati-hati di jalan'."],["ただいま。",["おかえりなさい。","いってらっしゃい。","はじめまして。"],"'Saya pulang' dijawab 'Selamat datang kembali'."],["しゅうまつは なにを しましたか。",["こうえんで テニスを しました。","こうえんで テニスを します。","こうえんで テニスを しましょう。"],"Pertanyaan bentuk lampau dijawab bentuk lampau."],["コーヒーと こうちゃと、どちらが いいですか。",["こうちゃを おねがいします。","はい、そうです。","いいえ、ちがいます。"],"Ditawari pilihan, sebutkan salah satunya."],["だれと いきますか。",["あにと いきます。","バスで いきます。","3じに いきます。"],"だれと = dengan siapa."],["はじめまして。たなかです。",["はじめまして。リーです。よろしく おねがいします。","おかげさまで。","いってきます。"],"Perkenalan dijawab perkenalan juga."],["あしたの パーティー、きますか。",["はい、いきます。","はい、きました。","はい、あります。"],"Ditanya datang atau tidak besok, jawab 'Ya, saya pergi'."],["おなかが すきましたね。",["そうですね。なにか たべましょう。","いいえ、ごちそうさまでした。","はい、いただきます。"],"Diajak bicara soal lapar, ajak makan."],["すみません、トイレは どこですか。",["あそこです。","3かいです。","はい、そうです。"],"Ditanya letak toilet, tunjukkan tempatnya."]],"task":[["おとこの ひとと おんなの ひとが はなして います。",[["m","すみません、りんごを みっつ ください。"],["f","はい。みかんは いかがですか。きょうは やすいですよ。"],["m","じゃあ、みかんも いつつ ください。"]],"おとこの ひとは なにを かいますか。",["りんご 3つ と みかん 5つ","りんご 5つ と みかん 3つ","りんご 3つ だけ","みかん 5つ だけ"],"Ia minta 3 apel, lalu menambah 5 jeruk."],["おとこの ひとと おんなの ひとが はなして います。",[["f","あしたの えいがは なんじからですか。"],["m","2じからです。えきで 1じはんに あいましょう。"],["f","すみません、ごぜんちゅう しごとが ありますから、1じ45ふんでも いいですか。"],["m","いいですよ。"]],"おんなの ひとは あした なんじに えきへ いきますか。",["1じ45ふん","1じはん","1じ","2じ"],"Wanita minta bertemu jam 1:45 dan pria setuju."],["おとこの ひとと おんなの ひとが はなして います。",[["m","あしたは どこで あいましょうか。えきの まえは どうですか。"],["f","えきの まえは ひとが おおいですから、えきの となりの きっさてんは どうですか。"],["m","いいですね。そう しましょう。"]],"ふたりは どこで あいますか。",["えきの となりの きっさてん","えきの まえ","えきの なか","きっさてんの まえ"],"Mereka sepakat bertemu di kafe sebelah stasiun."],["おとこの ひとと おんなの ひとが はなして います。",[["m","きのうは なにを しましたか。"],["f","ひるまで うちで そうじを して、ごごは ともだちと かいものに いきました。"],["m","えいがは みませんでしたか。"],["f","ええ、えいがは らいしゅう みます。"]],"おんなの ひとは きのう なにを しましたか。",["そうじと かいもの","そうじと えいが","かいものと えいが","えいがだけ"],"Ia bersih-bersih lalu belanja; film baru minggu depan."],["おんなの ひとと おとこの ひとが はなして います。",[["f","まいにち でんしゃで かいしゃへ いきますか。"],["m","いいえ、まえは でんしゃでしたが、いまは じてんしゃで いきます。"],["f","そうですか。たいへんですね。"],["m","いいえ、20ぷんぐらいですから。"]],"おとこの ひとは いま なんで かいしゃへ いきますか。",["じてんしゃ","でんしゃ","バス","あるいて"],"Dulu kereta, sekarang sepeda."],["おとこの ひとと おんなの ひとが はなして います。",[["m","やまださんの へやは なんがいですか。"],["f","3がいです。エレベーターの まえの へやです。"],["m","まどが おおきい へやですか。"],["f","いいえ、それは となりの へやです。"]],"やまださんの へやは どれですか。",["3がいの エレベーターの まえの へや","2がいの エレベーターの まえの へや","3がいの まどが おおきい へや","2がいの まどが おおきい へや"],"Lantai 3 di depan lift; kamar berjendela besar itu kamar sebelahnya."],["おんなの ひとと おとこの ひとが はなして います。",[["f","すみません、ゆうびんきょくは どこですか。"],["m","この みちを まっすぐ いって、ふたつめの かどを みぎに まがって ください。"],["f","ふたつめの かどを みぎですね。"],["m","はい。ぎんこうの となりですよ。"]],"ゆうびんきょくは どこですか。",["ふたつめの かどを みぎに まがって、ぎんこうの となり","ひとつめの かどを みぎに まがって、ぎんこうの となり","ふたつめの かどを ひだりに まがって、ぎんこうの まえ","まっすぐ いって、ぎんこうの まえ"],"Lurus, belok kanan di tikungan kedua, sebelah bank."],["せんせいが がくせいに はなして います。",[["f","あしたは テストです。ノートと えんぴつを もって きて ください。じしょは いりません。けしゴムも わすれないで ください。"]],"がくせいは あした なにを もって いきますか。",["ノートと えんぴつと けしゴム","ノートと えんぴつと じしょ","えんぴつと じしょと けしゴム","ノートと じしょ"],"Bawa buku catatan, pensil, penghapus; kamus tidak perlu."]]};
+const EXAM_SECS = {
+  moji:   {jp:'げんごちしき（もじ・ごい）', id:'Pengetahuan Bahasa: Huruf & Kosakata', min:20},
+  bunpo:  {jp:'げんごちしき（ぶんぽう）・どっかい', id:'Pengetahuan Bahasa: Tata Bahasa & Membaca', min:40},
+  choukai:{jp:'ちょうかい', id:'Mendengarkan', min:30},
+};
+const EXAM_PARTS = {
+  kanji:{sec:'moji',  n:7, label:'もんだい1', jp:'＿＿の ことばは ひらがなで どう かきますか。', id:'Bagaimana kata bergaris bawah ditulis dengan hiragana?'},
+  hyoki:{sec:'moji',  n:5, label:'もんだい2', jp:'＿＿の ことばは どう かきますか。', id:'Bagaimana kata bergaris bawah ditulis (kanji/katakana)?'},
+  ctx:  {sec:'moji',  n:6, label:'もんだい3', jp:'（　）に なにが はいりますか。', id:'Kata apa yang tepat untuk mengisi (　)?'},
+  para: {sec:'moji',  n:3, label:'もんだい4', jp:'＿＿の ぶんと だいたい おなじ いみの ぶんが あります。', id:'Pilih kalimat yang artinya kurang lebih sama.'},
+  gram: {sec:'bunpo', n:9, label:'もんだい1', jp:'（　）に なにを いれますか。', id:'Apa yang tepat untuk mengisi (　)?'},
+  star: {sec:'bunpo', n:4, label:'もんだい2', jp:'★に はいる ものは どれですか。', id:'Susun kalimat; kata apa yang masuk di posisi ★?'},
+  read: {sec:'bunpo', n:3, label:'もんだい4', jp:'ぶんしょうを よんで、しつもんに こたえて ください。', id:'Baca teks, lalu jawab pertanyaannya.'},
+  task: {sec:'choukai', n:4, label:'もんだい1・2', jp:'はなしを きいて、ただしい こたえを えらんで ください。', id:'Dengarkan percakapan, lalu pilih jawaban yang benar.'},
+  qr:   {sec:'choukai', n:5, label:'もんだい4', jp:'ぶんを きいて、ただしい へんじを えらんで ください。', id:'Dengarkan kalimat, lalu pilih tanggapan yang tepat.'},
+};
+const DAKU={'か':'が','き':'ぎ','く':'ぐ','け':'げ','こ':'ご','さ':'ざ','し':'じ','す':'ず','せ':'ぜ','そ':'ぞ','た':'だ','ち':'ぢ','つ':'づ','て':'で','と':'ど','は':'ば','ひ':'び','ふ':'ぶ','へ':'べ','ほ':'ぼ'};
+const GOJU=['あいうえお','かきくけこ','がぎぐげご','さしすせそ','ざじずぜぞ','たちつてと','だぢづでど','なにぬねの','はひふへほ','ばびぶべぼ','ぱぴぷぺぽ','まみむめも','や・ゆ・よ','らりるれろ'];
+const UNDAKU=Object.fromEntries(Object.entries(DAKU).map(([a,b])=>[b,a]));
+const LOOK={'毎':'海母','朝':'期','山':'出','右':'石左','先':'生光','週':'過','白':'百自日','午':'牛年','後':'役','北':'化比','雨':'両','父':'交','来':'米未','年':'午','下':'不上','水':'氷木','電':'雷','話':'語読','安':'女案','日':'目白','外':'夕','名':'各','前':'茄','車':'東','六':'穴','千':'干十','円':'丹','東':'車束','新':'親','会':'合今','社':'祉','高':'京','開':'閉間','母':'毎','大':'太犬','学':'字','中':'申','休':'体','川':'州','花':'化','九':'丸力','時':'持','天':'夫','気':'汽','飲':'飯','書':'昼','校':'交','魚':'角','長':'張','読':'続','百':'白','左':'右在','今':'会','月':'目','少':'小','入':'人八','空':'究','古':'右','四':'西','半':'羊','金':'全','南':'内','聞':'間問','小':'少','二':'三','人':'入','何':'可','駅':'験','銀':'鉄','国':'固','分':'今'};
+const KSIM={'シ':'ツ','ツ':'シ','ソ':'ン','ン':'ソ','ク':'ワ','ワ':'ク','ヌ':'ス','ス':'ヌ','ル':'レ','レ':'ル','チ':'テ','テ':'チ','メ':'ナ','ナ':'メ','ホ':'ネ','コ':'ユ'};
+const uniq3 = (ans, cands, fill) => {
+  const out=[], seen=new Set([ans]);
+  for(const c of shuffle(cands)) if(c && !seen.has(c)){ seen.add(c); out.push(c); if(out.length===3) return out; }
+  for(const c of shuffle(fill)) if(c && !seen.has(c)){ seen.add(c); out.push(c); if(out.length===3) break; }
+  return out;
+};
+function kanaVariants(r){
+  const ch=[...r], out=new Set(), put=(i,del,ins)=>out.add(ch.slice(0,i).join('')+ins+ch.slice(i+del).join(''));
+  ch.forEach((c,i)=>{
+    if(DAKU[c]) put(i,1,DAKU[c]);
+    if(UNDAKU[c]) put(i,1,UNDAKU[c]);
+    if(c==='っ') put(i,1,'');
+    if(c==='う' && i>0 && /[おこそとのほもよろごぞどぼぽょゅうくすつぬふむゆるぐずづぶぷ]/.test(ch[i-1])) put(i,1,'');
+    if(c==='い' && i>0 && /[えけせてねへめれげぜでべ]/.test(ch[i-1])) put(i,1,'');
+    if(c==='ょ') put(i,1,'よ'); if(c==='ゅ') put(i,1,'ゆ'); if(c==='ゃ') put(i,1,'や');
+    if(/[おこそとのほもよろごぞどぼょ]/.test(c) && ch[i+1]!=='う') put(i+1,0,'う');
+    if(i>0 && /[かきくけこさしすせそたちつてとぱぴぷぺぽ]/.test(c) && !/[っんー]/.test(ch[i-1])) put(i,0,'っ');
+  });
+  if(out.size<6) ch.forEach((c,i)=>{ const row=GOJU.find(x=>x.includes(c)); if(row) for(const y of row) if(y!==c && y!=='・' && Math.random()<.5) put(i,1,y); });
+  out.delete(r); return [...out];
+}
+function kanjiVariants(k){
+  const ch=[...k], out=new Set();
+  ch.forEach((c,i)=>{ for(const x of (LOOK[c]||'')) out.add(ch.slice(0,i).join('')+x+ch.slice(i+1).join('')); });
+  out.delete(k); return [...out];
+}
+function kataVariants(k){
+  const ch=[...k], out=new Set(), put=(i,del,ins)=>out.add(ch.slice(0,i).join('')+ins+ch.slice(i+del).join(''));
+  ch.forEach((c,i)=>{
+    if(KSIM[c]) put(i,1,KSIM[c]);
+    const h=toHira(c); if(DAKU[h]) put(i,1,toKata(DAKU[h])); if(UNDAKU[h]) put(i,1,toKata(UNDAKU[h]));
+    if(c==='ー') put(i,1,''); if(c==='ッ') put(i,1,'');
+    if(i>0 && i<ch.length && /[ア-ン]/.test(c) && ch[i-1]!=='ー' && ch[i-1]!=='ッ' && Math.random()<.5) put(i,0,'ー');
+  });
+  out.delete(k); return [...out];
+}
+const uline = s => esc(s).replace(/【(.+?)】/g,'<u>$1</u>');
+const hideU = (s,rep) => esc(s).replace(/【(.+?)】/, `<u>${esc(rep)}</u>`);
+
+function buildQ(part, x){
+  const p=EXAM_PARTS[part], base={part, sec:p.sec};
+  if(part==='kanji'){
+    const [s,k,r,arti,tr]=x, wrong=uniq3(r, kanaVariants(r), EXB.kanji.map(y=>y[2]));
+    return {...base, prompt:`<p class="exs">${uline(s)}</p>`, opts:[r,...wrong], expl:`${k} dibaca ${r} (${arti}). ${tr}`};
+  }
+  if(part==='hyoki'){
+    if(x.length===4){ const [s,k,arti,tr]=x, wrong=uniq3(k, kataVariants(k), EXB.kata.map(y=>y[1]));
+      return {...base, prompt:`<p class="exs">${hideU(s,toHira(k))}</p>`, opts:[k,...wrong], expl:`${toHira(k)} ditulis ${k} (${arti}). ${tr}`}; }
+    const [s,k,r,arti,tr]=x, wrong=uniq3(k, kanjiVariants(k), EXB.kanji.map(y=>y[1]));
+    return {...base, prompt:`<p class="exs">${hideU(s,r)}</p>`, opts:[k,...wrong], expl:`${r} ditulis ${k} (${arti}). ${tr}`};
+  }
+  if(part==='ctx' || part==='gram'){
+    const [s,o,e]=x;
+    return {...base, prompt:`<p class="exs">${esc(s)}</p>`, opts:o.slice(), expl:part==='ctx'?`Jawaban: ${o[0]}. ${e}`:`Jawaban: ${o[0]}. ${e}`};
+  }
+  if(part==='para'){
+    const [s,o,tr]=x;
+    return {...base, prompt:`<p class="exs"><u>${esc(s)}</u></p>`, opts:o.slice(), expl:`"${tr}" Kalimat yang sama artinya: ${o[0]}`};
+  }
+  if(part==='star'){
+    const [pre,pcs,suf,tr]=x, star=2;
+    const blanks=pcs.map((_,i)=>i===star?'<span class="bl st">★</span>':'<span class="bl"></span>').join('');
+    return {...base, prompt:`<p class="exs">${esc(pre)} ${blanks} ${esc(suf)}</p>`, opts:[pcs[star],...pcs.filter((_,i)=>i!==star)], expl:`Urutan benar: ${pre} ${pcs.join(' ')} ${suf} — ${tr}`};
+  }
+  if(part==='read'){
+    const [txt,q,o,e]=x;
+    return {...base, prompt:`<div class="expass">${esc(txt).replace(/\n/g,'<br>')}</div><p class="exs">${esc(q)}</p>`, opts:o.slice(), expl:e};
+  }
+  if(part==='qr'){
+    const [line,o,e]=x;
+    return {...base, audio:[['f',line]], prompt:`<p class="exs">🎧 Dengarkan kalimatnya, lalu pilih tanggapan yang tepat.</p>`, script:line, opts:o.slice(), expl:e};
+  }
+  if(part==='task'){
+    const [intro,lines,q,o,e]=x;
+    return {...base, audio:[['n',intro],['n',q],...lines,['n',q]], prompt:`<p class="exs">🎧 ${esc(q)}</p>`, script:lines.map(([s,t])=>(s==='m'?'Pria: ':s==='f'?'Wanita: ':'')+t).join('\n'), opts:o.slice(), expl:e};
+  }
+}
+function makeExam(only){
+  const map={kanji:EXB.kanji, hyoki:[...EXB.kanji,...EXB.kata,...EXB.kata], ctx:EXB.ctx, para:EXB.para, gram:EXB.gram, star:EXB.star, read:EXB.read, task:EXB.task, qr:EXB.qr};
+  const items=[]; let usedK=new Set();
+  for(const part of Object.keys(EXAM_PARTS)){
+    if(only && EXAM_PARTS[part].sec!==only) continue;
+    let pool=shuffle(map[part]);
+    if(part==='hyoki') pool=pool.filter(x=>!usedK.has(x[1]));
+    const pick=[]; for(const x of pool){ if(pick.length>=EXAM_PARTS[part].n) break; if(pick.some(y=>y[1]===x[1]&&part==='hyoki')) continue; pick.push(x); }
+    if(part==='kanji') pick.forEach(x=>usedK.add(x[1]));
+    for(const x of pick){
+      const q=buildQ(part,x), correct=q.opts[0], order=shuffle(q.opts);
+      q.opts=order; q.ans=order.indexOf(correct); items.push(q);
+    }
+  }
+  return items;
+}
+
+let EX=null;
+function exHome(){
+  stopRec(); VIEW='exam'; setNav(false); foot.hidden=true; exfoot.hidden=true; clearInterval(exTimer);
+  const hist=store.get('exhist',[]);
+  app.innerHTML = `
+    <button class="back" id="back">‹ Kembali</button>
+    <div style="display:flex;gap:14px;align-items:center;--c:var(--n5)"><span class="badge jp">試</span><div><h1>Simulasi JLPT N5</h1><span class="num">Soal diacak setiap kali mulai</span></div></div>
+    <div class="panel">
+      <p class="sub" style="color:var(--ink)">Formatnya mengikuti ujian JLPT N5: tiga bagian, soal pilihan ganda, dan jawaban tidak langsung dinilai. Nilai dan pembahasan muncul setelah kamu menekan <b>Selesai</b>.</p>
+      ${Object.entries(EXAM_SECS).map(([k,s])=>{const n=Object.values(EXAM_PARTS).filter(p=>p.sec===k).reduce((a,p)=>a+p.n,0);return `<div class="exrow"><div><b>${s.jp}</b><span class="num">${s.id} · ${n} soal · waktu asli ±${s.min} menit</span></div><button class="btn ghost sm" data-only="${k}">Latih bagian ini</button></div>`}).join('')}
+    </div>
+    <button class="btn" id="exstart">Mulai simulasi lengkap (${Object.values(EXAM_PARTS).reduce((a,p)=>a+p.n,0)} soal)</button>
+    ${hist.length?`<div class="panel"><label class="lbl">RIWAYAT TERAKHIR</label>${hist.slice(0,5).map(h=>`<div class="exrow"><span>${esc(h.date)} · ${esc(h.label)}</span><b>${h.pct}%${h.score!=null?` · ${h.score}/180 ${h.pass?'✅':'❌'}`:''}</b></div>`).join('')}</div>`:''}
+    <p class="num">Soal dibuat sendiri dengan format yang meniru JLPT, bukan soal resmi. Untuk contoh soal resmi, lihat situs jlpt.jp. Bagian mendengarkan memakai suara bawaan HP.</p>`;
+  app.querySelector('#back').onclick=()=>go('home');
+  app.querySelector('#exstart').onclick=()=>exStart(null);
+  app.querySelectorAll('[data-only]').forEach(b=>b.onclick=()=>exStart(b.dataset.only));
+  window.scrollTo(0,0);
+}
+let exTimer=null;
+function exStart(only){
+  EX={items:makeExam(only), answers:[], idx:0, start:Date.now(), only};
+  VIEW='examq'; exQ();
+  clearInterval(exTimer); exTimer=setInterval(()=>{ const t=document.getElementById('extime'); if(t) t.textContent=fmtTime(Date.now()-EX.start); },1000);
+}
+const fmtTime = ms => { const s=Math.floor(ms/1000); return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0'); };
+function playAudio(lines){
+  try{
+    if(!('speechSynthesis' in window)) return;
+    speechSynthesis.cancel();
+    const v=speechSynthesis.getVoices().filter(v=>/ja/i.test(v.lang));
+    for(const [s,t] of lines){
+      const u=new SpeechSynthesisUtterance(t); u.lang='ja-JP'; u.rate=.9;
+      u.pitch = s==='m'?0.75 : s==='f'?1.3 : 1;
+      if(v.length) u.voice = v[s==='m'&&v.length>1?1:0];
+      speechSynthesis.speak(u);
+    }
+  }catch(e){}
+}
+function exQ(){
+  const q=EX.items[EX.idx], p=EXAM_PARTS[q.part], n=EX.items.length;
+  const prevPart = EX.idx>0 && EX.items[EX.idx-1].part===q.part;
+  app.innerHTML = `
+    <div class="top"><button class="x" id="exquit" aria-label="Keluar">✕</button><div class="bar"><i style="width:${(EX.answers.filter(a=>a!=null).length)/n*100}%"></i></div><span class="num" id="extime">${fmtTime(Date.now()-EX.start)}</span></div>
+    <div class="exhead"><span class="tag">${EXAM_SECS[q.sec].jp}</span><b>${p.label}</b> <span class="exinstr">${p.jp}</span><span class="num">${p.id}</span></div>
+    <div class="card exq"><span class="num exn">${EX.idx+1} / ${n}</span>
+      ${q.audio?`<button class="bigplay" id="play" aria-label="Putar audio">▶</button>`:''}
+      ${q.prompt}</div>
+    <div class="exopts">${q.opts.map((o,i)=>`<button type="button" class="exopt ${EX.answers[EX.idx]===i?'sel':''}" data-i="${i}"><span class="exnum">${i+1}</span><span>${esc(o)}</span></button>`).join('')}</div>
+    <div class="exconfirm" id="exconfirm" hidden></div>`;
+  exfoot.hidden=false;
+  exfoot.innerHTML=`<div class="in exnav"><button class="btn ghost" id="exprev" ${EX.idx===0?'disabled':''}>‹ Sebelumnya</button>${EX.idx<n-1?`<button class="btn" id="exnext">Berikutnya ›</button>`:`<button class="btn" id="exfin">Selesai</button>`}</div>`;
+  app.querySelectorAll('.exopt').forEach(b=>b.onclick=()=>{ EX.answers[EX.idx]=+b.dataset.i; app.querySelectorAll('.exopt').forEach(x=>x.classList.toggle('sel',x===b)); app.querySelector('.top .bar>i').style.width=(EX.answers.filter(a=>a!=null).length)/n*100+'%'; });
+  const pl=app.querySelector('#play'); if(pl){ pl.onclick=()=>playAudio(q.audio); playAudio(q.audio); }
+  app.querySelector('#exquit').onclick=()=>exConfirm('quit');
+  const pv=exfoot.querySelector('#exprev'); pv.onclick=()=>{ if(EX.idx>0){EX.idx--; exQ();} };
+  const nx=exfoot.querySelector('#exnext'); if(nx) nx.onclick=()=>{ EX.idx++; exQ(); };
+  const fn=exfoot.querySelector('#exfin'); if(fn) fn.onclick=()=>exConfirm('finish');
+  window.scrollTo(0,0);
+}
+function exConfirm(kind){
+  const box=app.querySelector('#exconfirm'), n=EX.items.length, done=EX.answers.filter(a=>a!=null).length;
+  box.hidden=false;
+  box.innerHTML = kind==='quit'
+    ? `<b>Keluar dari simulasi?</b><span>Jawabanmu tidak akan disimpan.</span><div class="row"><button class="btn ghost sm" id="cno">Lanjut mengerjakan</button><button class="btn sm" id="cyes">Keluar</button></div>`
+    : `<b>Selesaikan simulasi?</b><span>${done<n?`Masih ada ${n-done} soal yang belum dijawab (dihitung salah).`:'Semua soal sudah dijawab.'}</span>
+       ${done<n?`<div class="exgrid">${EX.items.map((_,i)=>`<button class="${EX.answers[i]==null?'':'ok'}" data-go="${i}">${i+1}</button>`).join('')}</div>`:''}
+       <div class="row"><button class="btn ghost sm" id="cno">Periksa lagi</button><button class="btn sm" id="cyes">Selesai & lihat nilai</button></div>`;
+  box.querySelector('#cno').onclick=()=>{ box.hidden=true; };
+  box.querySelector('#cyes').onclick=()=> kind==='quit' ? exHome() : exResult();
+  box.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{ EX.idx=+b.dataset.go; exQ(); });
+  box.scrollIntoView({block:'center'});
+}
+function exResult(){
+  clearInterval(exTimer); exfoot.hidden=true; try{speechSynthesis.cancel()}catch(e){}
+  const items=EX.items, ok=i=>EX.answers[i]===items[i].ans;
+  const sec={}; items.forEach((q,i)=>{ const s=sec[q.sec]||(sec[q.sec]={c:0,n:0}); s.n++; if(ok(i)) s.c++; });
+  const tot=items.filter((_,i)=>ok(i)).length, percent=Math.round(tot/items.length*100);
+  let score=null, pass=null, A=null, B=null;
+  if(!EX.only){
+    const a=(sec.moji.c+sec.bunpo.c)/(sec.moji.n+sec.bunpo.n), b=sec.choukai.c/sec.choukai.n;
+    A=Math.round(a*120); B=Math.round(b*60); score=A+B; pass= score>=80 && A>=38 && B>=19;
+  }
+  const label = EX.only ? EXAM_SECS[EX.only].id : 'Simulasi lengkap';
+  const hist=store.get('exhist',[]); const d=new Date();
+  hist.unshift({date:d.toLocaleDateString('id-ID',{day:'numeric',month:'short'})+' '+d.toTimeString().slice(0,5), label, pct:percent, score, pass}); store.set('exhist',hist.slice(0,20));
+  VIEW='examr';
+  app.innerHTML = `
+    <div><div class="eyebrow">Simulasi JLPT N5 · ${esc(label)}</div>
+      <h1>${score!=null?(pass?'Perkiraan: LULUS 🎉':'Perkiraan: belum lulus'):`${tot} / ${items.length} benar`}</h1>
+      <span class="num">Waktu ${fmtTime(Date.now()-EX.start)}</span></div>
+    ${score!=null?`<div class="score"><div><b>${score}</b><span>Total / 180</span></div><div><b>${A}</b><span>Bahasa & Membaca / 120</span></div><div><b>${B}</b><span>Mendengarkan / 60</span></div></div>
+      <p class="sub">Syarat lulus N5: total minimal 80, bagian bahasa & membaca minimal 38, mendengarkan minimal 19. Angka ini perkiraan kasar dari persentase benar; skor JLPT asli memakai skala khusus.</p>`:''}
+    <div class="panel">${Object.entries(sec).map(([k,s])=>`<div class="statrow" style="--c:var(--n5)"><b>${EXAM_SECS[k].id}</b><span class="num">${s.c} / ${s.n}</span><span class="bar"><i style="width:${pct(s.c,s.n)}%"></i></span></div>`).join('')}</div>
+    <div class="row" style="gap:8px"><button class="btn ghost sm" data-f="wrong" aria-pressed="true">Yang salah (${items.length-tot})</button><button class="btn ghost sm" data-f="all" aria-pressed="false">Semua soal</button></div>
+    <div id="exrev"></div>
+    <button class="btn" id="exagain">Simulasi baru (soal diacak)</button>
+    <button class="btn ghost" id="exhome">Kembali</button>`;
+  const render=f=>{
+    app.querySelector('#exrev').innerHTML = items.map((q,i)=>({q,i})).filter(({i})=>f==='all'||!ok(i)).map(({q,i})=>`
+      <div class="panel exrv ${ok(i)?'good':'bad'}">
+        <span class="num">${i+1}. ${EXAM_PARTS[q.part].label} · ${EXAM_SECS[q.sec].id}</span>
+        ${q.prompt.replace(/<button[^>]*>.*?<\/button>/g,'')}
+        ${q.script?`<div class="expass">${esc(q.script).replace(/\n/g,'<br>')}</div><button class="btn ghost sm" data-replay="${i}">▶ Putar lagi</button>`:''}
+        <ol class="exans">${q.opts.map((o,j)=>`<li class="${j===q.ans?'c':''} ${EX.answers[i]===j&&j!==q.ans?'w':''}">${esc(o)}${j===q.ans?' ✓':''}${EX.answers[i]===j&&j!==q.ans?' ✗ (jawabanmu)':''}</li>`).join('')}</ol>
+        ${EX.answers[i]==null?'<span class="num">Tidak dijawab</span>':''}
+        <p class="sub">${esc(q.expl)}</p>
+      </div>`).join('') || '<p class="empty">Tidak ada soal yang salah. すごい！</p>';
+    app.querySelectorAll('[data-replay]').forEach(b=>b.onclick=()=>playAudio(items[+b.dataset.replay].audio));
+  };
+  render('wrong');
+  app.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{ app.querySelectorAll('[data-f]').forEach(x=>x.setAttribute('aria-pressed',x===b)); render(b.dataset.f); });
+  app.querySelector('#exagain').onclick=()=>exStart(EX.only);
+  app.querySelector('#exhome').onclick=()=>exHome();
   window.scrollTo(0,0);
 }
 
