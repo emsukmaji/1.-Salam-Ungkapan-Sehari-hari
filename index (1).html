@@ -1,0 +1,428 @@
+<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="margin:0"><title>Hafalan Aisatsu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700;800&family=Zen+Kaku+Gothic+New:wght@500;700&display=swap">
+<style>
+/* Layout: satu kolom seperti kartu ujian; kartu soal di tengah, bilah umpan balik menempel di bawah */
+:root{
+  --bg:#EDF0F5; --surface:#FFFFFF; --ink:#1B2440; --muted:#5F6782; --line:#D5DAE6;
+  --accent:#D9452B; --accent-ink:#FFFFFF; --good:#23895A; --good-bg:#DDF2E7; --bad:#C43A2A; --bad-bg:#FBE3DF;
+  --chip:#E3E7F0;
+  --f-ui:"M PLUS Rounded 1c", "Hiragino Maru Gothic ProN", "Yu Gothic", system-ui, sans-serif;
+  --f-jp:"Zen Kaku Gothic New", "Hiragino Sans", "Yu Gothic", "Noto Sans JP", sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0F1320; --surface:#191F31; --ink:#E8EBF4; --muted:#9AA2BC; --line:#2B3350;
+  --accent:#F0644A; --accent-ink:#1A0E0B; --good:#4CC48A; --good-bg:#14301F; --bad:#F07562; --bad-bg:#3A1A16; --chip:#242B42; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0F1320; --surface:#191F31; --ink:#E8EBF4; --muted:#9AA2BC; --line:#2B3350;
+  --accent:#F0644A; --accent-ink:#1A0E0B; --good:#4CC48A; --good-bg:#14301F; --bad:#F07562; --bad-bg:#3A1A16; --chip:#242B42; color-scheme:dark}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-ui);font-size:16px;line-height:1.5;margin:0}
+.wrap{max-width:560px;margin:0 auto;padding-inline:16px;padding-block:16px 140px;display:flex;flex-direction:column;gap:16px;min-height:100%}
+h1{font-size:1.6rem;margin:0;font-weight:800;text-wrap:balance;letter-spacing:-.01em}
+.eyebrow{font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:700}
+.sub{color:var(--muted);margin:0}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px;display:flex;flex-direction:column;gap:14px}
+label.lbl{font-size:.8rem;font-weight:700;color:var(--muted);letter-spacing:.04em}
+select{width:100%;font:inherit;padding:12px;border-radius:12px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink)}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.seg button{font:inherit;font-size:.9rem;padding:12px 10px;border-radius:12px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer;text-align:left;line-height:1.3}
+.seg button[aria-pressed="true"]{border-color:var(--accent);background:var(--surface);box-shadow:inset 0 0 0 1px var(--accent)}
+.seg button small{display:block;color:var(--muted);font-size:.75rem}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.toggle{display:flex;align-items:center;gap:8px;font-size:.9rem;cursor:pointer}
+.toggle input{width:20px;height:20px;accent-color:var(--accent)}
+.btn{font:inherit;font-weight:800;font-size:1rem;letter-spacing:.04em;border:0;border-radius:14px;padding:15px 18px;cursor:pointer;background:var(--accent);color:var(--accent-ink);box-shadow:0 4px 0 color-mix(in srgb,var(--accent) 65%,#000);width:100%;text-transform:uppercase}
+.btn:active{transform:translateY(2px);box-shadow:0 2px 0 color-mix(in srgb,var(--accent) 65%,#000)}
+.btn.ghost{background:var(--chip);color:var(--ink);box-shadow:0 4px 0 var(--line)}
+.btn:disabled{opacity:.45;cursor:default}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.mastery{display:flex;flex-direction:column;gap:6px}
+.bar{height:12px;border-radius:99px;background:var(--chip);overflow:hidden}
+.bar>i{display:block;height:100%;background:var(--good);border-radius:99px;transition:width .4s}
+.mastery .num{font-variant-numeric:tabular-nums;font-size:.85rem;color:var(--muted)}
+
+/* game */
+.top{display:flex;align-items:center;gap:12px}
+.x{font:inherit;font-size:1.4rem;line-height:1;background:none;border:0;color:var(--muted);cursor:pointer;padding:6px}
+.top .bar{flex:1;height:16px}
+.top .bar>i{background:var(--accent)}
+.streak{font-weight:800;font-variant-numeric:tabular-nums;color:var(--accent);min-width:3ch;text-align:right}
+.prompt{font-size:1.15rem;font-weight:800;margin:0}
+.card{background:var(--surface);border:1.5px solid var(--line);border-radius:22px;padding:26px 18px;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;position:relative;min-height:170px;justify-content:center}
+.card .big{font-family:var(--f-jp);font-size:2.6rem;font-weight:700;line-height:1.2;word-break:keep-all;overflow-wrap:anywhere}
+.card .big.id{font-family:var(--f-ui);font-size:1.9rem}
+.card .reading{font-family:var(--f-jp);font-size:1.15rem;color:var(--muted)}
+.card .rom{font-size:.9rem;color:var(--muted);font-style:italic}
+.speak{position:absolute;top:10px;right:10px;font:inherit;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);border-radius:12px;padding:6px 10px;cursor:pointer;font-size:.8rem;font-weight:700}
+.tag{font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.opt{font:inherit;background:var(--surface);color:var(--ink);border:1.5px solid var(--line);border-bottom-width:4px;border-radius:16px;padding:14px 10px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;min-height:84px;justify-content:center;text-align:center;min-width:0}
+.opt .j{font-family:var(--f-jp);font-size:1.35rem;font-weight:700;line-height:1.25;overflow-wrap:anywhere}
+.opt .k{font-family:var(--f-jp);font-size:.85rem;color:var(--muted)}
+.opt .r{font-size:.75rem;color:var(--muted);font-style:italic}
+.opt .t{font-size:1rem;font-weight:500;overflow-wrap:anywhere}
+.opt.sel{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 8%,var(--surface))}
+.opt.good{border-color:var(--good);background:var(--good-bg)}
+.opt.bad{border-color:var(--bad);background:var(--bad-bg)}
+.opt:disabled{cursor:default}
+.mic[hidden]{display:none!important}
+.mic{font:inherit;font-weight:800;font-size:1.05rem;display:flex;align-items:center;justify-content:center;gap:12px;width:100%;padding:22px;border-radius:20px;border:2px dashed var(--accent);background:color-mix(in srgb,var(--accent) 8%,var(--surface));color:var(--ink);cursor:pointer}
+.mic .dot{width:22px;height:22px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 6px color-mix(in srgb,var(--accent) 25%,transparent)}
+.mic.on{border-style:solid}
+.mic.on .dot{animation:pulse 1s infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 14px color-mix(in srgb,var(--accent) 10%,transparent)}}
+.heard{margin:0;font-family:var(--f-jp);color:var(--muted);text-align:center}
+.typebox input{width:100%;font:inherit;font-size:1.2rem;padding:16px;border-radius:14px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink)}
+.typebox p{margin:6px 0 0;color:var(--muted);font-size:.8rem}
+
+.foot{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1.5px solid var(--line);padding:14px 16px calc(14px + env(safe-area-inset-bottom, 0px))}
+.foot .in{max-width:528px;margin:0 auto;display:flex;flex-direction:column;gap:10px}
+.foot.good{background:var(--good-bg);border-color:var(--good)}
+.foot.bad{background:var(--bad-bg);border-color:var(--bad)}
+.verdict{display:flex;gap:12px;align-items:center}
+.stamp{flex:none;width:52px;height:52px;border-radius:50%;border:3px solid currentColor;display:grid;place-items:center;font-family:var(--f-jp);font-weight:700;font-size:1rem;transform:rotate(-12deg)}
+.foot.good .verdict{color:var(--good)}
+.foot.bad .verdict{color:var(--bad)}
+.verdict b{display:block;font-size:1.1rem}
+.verdict span{color:var(--ink);font-size:.95rem}
+.verdict span .jp{font-family:var(--f-jp);font-weight:700}
+.foot.good .btn{background:var(--good);box-shadow:0 4px 0 color-mix(in srgb,var(--good) 60%,#000);color:var(--surface)}
+.foot.bad .btn{background:var(--bad);box-shadow:0 4px 0 color-mix(in srgb,var(--bad) 60%,#000);color:var(--surface)}
+@keyframes pop{0%{transform:scale(.4) rotate(-30deg);opacity:0}70%{transform:scale(1.15) rotate(-8deg)}100%{transform:scale(1) rotate(-12deg)}}
+.stamp{animation:pop .35s ease-out}
+@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.shake{animation:shake .25s 2}
+
+/* result */
+.score{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.score div{background:var(--surface);border:1.5px solid var(--line);border-radius:16px;padding:12px;text-align:center}
+.score b{display:block;font-size:1.5rem;font-variant-numeric:tabular-nums}
+.score span{font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:700}
+.review{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.review li{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.review li:last-child{border-bottom:0}
+.review .jp{font-family:var(--f-jp);font-weight:700}
+.review .meta{color:var(--muted);font-size:.8rem}
+.empty{color:var(--muted);margin:0}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="wrap" id="app"></div>
+<div class="foot" id="foot" hidden><div class="in"><div class="verdict" id="verdict"></div><button class="btn" id="next">Lanjut</button></div></div>
+
+<script>
+const DATA = {"secs": ["Salam & Ungkapan"], "words": [["", "おはようございます", "ohayou gozaimasu", "selamat pagi", 0], ["", "こんにちは", "konnichiwa", "selamat siang / halo", 0], ["", "こんばんは", "konbanwa", "selamat malam (sapaan)", 0], ["", "さようなら", "sayounara", "selamat tinggal", 0], ["", "おやすみなさい", "oyasuminasai", "selamat tidur", 0], ["", "ありがとうございます", "arigatou gozaimasu", "terima kasih", 0], ["", "どういたしまして", "dou itashimashite", "sama-sama", 0], ["", "すみません", "sumimasen", "permisi / maaf", 0], ["", "ごめんなさい", "gomennasai", "maaf", 0], ["", "はじめまして", "hajimemashite", "salam kenal", 0], ["", "よろしくおねがいします", "yoroshiku onegai shimasu", "mohon bantuannya / senang berkenalan", 0], ["", "いただきます", "itadakimasu", "selamat makan (sebelum makan)", 0], ["", "ごちそうさまでした", "gochisousama deshita", "terima kasih atas makanannya", 0], ["", "いってきます", "ittekimasu", "saya berangkat", 0], ["", "いってらっしゃい", "itterasshai", "hati-hati di jalan", 0]], "sit": ["Pagi hari, kamu bertemu atasan di kantor.", "Siang hari, kamu menyapa orang yang kamu temui.", "Malam hari, kamu bertemu tetangga di jalan.", "Kamu berpisah dengan teman yang lama tidak akan kamu temui lagi.", "Kamu mau tidur dan pamit ke keluarga.", "Rekan kerja membantumu membawa barang.", "Seseorang berterima kasih karena kamu menolongnya.", "Kamu mau memanggil pelayan di restoran.", "Kamu tidak sengaja menumpahkan minuman temanmu.", "Kamu bertemu seseorang untuk pertama kalinya.", "Kamu baru selesai memperkenalkan diri di kantor baru.", "Makanan sudah di meja dan kamu akan mulai makan.", "Kamu baru selesai makan.", "Kamu keluar rumah untuk berangkat kerja.", "Keluargamu pamit berangkat kerja, kamu menjawab."]};
+const SECS = DATA.secs;
+const W = DATA.words.map((w,i)=>({id:i,kanji:w[0],kana:w[1],rom:w[2],arti:w[3],sec:w[4],sit:DATA.sit[i]}));
+const app = document.getElementById('app');
+const foot = document.getElementById('foot');
+const verdict = document.getElementById('verdict');
+const nextBtn = document.getElementById('next');
+
+const store = {
+  get(k,d){try{const v=localStorage.getItem('aisatsu:'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},
+  set(k,v){try{localStorage.setItem('aisatsu:'+k,JSON.stringify(v))}catch(e){}}
+};
+let settings = Object.assign({sec:'all',mode:'id2jp',len:15,romaji:true,voice:true}, store.get('settings',{}));
+let mastery = store.get('mastery',{}); // id -> jumlah benar beruntun
+
+const esc = s => String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const shuffle = a => {a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+const clean = s => s.replace(/^～/,'');
+const jpMain = w => clean(w.kanji || w.kana);
+
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+let rec=null, micBlocked=false;
+function listen(w){
+  const mic=app.querySelector('#mic'), txt=app.querySelector('#micTxt'), heard=app.querySelector('#heard'), note=app.querySelector('#vnote');
+  if(rec){try{rec.stop()}catch(e){} return;}
+  try{ speechSynthesis.cancel(); }catch(e){}
+  let r; try{ r=new SR(); }catch(e){ return micFail(note,mic); }
+  rec=r; r.lang='ja-JP'; r.interimResults=true; r.maxAlternatives=5; r.continuous=false;
+  mic.classList.add('on'); txt.textContent='Mendengarkan…';
+  let last='';
+  r.onresult=e=>{
+    for(let i=e.resultIndex;i<e.results.length;i++){
+      const res=e.results[i];
+      for(let j=0;j<res.length;j++){
+        if(!answered && matchTyped(res[j].transcript,w)){ heard.hidden=false; heard.textContent='Terdengar: '+res[j].transcript; try{r.stop()}catch(_){} check(true); return; }
+      }
+      last=res[0].transcript;
+    }
+    heard.hidden=false; heard.textContent='Terdengar: '+last;
+  };
+  r.onerror=e=>{ if(e.error==='not-allowed'||e.error==='service-not-allowed'||e.error==='audio-capture') micFail(note,mic); else if(e.error==='no-speech'){ heard.hidden=false; heard.textContent='Tidak terdengar suara. Coba lagi.'; } };
+  r.onend=()=>{ rec=null; if(micBlocked) return; if(mic){mic.classList.remove('on'); txt.textContent='Tekan lalu bicara';}
+    if(!answered && last){ heard.textContent='Terdengar: '+last+' · belum tepat, coba lagi'; app.querySelector('.voicebox')?.classList.add('shake'); setTimeout(()=>app.querySelector('.voicebox')?.classList.remove('shake'),600);} };
+  try{ r.start(); }catch(e){ rec=null; micFail(note,mic); }
+}
+function micFail(note,mic){
+  rec=null; micBlocked=true;
+  if(mic){ mic.classList.remove('on'); mic.hidden=true; }
+  const inp=app.querySelector('#typed'); if(inp) setTimeout(()=>inp.focus(),50);
+  if(note) note.innerHTML='Mikrofon diblokir di halaman ini. Pakai ikon <b>mikrofon di keyboard HP</b> (bahasa Jepang), atau buka file versi Chrome yang dikirim di chat.';
+}
+function speak(w){
+  try{
+    if(!('speechSynthesis' in window)) return;
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(clean(w.kana));
+    u.lang='ja-JP'; u.rate=.85;
+    const v = speechSynthesis.getVoices().find(v=>/ja/i.test(v.lang));
+    if(v) u.voice=v;
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+
+function masteredCount(){return W.filter(w=>(mastery[w.id]||0)>=2).length}
+
+/* ---------- home ---------- */
+function home(){
+  foot.hidden=true;
+  const m = masteredCount();
+  const secOpts = SECS.map((s,i)=>{
+    const n=W.filter(w=>w.sec===i).length;
+    return `<option value="${i}" ${String(settings.sec)===String(i)?'selected':''}>${i+1}. ${esc(s)} (${n})</option>`}).join('');
+  const modes = [
+    ['id2jp','Indonesia → Jepang','pilih kata Jepangnya'],
+    ['jp2id','Jepang → Indonesia','pilih artinya'],
+    ['type','Ketik jawaban','tulis romaji / kana'],
+    ['sit','Situasi','apa yang diucapkan?'],
+    ['voice','Jawab dengan suara','ucapkan lewat mic keyboard'],
+    ['mix','Campur','semua jenis soal'],
+  ];
+  app.innerHTML = `
+    <div>
+      <div class="eyebrow">あいさつ · 15 ungkapan</div>
+      <h1>Hafalan Aisatsu</h1>
+      <p class="sub">Salam dan ungkapan sehari-hari. Mode Situasi melatih kapan ungkapan dipakai. Jawaban yang salah akan muncul lagi di akhir ronde sampai benar.</p>
+    </div>
+    <div class="panel mastery">
+      <label class="lbl">KATA YANG SUDAH DIKUASAI</label>
+      <div class="bar"><i style="width:${(m/W.length*100).toFixed(1)}%"></i></div>
+      <span class="num">${m} / ${W.length} ungkapan · dihitung dikuasai setelah 2× benar berturut-turut</span>
+    </div>
+    <div class="panel">
+      <label class="lbl" for="sec">PILIH UNGKAPAN</label>
+      <select id="sec">
+        <option value="all" ${settings.sec==='all'?'selected':''}>Semua ungkapan (15)</option>
+        <option value="weak" ${settings.sec==='weak'?'selected':''}>Belum dikuasai saja</option>
+        
+      </select>
+      <label class="lbl">JENIS SOAL</label>
+      <div class="seg" id="modes">${modes.map(([k,t,s])=>`<button type="button" data-mode="${k}" aria-pressed="${settings.mode===k}">${t}<small>${s}</small></button>`).join('')}</div>
+      <label class="lbl">JUMLAH SOAL</label>
+      <div class="seg" id="lens" style="grid-template-columns:repeat(3,1fr)">${[5,10,15].map(n=>`<button type="button" data-len="${n}" aria-pressed="${settings.len===n}" style="text-align:center">${n===15?'Semua (15)':n+' soal'}</button>`).join('')}</div>
+      <div class="row">
+        <label class="toggle"><input type="checkbox" id="rom" ${settings.romaji?'checked':''}> Tampilkan romaji</label>
+        <label class="toggle"><input type="checkbox" id="voice" ${settings.voice?'checked':''}> Bacakan suara</label>
+      </div>
+    </div>
+    <button class="btn" id="start">Mulai</button>`;
+  app.querySelector('#sec').onchange=e=>{settings.sec=e.target.value;save()};
+  app.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>{settings.mode=b.dataset.mode;save();home()});
+  app.querySelectorAll('[data-len]').forEach(b=>b.onclick=()=>{settings.len=+b.dataset.len;save();home()});
+  app.querySelector('#rom').onchange=e=>{settings.romaji=e.target.checked;save()};
+  app.querySelector('#voice').onchange=e=>{settings.voice=e.target.checked;save()};
+  app.querySelector('#start').onclick=()=>startRound();
+}
+function save(){store.set('settings',settings)}
+
+/* ---------- round ---------- */
+let R = null;
+function poolFor(sec){
+  if(sec==='all') return W;
+  if(sec==='weak'){const p=W.filter(w=>(mastery[w.id]||0)<2);return p.length?p:W}
+  return W.filter(w=>w.sec===+sec);
+}
+function startRound(list){
+  const pool = list || poolFor(settings.sec);
+  // utamakan kata yang belum dikuasai
+  const sorted = shuffle(pool).sort((a,b)=>(mastery[a.id]||0)-(mastery[b.id]||0));
+  const picked = shuffle(sorted.slice(0, Math.min(settings.len, pool.length)));
+  R = {queue:picked.map(w=>({w,type:pickType()})), total:picked.length, done:0, correct:0, firstTry:0, streak:0, best:0, wrong:new Map(), missed:new Set()};
+  ask();
+}
+function pickType(){
+  if(settings.mode==='mix') return ['id2jp','jp2id','type','sit','voice'][Math.random()*5|0];
+  return settings.mode;
+}
+function distractors(w, n, key){
+  const same = W.filter(x=>x.sec===w.sec && x.id!==w.id);
+  const any = W.filter(x=>x.id!==w.id);
+  const out=[]; const seen=new Set([key(w)]);
+  for(const x of shuffle(same).concat(shuffle(any))){
+    const k=key(x); if(seen.has(k)) continue; seen.add(k); out.push(x); if(out.length===n) break;
+  }
+  return out;
+}
+function header(){
+  const pct = R.done/R.total*100;
+  return `<div class="top"><button class="x" id="quit" aria-label="Keluar">✕</button><div class="bar"><i style="width:${pct}%"></i></div><span class="streak" title="Benar beruntun">${R.streak? R.streak+'🔥':''}</span></div>`;
+}
+function jpBlock(w, cls='opt'){
+  return `${w.kanji?`<span class="j">${esc(clean(w.kanji))}</span><span class="k">${esc(clean(w.kana))}</span>`:`<span class="j">${esc(clean(w.kana))}</span>`}${settings.romaji?`<span class="r">${esc(w.rom)}</span>`:''}`;
+}
+let cur=null, answered=false;
+function ask(){
+  foot.hidden=true; answered=false;
+  if(!R.queue.length) return result();
+  cur = R.queue[0];
+  const w = cur.w;
+  let body='';
+  if(cur.type==='id2jp'){
+    const opts = shuffle([w, ...distractors(w,3,x=>jpMain(x))]);
+    body = `<p class="prompt">Pilih kata Jepang yang benar</p>
+      <div class="card"><span class="tag">bahasa Indonesia</span><span class="big id">${esc(w.arti)}</span></div>
+      <div class="opts">${opts.map(o=>`<button class="opt" data-id="${o.id}">${jpBlock(o)}</button>`).join('')}</div>`;
+  } else if(cur.type==='sit'){
+    const opts = shuffle([w, ...distractors(w,3,x=>jpMain(x))]);
+    body = `<p class="prompt">Apa yang kamu ucapkan?</p>
+      <div class="card"><span class="tag">situasi</span><span class="big id" style="font-size:1.3rem;line-height:1.45">${esc(w.sit)}</span></div>
+      <div class="opts">${opts.map(o=>`<button class="opt" data-id="${o.id}">${jpBlock(o)}</button>`).join('')}</div>`;
+  } else if(cur.type==='jp2id'){
+    const opts = shuffle([w, ...distractors(w,3,x=>x.arti)]);
+    body = `<p class="prompt">Apa artinya?</p>
+      <div class="card"><button class="speak" id="say">▶ Dengar</button>
+        <span class="big">${esc(jpMain(w))}</span>
+        ${w.kanji?`<span class="reading">${esc(clean(w.kana))}</span>`:''}
+        ${settings.romaji?`<span class="rom">${esc(w.rom)}</span>`:''}</div>
+      <div class="opts">${opts.map(o=>`<button class="opt" data-id="${o.id}"><span class="t">${esc(o.arti)}</span></button>`).join('')}</div>`;
+    if(settings.voice) setTimeout(()=>speak(w),150);
+  } else if(cur.type==='voice'){
+    const useSit = Math.random()<.5;
+    body = `<p class="prompt">Ucapkan dalam bahasa Jepang</p>
+      <div class="card"><span class="tag">${useSit?'situasi':'bahasa Indonesia'}</span><span class="big id" ${useSit?'style="font-size:1.3rem;line-height:1.45"':''}>${esc(useSit?w.sit:w.arti)}</span></div>
+      ${SR&&!micBlocked?`<button type="button" class="mic" id="mic" aria-label="Tekan lalu bicara"><span class="dot"></span><span id="micTxt">Tekan lalu bicara</span></button>`:''}
+      <p class="heard" id="heard" hidden></p>
+      <form class="typebox voicebox" id="tf" autocomplete="off"><input id="typed" lang="ja" placeholder="atau ketik / pakai mic keyboard" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Jawaban">
+      <p id="vnote">${SR&&!micBlocked?'Tekan tombol mikrofon lalu ucapkan jawabannya. Jawaban yang benar langsung diterima.':'Browser ini tidak punya pengenal suara. Pakai ikon mikrofon di keyboard HP (bahasa Jepang).'}</p></form>`;
+  } else {
+    body = `<p class="prompt">Tulis dalam bahasa Jepang</p>
+      <div class="card"><span class="tag">bahasa Indonesia</span><span class="big id">${esc(w.arti)}</span></div>
+      <form class="typebox" id="tf" autocomplete="off"><input id="typed" placeholder="contoh: arigatou / ありがとう" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Jawaban"><p>Boleh pakai romaji atau hiragana/katakana. Huruf panjang (ou/oo) dianggap sama.</p></form>`;
+  }
+  app.innerHTML = header() + body;
+  app.querySelector('#quit').onclick=()=>home();
+  const say=app.querySelector('#say'); if(say) say.onclick=()=>speak(w);
+  if(cur.type==='type'||cur.type==='voice'){
+    const inp=app.querySelector('#typed');
+    if(cur.type==='voice'){
+      inp.addEventListener('input',()=>{ if(!answered && matchTyped(inp.value,w)) check(true); });
+      const mic=app.querySelector('#mic'); if(mic){ mic.onclick=()=>listen(w); setTimeout(()=>mic.focus(),60); }
+    } else setTimeout(()=>inp.focus(),50);
+    app.querySelector('#tf').onsubmit=e=>{e.preventDefault(); if(!answered && inp.value.trim()) check(matchTyped(inp.value,w));};
+    showFoot('check');
+  } else {
+    app.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{ if(answered) return;
+      app.querySelectorAll('.opt').forEach(x=>x.classList.remove('sel')); b.classList.add('sel');
+      check(+b.dataset.id===w.id, b);
+    });
+  }
+}
+function norm(s){
+  return s.toLowerCase().normalize('NFKC').replace(/[\s'’\-～~.]/g,'')
+    .replace(/ou/g,'o').replace(/oo/g,'o').replace(/uu/g,'u').replace(/aa/g,'a').replace(/ii/g,'i').replace(/ee/g,'e').replace(/ei/g,'e');
+}
+const ALT = {
+  'おはようございます':['お早うございます'],
+  'こんにちは':['今日は','こんにちわ'],
+  'こんばんは':['今晩は','こんばんわ'],
+  'さようなら':['左様なら','さよなら'],
+  'おやすみなさい':['お休みなさい'],
+  'ありがとうございます':['有難うございます','有り難うございます'],
+  'どういたしまして':['どう致しまして'],
+  'すみません':['済みません','すいません'],
+  'ごめんなさい':['御免なさい'],
+  'はじめまして':['初めまして','始めまして'],
+  'よろしくおねがいします':['宜しくお願いします','よろしくお願いします','よろしくお願い致します','宜しくお願い致します'],
+  'いただきます':['頂きます','戴きます'],
+  'ごちそうさまでした':['ご馳走様でした','御馳走様でした'],
+  'いってきます':['行ってきます','行って来ます'],
+  'いってらっしゃい':['行ってらっしゃい']
+};
+function toHira(s){return s.replace(/[ァ-ヶ]/g,c=>String.fromCharCode(c.charCodeAt(0)-0x60))}
+function matchTyped(v,w){
+  const t=v.trim().replace(/[。、！!？?．，,\s　]/g,'');
+  if((ALT[w.kana]||[]).some(a=>a===t)) return true;
+  if(/[぀-ヿ一-龯]/.test(t)){
+    const a=toHira(t.replace(/\s/g,'')), b=toHira(clean(w.kana));
+    return a===b || t===clean(w.kanji) || a.replace(/ー/g,'')===b.replace(/ー/g,'');
+  }
+  return norm(t)===norm(w.rom);
+}
+function check(ok, btn){
+  answered=true;
+  const w=cur.w;
+  R.queue.shift();
+  if(ok){
+    R.correct++; R.streak++; R.best=Math.max(R.best,R.streak);
+    if(!R.missed.has(w.id)){R.firstTry++; mastery[w.id]=(mastery[w.id]||0)+1;}
+    R.done++;
+  } else {
+    R.streak=0; R.missed.add(w.id); R.wrong.set(w.id,w); mastery[w.id]=0;
+    R.queue.push({w,type:cur.type}); // muncul lagi di akhir
+  }
+  store.set('mastery',mastery);
+  if(btn){
+    app.querySelectorAll('.opt').forEach(b=>{b.disabled=true; if(+b.dataset.id===w.id) b.classList.add('good');});
+    if(!ok){btn.classList.add('bad'); btn.classList.add('shake');}
+  } else {
+    const inp=app.querySelector('#typed'); if(inp){inp.disabled=true; if(!ok) inp.classList.add('shake');}
+  }
+  const bar=app.querySelector('.top .bar>i'); if(bar) bar.style.width=(R.done/R.total*100)+'%';
+  const st=app.querySelector('.streak'); if(st) st.textContent=R.streak? R.streak+'🔥':'';
+  if(settings.voice && cur.type!=='jp2id') speak(w);
+  const ans = `<span class="jp">${esc(jpMain(w))}</span>${w.kanji?` (${esc(clean(w.kana))})`:''} · ${esc(w.rom)} = ${esc(w.arti)}`;
+  verdict.innerHTML = ok
+    ? `<div class="stamp">正解</div><div><b>Benar!</b><span>${ans}</span></div>`
+    : `<div class="stamp">残念</div><div><b>Jawaban yang benar:</b><span>${ans}</span></div>`;
+  showFoot(ok?'good':'bad');
+}
+function showFoot(state){
+  foot.hidden=false; foot.className='foot'+(state==='good'?' good':state==='bad'?' bad':'');
+  if(state==='check'){
+    verdict.innerHTML=''; verdict.hidden=true; nextBtn.textContent='Periksa';
+    nextBtn.onclick=()=>{const inp=app.querySelector('#typed'); if(inp && inp.value.trim()) check(matchTyped(inp.value,cur.w)); else inp && inp.focus();};
+  } else {
+    verdict.hidden=false; nextBtn.textContent='Lanjut';
+    nextBtn.onclick=()=>ask(); setTimeout(()=>nextBtn.focus(),30);
+  }
+}
+document.addEventListener('keydown',e=>{
+  if(foot.hidden||!R) return;
+  if(e.key==='Enter' && answered){e.preventDefault(); ask();}
+});
+
+/* ---------- result ---------- */
+function result(){
+  foot.hidden=true;
+  const acc = Math.round(R.firstTry/R.total*100);
+  const wrong=[...R.wrong.values()];
+  const msg = acc===100?'Sempurna! すごい！':acc>=80?'Bagus sekali! よくできました':acc>=50?'Lumayan, ulangi yang salah ya':'Pelan-pelan saja, がんばって！';
+  app.innerHTML = `
+    <div><div class="eyebrow">Ronde selesai</div><h1>${msg}</h1></div>
+    <div class="score">
+      <div><b>${acc}%</b><span>Benar sekali jawab</span></div>
+      <div><b>${R.total}</b><span>Ungkapan</span></div>
+      <div><b>${R.best}</b><span>Beruntun terbaik</span></div>
+    </div>
+    <div class="panel">
+      <label class="lbl">UNGKAPAN YANG PERLU DIULANG (${wrong.length})</label>
+      ${wrong.length?`<ul class="review">${wrong.map(w=>`<li><div><span class="jp">${esc(jpMain(w))}</span>${w.kanji?`<div class="meta">${esc(clean(w.kana))}</div>`:''}<div class="meta">${esc(w.rom)}</div></div><div>${esc(w.arti)}</div></li>`).join('')}</ul>`:`<p class="empty">Tidak ada. Semua dijawab benar pada percobaan pertama.</p>`}
+    </div>
+    ${wrong.length?`<button class="btn" id="again-wrong">Latih ${wrong.length} ungkapan yang salah</button>`:''}
+    <button class="btn ${wrong.length?'ghost':''}" id="again">Ronde baru</button>
+    <button class="btn ghost" id="home">Ganti mode</button>`;
+  const aw=app.querySelector('#again-wrong'); if(aw) aw.onclick=()=>startRound(wrong);
+  app.querySelector('#again').onclick=()=>startRound();
+  app.querySelector('#home').onclick=()=>home();
+}
+try{speechSynthesis.getVoices()}catch(e){}
+home();
+</script>
+
+</body></html>
