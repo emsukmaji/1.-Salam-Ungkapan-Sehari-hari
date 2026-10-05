@@ -114,7 +114,7 @@ select{width:100%;font:inherit;padding:12px;border-radius:12px;border:1.5px soli
 <div class="foot" id="foot" hidden><div class="in"><div class="verdict" id="verdict"></div><button class="btn" id="next">Lanjut</button></div></div>
 
 <script>
-const DATA = {"secs": ["Salam & Ungkapan"], "words": [["", "おはようございます", "ohayou gozaimasu", "selamat pagi", 0], ["", "こんにちは", "konnichiwa", "selamat siang / halo", 0], ["", "こんばんは", "konbanwa", "selamat malam (sapaan)", 0], ["", "さようなら", "sayounara", "selamat tinggal", 0], ["", "おやすみなさい", "oyasuminasai", "selamat tidur", 0], ["", "ありがとうございます", "arigatou gozaimasu", "terima kasih", 0], ["", "どういたしまして", "dou itashimashite", "sama-sama", 0], ["", "すみません", "sumimasen", "permisi / maaf", 0], ["", "ごめんなさい", "gomennasai", "maaf", 0], ["", "はじめまして", "hajimemashite", "salam kenal", 0], ["", "よろしくおねがいします", "yoroshiku onegai shimasu", "mohon bantuannya / senang berkenalan", 0], ["", "いただきます", "itadakimasu", "selamat makan (sebelum makan)", 0], ["", "ごちそうさまでした", "gochisousama deshita", "terima kasih atas makanannya", 0], ["", "いってきます", "ittekimasu", "saya berangkat", 0], ["", "いってらっしゃい", "itterasshai", "hati-hati di jalan", 0]], "sit": ["Pagi hari, kamu bertemu atasan di kantor.", "Siang hari, kamu menyapa orang yang kamu temui.", "Malam hari, kamu bertemu tetangga di jalan.", "Kamu berpisah dengan teman yang lama tidak akan kamu temui lagi.", "Kamu mau tidur dan pamit ke keluarga.", "Rekan kerja membantumu membawa barang.", "Seseorang berterima kasih karena kamu menolongnya.", "Kamu mau memanggil pelayan di restoran.", "Kamu tidak sengaja menumpahkan minuman temanmu.", "Kamu bertemu seseorang untuk pertama kalinya.", "Kamu baru selesai memperkenalkan diri di kantor baru.", "Makanan sudah di meja dan kamu akan mulai makan.", "Kamu baru selesai makan.", "Kamu keluar rumah untuk berangkat kerja.", "Keluargamu pamit berangkat kerja, kamu menjawab."]};
+const DATA = {"secs": ["Salam & Ungkapan"], "words": [["", "おはようございます", "ohayou gozaimasu", "selamat pagi", 0], ["", "こんにちは", "konnichiwa", "selamat siang / halo", 0], ["", "こんばんは", "konbanwa", "selamat malam (sapaan)", 0], ["", "さようなら", "sayounara", "selamat tinggal", 0], ["", "おやすみなさい", "oyasuminasai", "selamat tidur", 0], ["", "ありがとうございます", "arigatou gozaimasu", "terima kasih", 0], ["", "どういたしまして", "dou itashimashite", "sama-sama", 0], ["", "すみません", "sumimasen", "permisi / maaf", 0], ["", "ごめんなさい", "gomennasai", "maaf", 0], ["", "はじめまして", "hajimemashite", "salam kenal", 0], ["", "よろしくおねがいします", "yoroshiku onegai shimasu", "mohon bantuannya / senang berkenalan", 0], ["", "いただきます", "itadakimasu", "selamat makan (sebelum makan)", 0], ["", "ごちそうさまでした", "gochisousama deshita", "terima kasih atas makanannya", 0], ["", "いってきます", "ittekimasu", "saya berangkat", 0], ["", "いってらっしゃい", "itterasshai", "hati-hati di jalan", 0], ["", "ただいま", "tadaima", "saya pulang", 0], ["", "おかえりなさい", "okaerinasai", "selamat datang kembali", 0], ["", "おねがいします", "onegai shimasu", "tolong / mohon", 0], ["", "どうぞ", "douzo", "silakan", 0], ["", "どうも", "doumo", "terima kasih (singkat)", 0], ["", "はい", "hai", "ya", 0]], "sit": ["Pagi hari, kamu bertemu atasan di kantor.", "Siang hari, kamu menyapa orang yang kamu temui.", "Malam hari, kamu bertemu tetangga di jalan.", "Kamu berpisah dengan teman yang lama tidak akan kamu temui lagi.", "Kamu mau tidur dan pamit ke keluarga.", "Rekan kerja membantumu membawa barang.", "Seseorang berterima kasih karena kamu menolongnya.", "Kamu mau memanggil pelayan di restoran.", "Kamu tidak sengaja menumpahkan minuman temanmu.", "Kamu bertemu seseorang untuk pertama kalinya.", "Kamu baru selesai memperkenalkan diri di kantor baru.", "Makanan sudah di meja dan kamu akan mulai makan.", "Kamu baru selesai makan.", "Kamu keluar rumah untuk berangkat kerja.", "Keluargamu pamit berangkat kerja, kamu menjawab.", "Kamu baru sampai di rumah sepulang kerja.", "Keluargamu baru pulang ke rumah, kamu menyambutnya.", "Di restoran, kamu menunjuk menu dan memesan: \"Ini, ...\"", "Kamu mempersilakan tamu masuk dan duduk.", "Kasir memberikan kembalian, kamu berterima kasih singkat.", "Gurumu memanggil namamu saat absen."]};
 const SECS = DATA.secs;
 const W = DATA.words.map((w,i)=>({id:i,kanji:w[0],kana:w[1],rom:w[2],arti:w[3],sec:w[4],sit:DATA.sit[i]}));
 const app = document.getElementById('app');
@@ -126,7 +126,7 @@ const store = {
   get(k,d){try{const v=localStorage.getItem('aisatsu:'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},
   set(k,v){try{localStorage.setItem('aisatsu:'+k,JSON.stringify(v))}catch(e){}}
 };
-let settings = Object.assign({sec:'all',mode:'id2jp',len:15,romaji:true,voice:true}, store.get('settings',{}));
+let settings = Object.assign({sec:'all',mode:'id2jp',len:21,romaji:true,voice:true}, store.get('settings',{}));
 let mastery = store.get('mastery',{}); // id -> jumlah benar beruntun
 
 const esc = s => String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -202,7 +202,7 @@ function home(){
   ];
   app.innerHTML = `
     <div>
-      <div class="eyebrow">あいさつ · 15 ungkapan</div>
+      <div class="eyebrow">あいさつ · 21 ungkapan</div>
       <h1>Hafalan Aisatsu</h1>
       <p class="sub">Salam dan ungkapan sehari-hari. Mode Situasi melatih kapan ungkapan dipakai. Jawaban yang salah akan muncul lagi di akhir ronde sampai benar.</p>
     </div>
@@ -214,14 +214,14 @@ function home(){
     <div class="panel">
       <label class="lbl" for="sec">PILIH UNGKAPAN</label>
       <select id="sec">
-        <option value="all" ${settings.sec==='all'?'selected':''}>Semua ungkapan (15)</option>
+        <option value="all" ${settings.sec==='all'?'selected':''}>Semua ungkapan (21)</option>
         <option value="weak" ${settings.sec==='weak'?'selected':''}>Belum dikuasai saja</option>
         
       </select>
       <label class="lbl">JENIS SOAL</label>
       <div class="seg" id="modes">${modes.map(([k,t,s])=>`<button type="button" data-mode="${k}" aria-pressed="${settings.mode===k}">${t}<small>${s}</small></button>`).join('')}</div>
       <label class="lbl">JUMLAH SOAL</label>
-      <div class="seg" id="lens" style="grid-template-columns:repeat(3,1fr)">${[5,10,15].map(n=>`<button type="button" data-len="${n}" aria-pressed="${settings.len===n}" style="text-align:center">${n===15?'Semua (15)':n+' soal'}</button>`).join('')}</div>
+      <div class="seg" id="lens" style="grid-template-columns:repeat(3,1fr)">${[10,15,21].map(n=>`<button type="button" data-len="${n}" aria-pressed="${settings.len===n}" style="text-align:center">${n===21?'Semua (21)':n+' soal'}</button>`).join('')}</div>
       <div class="row">
         <label class="toggle"><input type="checkbox" id="rom" ${settings.romaji?'checked':''}> Tampilkan romaji</label>
         <label class="toggle"><input type="checkbox" id="voice" ${settings.voice?'checked':''}> Bacakan suara</label>
@@ -349,7 +349,13 @@ const ALT = {
   'いただきます':['頂きます','戴きます'],
   'ごちそうさまでした':['ご馳走様でした','御馳走様でした'],
   'いってきます':['行ってきます','行って来ます'],
-  'いってらっしゃい':['行ってらっしゃい']
+  'いってらっしゃい':['行ってらっしゃい'],
+  'ただいま':['ただ今','只今'],
+  'おかえりなさい':['お帰りなさい'],
+  'おねがいします':['お願いします','お願い致します'],
+  'どうぞ':['どうぞ'],
+  'どうも':['どうも'],
+  'はい':['はい']
 };
 function toHira(s){return s.replace(/[ァ-ヶ]/g,c=>String.fromCharCode(c.charCodeAt(0)-0x60))}
 function matchTyped(v,w){
