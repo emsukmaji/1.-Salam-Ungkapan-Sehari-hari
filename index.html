@@ -499,6 +499,7 @@ function startRound(){
     picked=picked.slice(0,S.len);
   }
   R=newRound(picked.map(w=>({w,d,type:pickType(w,d)})), false);
+  if(R.queue.some(q=>q.type==='voice')) warmMic();
   VIEW='game'; setNav(false); ask();
 }
 function newRound(queue,review){ return {queue, review, total:queue.length, done:0, firstTry:0, streak:0, best:0, wrong:new Map(), missed:new Set()}; }
@@ -621,33 +622,49 @@ const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 const IOS_APP = !!(window.navigator.standalone || (window.matchMedia && matchMedia('(display-mode: standalone)').matches)) && /iPhone|iPad|iPod/.test(navigator.userAgent);
 let rec=null, micBlocked=false;
 function stopRec(){ if(rec){ try{rec.abort()}catch(e){} rec=null; } }
-function listen(w){
+function listen(w, retry=0){
   const mic=app.querySelector('#mic'), txt=app.querySelector('#micTxt'), heard=app.querySelector('#heard');
   if(rec){ try{rec.stop()}catch(e){} return; }
   try{ speechSynthesis.cancel(); }catch(e){}
   let r; try{ r=new SR(); }catch(e){ return micFail(); }
-  rec=r; r.lang='ja-JP'; r.interimResults=true; r.maxAlternatives=5; r.continuous=false;
-  mic.classList.add('on'); txt.textContent='Mendengarkan…';
-  let last='';
+  rec=r; r.lang='ja-JP'; r.interimResults=true; r.maxAlternatives=5; r.continuous=true;
+  mic.classList.add('on'); txt.textContent='Menyiapkan mic…';
+  const say = s => { heard.hidden=false; heard.textContent=s; };
+  let last='', gotAudio=false, err=null; const t0=Date.now();
+  const timer=setTimeout(()=>{ try{r.stop()}catch(_){} }, 8000);
+  r.onaudiostart=()=>{ gotAudio=true; txt.textContent='Mendengarkan… bicara sekarang'; };
+  r.onspeechstart=()=>{ txt.textContent='Suara terdeteksi…'; };
   r.onresult=e=>{
     for(let i=e.resultIndex;i<e.results.length;i++){
       const res=e.results[i];
-      for(let j=0;j<res.length;j++){
-        if(!answered && matchTyped(res[j].transcript,w)){ heard.hidden=false; heard.textContent='Terdengar: '+res[j].transcript; try{r.stop()}catch(_){} check(true); return; }
+      for(let k=0;k<res.length;k++){
+        if(!answered && matchTyped(res[k].transcript,w)){ say('Terdengar: '+res[k].transcript); clearTimeout(timer); try{r.stop()}catch(_){} check(true); return; }
       }
       last=res[0].transcript;
     }
-    heard.hidden=false; heard.textContent='Terdengar: '+last;
+    say('Terdengar: '+last);
   };
-  r.onerror=e=>{ heard.hidden=false;
-    if(['not-allowed','service-not-allowed','audio-capture'].includes(e.error)) micFail(e.error);
-    else if(e.error==='no-speech') heard.textContent='Tidak terdengar suara. Tekan tombol lalu langsung bicara.';
-    else if(e.error==='network') heard.textContent='Pengenal suara butuh koneksi internet. Cek sinyal lalu coba lagi.';
-    else if(e.error!=='aborted') heard.textContent='Mic error ('+e.error+'). Coba tekan lagi.'; };
-  r.onend=()=>{ rec=null; if(micBlocked || !app.contains(mic)) return; mic.classList.remove('on'); txt.textContent='Tekan lalu bicara';
-    if(!answered && last){ heard.textContent='Terdengar: '+last+' · belum tepat, coba lagi'; const vb=app.querySelector('.card'); vb.classList.add('shake'); setTimeout(()=>vb.classList.remove('shake'),600); } };
-  try{ r.start(); }catch(e){ rec=null; micFail(); }
+  r.onerror=e=>{ err=e.error;
+    if(['not-allowed','service-not-allowed','audio-capture'].includes(e.error)) { clearTimeout(timer); micFail(e.error); }
+    else if(e.error==='no-speech') say('Tidak terdengar suara. Tekan tombol lalu langsung bicara.');
+    else if(e.error==='network') say('Pengenal suara butuh koneksi internet. Cek sinyal lalu coba lagi.');
+    else if(e.error!=='aborted') say('Mic error ('+e.error+'). Coba tekan lagi.'); };
+  r.onend=()=>{ clearTimeout(timer); rec=null; if(micBlocked || !app.contains(mic) || answered) return;
+    mic.classList.remove('on'); txt.textContent='Tekan lalu bicara';
+    // iOS (terutama mode Web App) kadang langsung berhenti setelah izin mic diminta: coba sekali lagi otomatis
+    if(!last && !err && retry<1 && Date.now()-t0<2500){ say('Menyalakan ulang mic…'); setTimeout(()=>listen(w,retry+1),300); return; }
+    if(last){ say('Terdengar: '+last+' · belum tepat, coba lagi'); const vb=app.querySelector('.card'); vb.classList.add('shake'); setTimeout(()=>vb.classList.remove('shake'),600); }
+    else if(!err) say(gotAudio ? 'Tidak ada kata yang tertangkap. Tekan lalu bicara lebih jelas.' : 'Mic berhenti sebelum sempat mendengar. Tekan tombolnya lagi.'); };
+  try{ r.start(); }catch(e){ rec=null; clearTimeout(timer); micFail(); }
 }
+/* minta izin mic sekali di awal ronde (iOS Web App sering meminta ulang tiap kali) */
+let micWarm=false;
+function warmMic(){
+  if(micWarm || !SR || !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return;
+  micWarm=true;
+  navigator.mediaDevices.getUserMedia({audio:true}).then(s=>{ setTimeout(()=>s.getTracks().forEach(t=>t.stop()),300); }).catch(()=>{ micWarm=false; });
+}
+
 function voiceFoot(){
   nextBtn.textContent='Tidak tahu, lihat jawaban';
   nextBtn.onclick=()=>{ stopRec(); if(!answered) check(false); };
@@ -657,7 +674,7 @@ function micFail(code){
   const mic=app.querySelector('#mic'); if(mic) mic.hidden=true;
   const note=app.querySelector('#vnote');
   if(note){ const box=document.createElement('div'); box.className='micnote'; box.id='micnote'; note.parentNode.parentNode.insertBefore(box, note.parentNode); box.appendChild(note); }
-  if(note){ note.innerHTML = IOS_APP ? 'Mode <b>Web App</b> di iPhone tidak mendukung pengenal suara, jadi tombol mic tidak bisa dipakai di sini. Untuk menjawab dengan suara, buka game lewat <b>Safari biasa</b>. Tekan <b>Tidak tahu</b> di bawah untuk lanjut.<br><button type="button" class="btn ghost sm" id="micretry" style="margin-top:8px">🎤 Coba mikrofon lagi</button>'
+  if(note){ note.innerHTML = IOS_APP && code!=='service-not-allowed' ? 'Izin mikrofon belum diberikan. Di mode <b>Web App</b>, iPhone bisa menanyakan izin mic lagi: pilih <b>Allow</b>, lalu tekan tombol di bawah. Kalau tetap gagal, tutup aplikasinya (geser ke atas dari app switcher) lalu buka lagi.<br><button type="button" class="btn ghost sm" id="micretry" style="margin-top:8px">🎤 Coba mikrofon lagi</button>'
     : code==='unsupported' ? 'Browser ini tidak punya pengenal suara. Buka game di Safari (iPhone) atau Chrome (Android/laptop), atau pilih jenis soal lain.<br><button type="button" class="btn ghost sm" id="micretry" style="margin-top:8px">🎤 Coba lagi</button>'
     : (code==='service-not-allowed'
       ? 'Pengenal suara tidak aktif di perangkat ini. Di iPhone: <b>Pengaturan → Siri & Pencarian</b> dan <b>Papan Ketik → Aktifkan Dikte</b> harus menyala.'
