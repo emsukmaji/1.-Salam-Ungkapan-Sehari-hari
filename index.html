@@ -126,7 +126,8 @@ const store = {
   get(k,d){try{const v=localStorage.getItem('aisatsu:'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},
   set(k,v){try{localStorage.setItem('aisatsu:'+k,JSON.stringify(v))}catch(e){}}
 };
-let settings = Object.assign({sec:'all',mode:'id2jp',len:21,romaji:true,voice:true}, store.get('settings',{}));
+let settings = Object.assign({sec:'all',mode:'id2jp',len:20,romaji:true,voice:true}, store.get('settings',{}));
+if(![20,35,50].includes(settings.len)) settings.len=20;
 let mastery = store.get('mastery',{}); // id -> jumlah benar beruntun
 
 const esc = s => String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -221,7 +222,7 @@ function home(){
       <label class="lbl">JENIS SOAL</label>
       <div class="seg" id="modes">${modes.map(([k,t,s])=>`<button type="button" data-mode="${k}" aria-pressed="${settings.mode===k}">${t}<small>${s}</small></button>`).join('')}</div>
       <label class="lbl">JUMLAH SOAL</label>
-      <div class="seg" id="lens" style="grid-template-columns:repeat(3,1fr)">${[10,15,21].map(n=>`<button type="button" data-len="${n}" aria-pressed="${settings.len===n}" style="text-align:center">${n===21?'Semua (21)':n+' soal'}</button>`).join('')}</div>
+      <div class="seg" id="lens" style="grid-template-columns:repeat(3,1fr)">${[20,35,50].map(n=>`<button type="button" data-len="${n}" aria-pressed="${settings.len===n}" style="text-align:center">${n+' soal'}</button>`).join('')}</div>
       <div class="row">
         <label class="toggle"><input type="checkbox" id="rom" ${settings.romaji?'checked':''}> Tampilkan romaji</label>
         <label class="toggle"><input type="checkbox" id="voice" ${settings.voice?'checked':''}> Bacakan suara</label>
@@ -248,7 +249,19 @@ function startRound(list){
   const pool = list || poolFor(settings.sec);
   // utamakan kata yang belum dikuasai
   const sorted = shuffle(pool).sort((a,b)=>(mastery[a.id]||0)-(mastery[b.id]||0));
-  const picked = shuffle(sorted.slice(0, Math.min(settings.len, pool.length)));
+  let picked;
+  if(list){ picked = shuffle(list); }
+  else {
+    // ungkapan diulang bergiliran sampai jumlah soal terpenuhi
+    picked = [];
+    while(picked.length < settings.len){
+      const batch = picked.length ? shuffle(pool) : sorted.slice();
+      if(picked.length && batch[0].id===picked[picked.length-1].id) batch.push(batch.shift());
+      picked.push(...batch);
+    }
+    picked = picked.slice(0, settings.len);
+    if(picked.length) picked = shuffle(picked.slice(0, Math.min(pool.length, picked.length))).concat(picked.slice(pool.length));
+  }
   R = {queue:picked.map(w=>({w,type:pickType()})), total:picked.length, done:0, correct:0, firstTry:0, streak:0, best:0, wrong:new Map(), missed:new Set()};
   ask();
 }
