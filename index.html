@@ -251,6 +251,8 @@ em.gm{font-style:normal;color:var(--accent);font-weight:700;border-bottom:2px so
 details.panel summary{cursor:pointer;color:var(--ink)}
 .nav button{font-size:.68rem}
 .webappnote{margin:0;text-align:center}
+.micnote{background:var(--surface);border:1.5px solid var(--accent);border-radius:14px;padding:12px 14px}
+.micnote p{margin:0;font-size:.9rem;line-height:1.6}
 @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
 </style>
 
@@ -556,9 +558,8 @@ function ask(){
     body=`<p class="prompt">Ucapkan dalam bahasa Jepang</p>
       <div class="card"><span class="tag">${useSit?'situasi':'bahasa Indonesia'}</span><span class="big ${useSit?'sit':'id'}">${esc(useSit?w.sit:w.arti)}</span></div>
       ${SR&&!micBlocked?`<button type="button" class="mic" id="mic"><span class="dot"></span><span id="micTxt">Tekan lalu bicara</span></button>`:''}
-      ${IOS_APP&&!micBlocked?`<p class="num webappnote">Kamu membuka game sebagai <b>Web App</b>. iPhone sering memblokir pengenal suara di mode ini. Kalau tombol di atas tidak jalan, pakai <b>ikon mikrofon di keyboard</b> pada kolom di bawah.</p>`:''}
       <p class="heard" id="heard" hidden></p>
-      <form class="typebox voicebox" id="tf" autocomplete="off" ${SR&&!micBlocked&&!IOS_APP?'hidden':''}><input id="typed" lang="ja" placeholder="ketik / pakai mic keyboard" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Jawaban">
+      <form class="typebox voicebox" id="tf" autocomplete="off" hidden><input id="typed" lang="ja" placeholder="ketik / pakai mic keyboard" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Jawaban">
       <p id="vnote">Mikrofon tidak bisa dipakai di sini. Pakai ikon mikrofon di keyboard HP (bahasa Jepang).</p></form>`;
   } else {
     body=`<p class="prompt">Tulis dalam bahasa Jepang</p><div class="card"><span class="tag">bahasa Indonesia</span><span class="big id">${esc(w.arti)}</span></div>
@@ -574,7 +575,7 @@ function ask(){
     if(t==='voice'){
       inp.addEventListener('input',()=>{ if(!answered && matchTyped(inp.value,w)) check(true); });
       const mic=app.querySelector('#mic');
-      if(mic){ mic.onclick=()=>listen(w); voiceFoot(); } else setTimeout(()=>inp.focus(),50);
+      if(mic){ mic.onclick=()=>listen(w); voiceFoot(); } else micFail(SR?'blocked':'unsupported');
     } else setTimeout(()=>inp.focus(),50);
   } else {
     app.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{ if(answered) return; b.classList.add('sel'); check(+b.dataset.id===w.id,b); });
@@ -654,16 +655,16 @@ function voiceFoot(){
 function micFail(code){
   rec=null; micBlocked=true;
   const mic=app.querySelector('#mic'); if(mic) mic.hidden=true;
-  const f=app.querySelector('#tf'); if(f) f.hidden=false;
   const note=app.querySelector('#vnote');
-  if(note){ note.innerHTML = (code==='service-not-allowed'
+  if(note){ const box=document.createElement('div'); box.className='micnote'; box.id='micnote'; note.parentNode.parentNode.insertBefore(box, note.parentNode); box.appendChild(note); }
+  if(note){ note.innerHTML = IOS_APP ? 'Mode <b>Web App</b> di iPhone tidak mendukung pengenal suara, jadi tombol mic tidak bisa dipakai di sini. Untuk menjawab dengan suara, buka game lewat <b>Safari biasa</b>. Tekan <b>Tidak tahu</b> di bawah untuk lanjut.<br><button type="button" class="btn ghost sm" id="micretry" style="margin-top:8px">🎤 Coba mikrofon lagi</button>'
+    : code==='unsupported' ? 'Browser ini tidak punya pengenal suara. Buka game di Safari (iPhone) atau Chrome (Android/laptop), atau pilih jenis soal lain.<br><button type="button" class="btn ghost sm" id="micretry" style="margin-top:8px">🎤 Coba lagi</button>'
+    : (code==='service-not-allowed'
       ? 'Pengenal suara tidak aktif di perangkat ini. Di iPhone: <b>Pengaturan → Siri & Pencarian</b> dan <b>Papan Ketik → Aktifkan Dikte</b> harus menyala.'
       : 'Mikrofon tidak diizinkan untuk halaman ini. Di Safari: ketuk <b>aA</b> di bilah alamat → <b>Pengaturan Situs Web</b> → <b>Mikrofon → Izinkan</b>, lalu tekan tombol di bawah. Di aplikasi Claude, mic memang selalu diblokir — buka link GitHub di Safari.')
-      + ' Sementara itu, kamu bisa memakai ikon mikrofon di keyboard.'
       + '<br><button type="button" class="btn ghost sm" id="micretry" style="margin-top:8px">🎤 Coba mikrofon lagi</button>';
     note.querySelector('#micretry').onclick=()=>{ micBlocked=false; ask(); }; }
-  showFoot('check');
-  const inp=app.querySelector('#typed'); if(inp) setTimeout(()=>inp.focus(),50);
+  voiceFoot();
 }
 
 /* ---------- cek jawaban ---------- */
