@@ -77,7 +77,7 @@ select{width:100%;font:inherit;padding:12px;border-radius:12px;border:1.5px soli
 
 /* navbar */
 .nav{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1.5px solid var(--line);padding:8px 16px calc(8px + env(safe-area-inset-bottom, 0px));z-index:5}
-.nav .in{max-width:528px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.nav .in{max-width:528px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
 .nav button{font:inherit;background:none;border:2px solid transparent;border-radius:14px;padding:6px 4px;color:var(--muted);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:.72rem;font-weight:700}
 .nav button .ic{width:28px;height:28px;display:grid;place-items:center;font-family:var(--f-jp);font-size:1.35rem;font-weight:700;line-height:1}
 .nav button svg{width:26px;height:26px}
@@ -213,6 +213,43 @@ details summary{cursor:pointer;color:var(--muted);font-size:.85rem}
 .exfeed.bad{border-color:var(--bad);background:var(--bad-bg)}
 .exfeed.good .verdict{color:var(--good)}
 .exfeed.bad .verdict{color:var(--bad)}
+.glist{display:flex;flex-direction:column;gap:8px}
+.grow{font:inherit;color:var(--ink);text-align:left;background:var(--surface);border:1.5px solid var(--line);border-bottom-width:4px;border-radius:14px;padding:12px 14px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;align-items:center;cursor:pointer}
+.grow .gp{font-family:var(--f-jp);font-weight:700;font-size:1.1rem;overflow-wrap:anywhere}
+.grow .gmn{grid-column:1;color:var(--muted);font-size:.85rem}
+.grow .gst{grid-column:2;grid-row:1/3;font-size:.75rem;font-weight:800;padding:4px 10px;border-radius:99px;background:var(--chip);color:var(--muted)}
+.grow .gst.ok{background:var(--good-bg);color:var(--good)}
+.grow .gst.mid{background:color-mix(in srgb,var(--n2) 20%,transparent);color:var(--ink)}
+.gtitle{font-family:var(--f-jp);font-size:2rem}
+.gmean{font-size:1.15rem;font-weight:700;margin:4px 0 0;color:var(--accent)}
+.gform{font-family:var(--f-jp);font-size:1.05rem;margin:0;background:var(--bg);border-radius:10px;padding:10px 12px;line-height:1.7}
+.gx{margin:0;line-height:1.7}
+.gnote{background:color-mix(in srgb,var(--n2) 10%,var(--surface))}
+.gex{display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--line)}
+.gex:last-child{border-bottom:0}
+.gex>div{min-width:0}
+.gplay{flex:none;font:inherit;width:36px;height:36px;border-radius:50%;border:0;background:var(--n4);color:var(--surface);cursor:pointer;font-size:.9rem}
+.gplay.sm{width:28px;height:28px;font-size:.75rem}
+.gjp{font-family:var(--f-jp);font-size:1.15rem;margin:0;line-height:1.7;overflow-wrap:anywhere}
+.grd{font-family:var(--f-jp);font-size:.85rem;color:var(--muted);margin:2px 0 0}
+.gid{margin:4px 0 0;color:var(--muted)}
+em.gm{font-style:normal;color:var(--accent);font-weight:700;border-bottom:2px solid currentColor}
+.gblank{color:var(--accent);font-weight:800}
+.gline{min-height:64px;border-bottom:2px solid var(--line);display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:8px 0}
+.gpool{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.gtile{font:inherit;font-family:var(--f-jp);font-size:1.05rem;background:var(--surface);color:var(--ink);border:1.5px solid var(--line);border-bottom-width:4px;border-radius:12px;padding:8px 12px;cursor:pointer}
+.gtile:disabled{opacity:.25}
+.gtile.on{border-color:var(--n4)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font:inherit;font-size:.85rem;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);border-radius:99px;padding:8px 12px;cursor:pointer}
+.chip small{font-size:.65rem;color:var(--muted);font-weight:700}
+.chip[aria-pressed="true"]{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,var(--surface))}
+.ctable{width:100%;border-collapse:collapse;margin-top:8px}
+.ctable td{padding:8px 6px;border-bottom:1px solid var(--line);font-size:.9rem;vertical-align:middle}
+.ctable td.jp{font-family:var(--f-jp);font-weight:700;font-size:1.05rem}
+.cform{color:var(--accent)}
+details.panel summary{cursor:pointer;color:var(--ink)}
+.nav button{font-size:.68rem}
 @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
 </style>
 
@@ -220,6 +257,7 @@ details summary{cursor:pointer;color:var(--muted);font-size:.85rem}
 <nav class="nav" id="nav" aria-label="Menu utama"><div class="in">
   <button type="button" data-tab="home"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M3 11 12 4l9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg></span>Beranda</button>
   <button type="button" data-tab="kana"><span class="ic">あ</span>Huruf</button>
+  <button type="button" data-tab="gram"><span class="ic">文</span>Tata Bahasa</button>
   <button type="button" data-tab="stats"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 20V12M12 20V5M19 20v-9"/></svg></span>Progres</button>
 </div></nav>
 <div class="foot" id="exfoot" hidden></div>
@@ -319,7 +357,7 @@ function speak(text){
 let VIEW='home', KTAB='hira';
 function setNav(on){ nav.hidden=!on; nav.querySelectorAll('[data-tab]').forEach(b=>b.setAttribute('aria-current', b.dataset.tab===VIEW?'page':'false')); }
 nav.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>go(b.dataset.tab));
-function go(v){ stopRec(); VIEW=v; foot.hidden=true; exfoot.hidden=true; if(typeof exTimer!=='undefined') clearInterval(exTimer); try{speechSynthesis.cancel()}catch(e){} R=null; ({home,kana:kanaView,stats})[v](); setNav(true); window.scrollTo(0,0); }
+function go(v){ stopRec(); VIEW=v; foot.hidden=true; exfoot.hidden=true; if(typeof exTimer!=='undefined') clearInterval(exTimer); try{speechSynthesis.cancel()}catch(e){} R=null; ({home,kana:kanaView,stats,gram:gramView})[v](); setNav(true); window.scrollTo(0,0); }
 
 /* ---------- beranda ---------- */
 function deckCard(d){
@@ -926,6 +964,323 @@ function exResult(){
   app.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{ app.querySelectorAll('[data-f]').forEach(x=>x.setAttribute('aria-pressed',x===b)); render(b.dataset.f); });
   app.querySelector('#exagain').onclick=()=>exStart(L,EX.only);
   app.querySelector('#exhome').onclick=()=>exHome();
+  window.scrollTo(0,0);
+}
+
+/* ---------- tata bahasa (文法) ---------- */
+const GRAM = {"n5":[{"t":"Kalimat Dasar","p":[["〜は〜です","A adalah B","Kata benda + は + Kata benda + です","Pola kalimat paling dasar. は (dibaca \"wa\") menandai topik, です membuat kalimat sopan. Tidak ada kata \"adalah\" yang terpisah; です sudah mencakupnya.",[["わたし【は】 がくせいです。","","Saya (adalah) mahasiswa."],["これは わたしの ほん【です】。","","Ini buku saya."]],"は sebagai partikel selalu dibaca \"wa\", bukan \"ha\"."],["〜じゃありません","bukan ...","Kata benda + じゃありません / ではありません","Bentuk negatif dari です. じゃありません lebih santai, ではありません lebih formal.",[["わたしは せんせい【じゃありません】。","","Saya bukan guru."],["これは わたしの かさ【ではありません】。","","Ini bukan payung saya."]],"Bentuk santai: じゃない."],["〜ですか","kalimat tanya","Kalimat + か","Cukup tambahkan か di akhir kalimat untuk bertanya. Tidak perlu membalik susunan kata, dan biasanya tidak memakai tanda tanya.",[["あなたは がくせいです【か】。","","Apakah kamu mahasiswa?"],["これは なんです【か】。","","Ini apa?"]],"Jawab dengan はい (ya) atau いいえ (tidak)."],["〜も","juga","Kata benda + も (menggantikan は/が/を)","も berarti \"juga\" dan menggantikan partikel は, が, atau を.",[["たなかさん【も】 がくせいです。","","Tanaka-san juga mahasiswa."],["わたしは コーヒー【も】 のみます。","","Saya juga minum kopi."]],"Dalam kalimat negatif, も berarti \"juga tidak\"."],["〜の〜","milik / keterangan","Kata benda + の + Kata benda","の menghubungkan dua kata benda: kepemilikan (buku saya) atau keterangan (guru bahasa Jepang).",[["これは わたし【の】 ほんです。","","Ini buku saya."],["にほんご【の】 せんせいです。","","Guru bahasa Jepang."]],"Urutannya terbalik dari bahasa Indonesia: わたしの ほん = buku saya."],["これ・それ・あれ・どれ","ini / itu / itu (jauh) / yang mana","これ (dekat pembicara) ・ それ (dekat lawan bicara) ・ あれ (jauh dari keduanya) ・ どれ (yang mana)","Kata tunjuk untuk benda. Dipakai sendiri tanpa kata benda di belakangnya.",[["【これ】は なんですか。","","Ini apa?"],["あなたの かさは 【どれ】ですか。","","Payungmu yang mana?"]],"Kalau diikuti kata benda, pakai この・その・あの・どの: このほん."],["ここ・そこ・あそこ・どこ","di sini / di situ / di sana / di mana","ここ ・ そこ ・ あそこ ・ どこ + は/に/で","Kata tunjuk untuk tempat.",[["トイレは 【どこ】ですか。","","Toilet di mana?"],["【ここ】は わたしの へやです。","","Ini (tempat ini) kamar saya."]],"Versi sopan: こちら・そちら・あちら・どちら."]]},{"t":"Partikel","p":[["〜を","penanda objek","Objek + を + Kata kerja","を (dibaca \"o\") menandai benda yang dikenai tindakan.",[["パン【を】 たべます。","","Saya makan roti."],["テレビ【を】 みます。","","Saya menonton TV."]],"を hampir hanya dipakai sebagai partikel, dibaca \"o\"."],["〜に (waktu / tujuan)","pada (waktu) / ke (tujuan)","Waktu + に ・ Tempat tujuan + に","に menandai waktu yang spesifik (jam, tanggal, hari) dan tempat tujuan atau keberadaan.",[["7じ【に】 おきます。","","Saya bangun jam 7."],["にほん【に】 いきます。","","Saya pergi ke Jepang."]],"Kata waktu relatif (きょう, あした, まいにち) tidak memakai に."],["〜へ","ke arah","Tempat + へ + いく/くる/かえる","へ (dibaca \"e\") menandai arah pergerakan. Mirip に untuk tujuan.",[["がっこう【へ】 いきます。","","Saya pergi ke sekolah."],["うち【へ】 かえります。","","Saya pulang ke rumah."]],"Partikel へ dibaca \"e\"."],["〜で","di (tempat kegiatan) / dengan (alat)","Tempat + で + Kegiatan ・ Alat + で","で menandai tempat terjadinya kegiatan, atau alat/sarana.",[["としょかん【で】 べんきょうします。","","Saya belajar di perpustakaan."],["バス【で】 いきます。","","Saya pergi naik bus."]],"Tempat keberadaan (ada/tinggal) memakai に, bukan で."],["〜と","dengan (bersama) / dan","Orang + と ・ Kata benda + と + Kata benda","と berarti \"bersama\" atau \"dan\" untuk menyebut semua anggota.",[["ともだち【と】 えいがを みます。","","Saya menonton film bersama teman."],["パン【と】 たまごを たべます。","","Saya makan roti dan telur."]],"と hanya menyambung kata benda, bukan kalimat."],["〜が","penanda subjek; suka/bisa","Subjek + が ・ Hal + が + すき/わかる/ほしい","が menandai subjek, terutama info baru, dan objek perasaan atau kemampuan.",[["わたしは すし【が】 すきです。","","Saya suka sushi."],["あそこに ねこ【が】 います。","","Ada kucing di sana."]],"すき, きらい, じょうず, わかる, ほしい memakai が."],["〜から〜まで","dari ... sampai ...","Awal + から + Akhir + まで","Menyatakan titik awal dan akhir, baik waktu maupun tempat.",[["9じ【から】 5じ【まで】 はたらきます。","","Saya bekerja dari jam 9 sampai jam 5."],["うち【から】 えき【まで】 あるきます。","","Saya berjalan dari rumah sampai stasiun."]],"Bisa dipakai satu saja: 9じから (mulai jam 9)."],["〜や〜など","... dan ... (dll.)","Kata benda + や + Kata benda + (など)","や menyebut beberapa contoh saja, tidak semuanya. など berarti \"dan lain-lain\".",[["りんご【や】 バナナ【など】を かいました。","","Saya membeli apel, pisang, dan lain-lain."],["つくえの うえに ほん【や】 ペンが あります。","","Di atas meja ada buku, pena, dan lainnya."]],"と = menyebut semua; や = menyebut sebagian."],["〜か〜","atau","Kata benda + か + Kata benda","か di antara dua kata benda berarti \"atau\".",[["コーヒー【か】 こうちゃを のみます。","","Saya minum kopi atau teh."],["バス【か】 タクシーで いきます。","","Saya pergi naik bus atau taksi."]],"か di akhir kalimat = tanya."],["〜よ・〜ね","lho / ya kan","Kalimat + よ (memberi tahu) ・ Kalimat + ね (mencari persetujuan)","よ memberi info baru kepada lawan bicara, ね mengajak setuju atau menegaskan.",[["この ケーキ、おいしいです【よ】。","","Kue ini enak, lho."],["きょうは あついです【ね】。","","Hari ini panas, ya."]],"Jangan berlebihan memakai よ kepada atasan."]]},{"t":"Kata Kerja Dasar","p":[["〜ます・〜ません・〜ました・〜ませんでした","bentuk sopan","Stem ます + ます / ません / ました / ませんでした","Empat bentuk sopan: sekarang/akan, negatif, lampau, lampau negatif.",[["まいにち コーヒーを のみ【ます】。","","Setiap hari saya minum kopi."],["きのう テレビを み【ませんでした】。","","Kemarin saya tidak menonton TV."]],"Stem ます = bentuk sebelum ます: のみ, たべ, し."],["〜ましょう","mari / ayo","Stem ます + ましょう","Mengajak melakukan sesuatu bersama.",[["いっしょに たべ【ましょう】。","","Ayo makan bersama."],["すこし やすみ【ましょう】。","","Mari istirahat sebentar."]],"〜ましょうか = \"bagaimana kalau ...?\" atau menawarkan bantuan."],["〜ませんか","maukah ...? (ajakan)","Stem ます + ませんか","Ajakan yang sopan dan halus, memberi lawan bicara pilihan.",[["いっしょに えいがを み【ませんか】。","","Maukah menonton film bersama?"],["コーヒーを のみ【ませんか】。","","Mau minum kopi?"]],"Lebih halus daripada 〜ましょう."],["〜たい","ingin ...","Stem ます + たい(です)","Menyatakan keinginan sendiri untuk melakukan sesuatu. たい berubah seperti kata sifat -i.",[["にほんへ いき【たい】です。","","Saya ingin pergi ke Jepang."],["すしを たべ【たくない】です。","","Saya tidak ingin makan sushi."]],"Objeknya boleh を atau が: すしが たべたい."],["〜に いきます","pergi untuk ...","Stem ます + に + いく/くる/かえる","Menyatakan tujuan pergi.",[["えいがを み【に】 いきます。","","Saya pergi untuk menonton film."],["ひるごはんを たべ【に】 かえります。","","Saya pulang untuk makan siang."]],"Kata benda kegiatan juga bisa: かいものに いく."]]},{"t":"Bentuk て","p":[["〜てください","tolong ...","Bentuk て + ください","Meminta seseorang melakukan sesuatu dengan sopan.",[["ここに なまえを かい【てください】。","","Tolong tulis nama di sini."],["もう いちど いっ【てください】。","","Tolong ulangi sekali lagi."]],"Bentuk て: かく→かいて, いう→いって, たべる→たべて."],["〜ています","sedang ... / keadaan","Bentuk て + います","Menyatakan kegiatan yang sedang berlangsung, kebiasaan, atau keadaan hasil.",[["いま あめが ふっ【ています】。","","Sekarang sedang hujan."],["あには けっこんし【ています】。","","Kakak saya sudah menikah (statusnya menikah)."]],"しっています = tahu; しりません = tidak tahu."],["〜てから","setelah ...","Bentuk て + から","Urutan kegiatan: A dulu, baru B.",[["ごはんを たべ【てから】、はを みがきます。","","Setelah makan, saya sikat gigi."],["しゅくだいを し【てから】、あそびます。","","Setelah mengerjakan PR, saya bermain."]],"Penekanannya pada urutan yang jelas."],["〜てもいいです","boleh ...","Bentuk て + も いいです","Memberi atau meminta izin.",[["ここで しゃしんを とっ【てもいいです】か。","","Bolehkah saya memotret di sini?"],["もう かえっ【てもいいです】よ。","","Kamu sudah boleh pulang."]],"Jawaban menolak: すみません、ちょっと…"],["〜てはいけません","tidak boleh ...","Bentuk て + は いけません","Larangan yang tegas.",[["ここで たばこを すっ【てはいけません】。","","Tidak boleh merokok di sini."],["じゅぎょうちゅう ねて【はいけません】。","","Tidak boleh tidur saat pelajaran."]],"Lebih tegas daripada 〜ないでください."],["〜ないでください","tolong jangan ...","Bentuk ない + でください","Meminta seseorang tidak melakukan sesuatu, dengan sopan.",[["ここに くるまを とめ【ないでください】。","","Tolong jangan parkir mobil di sini."],["しんぱいし【ないでください】。","","Jangan khawatir."]],"Bentuk ない: のむ→のまない, たべる→たべない."]]},{"t":"Kata Sifat","p":[["Kata sifat -い","bentuk negatif & lampau","い→くない ・ い→かった ・ い→くなかった","Kata sifat yang berakhir い berubah sendiri: buang い lalu tambah akhiran.",[["きのうは さむ【かった】です。","","Kemarin dingin."],["この へやは ひろ【くない】です。","","Kamar ini tidak luas."]],"Pengecualian: いい → よくない, よかった."],["Kata sifat -な","bentuk negatif & lampau","な-adj + じゃない ・ だった ・ じゃなかった","Kata sifat -な berubah seperti kata benda. な muncul hanya sebelum kata benda.",[["この まちは しずか【でした】。","","Kota ini (dulu) tenang."],["しずか【な】 へやが いいです。","","Kamar yang tenang lebih baik."]],"きれい dan きらい adalah kata sifat -な walau berakhir い."],["〜くなる・〜になる","menjadi ...","い-adj: い→くなる ・ な-adj / kata benda + になる","Menyatakan perubahan keadaan.",[["さむ【くなりました】ね。","","Jadi dingin, ya."],["げんき【になりました】。","","Saya jadi sehat (sudah sembuh)."]],"Kata benda: いしゃに なる = menjadi dokter."]]},{"t":"Keberadaan & Perbandingan","p":[["あります・います","ada","Tempat + に + Benda + が あります ・ Makhluk hidup + が います","あります untuk benda mati dan tumbuhan, います untuk orang dan hewan.",[["つくえの うえに ほんが 【あります】。","","Ada buku di atas meja."],["こうえんに こどもが 【います】。","","Ada anak-anak di taman."]],"Negatif: ありません / いません."],["〜より〜のほうが","... lebih ... daripada ...","A より B のほうが + sifat","Membandingkan dua hal. Yang setelah のほうが adalah yang \"lebih\".",[["バス【より】 でんしゃ【のほうが】 はやいです。","","Kereta lebih cepat daripada bus."],["なつ【より】 ふゆ【のほうが】 すきです。","","Saya lebih suka musim dingin daripada musim panas."]],"Tanya: AとBと、どちらが〜ですか."],["〜のなかで〜がいちばん","paling ... di antara ...","Kelompok + の なかで + X が いちばん + sifat","Menyatakan yang paling di antara kelompok.",[["くだもの【のなかで】 りんご【がいちばん】 すきです。","","Di antara buah-buahan, saya paling suka apel."],["クラス【のなかで】 だれ【がいちばん】 せが たかいですか。","","Di kelas, siapa yang paling tinggi?"]],"いちばん = nomor satu / paling."],["〜がほしい","ingin (memiliki)","Benda + が ほしい(です)","Menyatakan keinginan memiliki benda. Untuk tindakan pakai 〜たい.",[["あたらしい くつ【がほしい】です。","","Saya ingin sepatu baru."],["なにも 【ほしくない】です。","","Saya tidak ingin apa-apa."]],"ほしい berubah seperti kata sifat -い."],["〜でしょう","mungkin / bukan? (dugaan)","Kalimat biasa + でしょう","Menyatakan dugaan atau meminta persetujuan.",[["あしたは あめ【でしょう】。","","Besok mungkin hujan."],["この もんだい、むずかしい【でしょう】。","","Soal ini sulit, bukan?"]],"Sering dipakai di ramalan cuaca."],["もう〜ました・まだ〜ていません","sudah ... / belum ...","もう + 〜ました ・ まだ + 〜ていません","Menyatakan sudah atau belum melakukan sesuatu.",[["もう しゅくだいを し【ました】。","","Saya sudah mengerjakan PR."],["まだ ひるごはんを たべ【ていません】。","","Saya belum makan siang."]],"\"Belum\" memakai 〜ていません, bukan 〜ませんでした."]]},{"t":"Waktu & Urutan","p":[["〜まえに","sebelum ...","Kata kerja kamus + まえに ・ Kata benda + の まえに","Sesuatu dilakukan sebelum kegiatan lain. Kata kerja di depan まえに selalu bentuk kamus.",[["ねる 【まえに】、はを みがきます。","","Sebelum tidur, saya sikat gigi."],["しょくじ【のまえに】、てを あらいます。","","Sebelum makan, saya cuci tangan."]],"Walau ceritanya lampau, tetap bentuk kamus: ねる まえに."],["〜たあとで","setelah ...","Bentuk た + あとで ・ Kata benda + の あとで","Sesuatu dilakukan setelah kegiatan lain.",[["しごとが おわっ【たあとで】、のみに いきます。","","Setelah pekerjaan selesai, saya pergi minum."],["じゅぎょう【のあとで】、としょかんへ いきます。","","Setelah pelajaran, saya ke perpustakaan."]],"Mirip 〜てから, tapi lebih menekankan waktu \"sesudah\"."],["〜ながら","sambil ...","Stem ます + ながら","Dua kegiatan dilakukan bersamaan oleh orang yang sama. Kegiatan utama ada di belakang.",[["おんがくを きき【ながら】 べんきょうします。","","Saya belajar sambil mendengarkan musik."],["あるき【ながら】 はなしましょう。","","Mari bicara sambil berjalan."]],"Subjek kedua kegiatan harus sama."],["〜とき","saat / ketika","Bentuk biasa + とき ・ Kata benda + の とき","Menyatakan waktu terjadinya sesuatu.",[["こどもの 【とき】、ピアノを ならいました。","","Waktu kecil saya belajar piano."],["ひまな 【とき】、えいがを みます。","","Saat senggang, saya menonton film."]],"Kata sifat -な: ひまな とき."]]}],"n4":[{"t":"Kemampuan & Perubahan","p":[["〜ことができる","bisa ...","Kata kerja kamus + ことが できる","Menyatakan kemampuan atau kemungkinan. Lebih formal daripada bentuk potensial.",[["わたしは 日本語を 話す【ことができます】。","わたしは にほんごを はなす ことができます。","Saya bisa berbicara bahasa Jepang."],["ここで お金を 払う【ことができます】。","ここで おかねを はらう ことができます。","Di sini bisa membayar."]],"Kata benda: ピアノが できる."],["Bentuk potensial","bisa ... (bentuk singkat)","Golongan 1: u→eru (よむ→よめる) ・ Golongan 2: る→られる ・ する→できる ・ くる→こられる","Bentuk kata kerja yang berarti \"bisa\". Objeknya biasanya memakai が.",[["漢字が 【読めます】。","かんじが よめます。","Saya bisa membaca kanji."],["あしたは 【来られます】か。","あしたは こられますか。","Besok kamu bisa datang?"]],"Dalam percakapan sering terdengar 見れる (bentuk 'ら抜き'), tapi yang baku 見られる."],["〜ようになる","menjadi bisa / mulai ...","Kamus/potensial + ように なる","Menyatakan perubahan kemampuan atau kebiasaan secara bertahap.",[["日本語が 話せる【ようになりました】。","にほんごが はなせる ようになりました。","Saya jadi bisa berbicara bahasa Jepang."],["毎朝 走る【ようになりました】。","まいあさ はしる ようになりました。","Saya mulai lari setiap pagi."]],"Negatif: 〜なくなる (jadi tidak ...)."],["〜たことがある","pernah ...","Bentuk た + ことが ある","Menyatakan pengalaman.",[["富士山に 登っ【たことがあります】。","ふじさんに のぼった ことがあります。","Saya pernah mendaki Gunung Fuji."],["すしを 食べ【たことがありません】。","すしを たべた ことがありません。","Saya belum pernah makan sushi."]],"Bukan untuk kejadian kemarin; untuk pengalaman hidup."],["〜ことにする・〜ことになる","memutuskan ... / diputuskan ...","Kamus/ない + ことに する (keputusan sendiri) ・ ことに なる (keputusan dari luar)","する = saya yang memutuskan; なる = keputusan orang lain atau keadaan.",[["来年 日本へ 行く【ことにしました】。","らいねん にほんへ いく ことにしました。","Saya memutuskan pergi ke Jepang tahun depan."],["来月 大阪に 転勤する【ことになりました】。","らいげつ おおさかに てんきんする ことになりました。","Saya dipindahtugaskan ke Osaka bulan depan."]],"〜ことにしている = kebiasaan yang sengaja dijaga."]]},{"t":"Rencana & Niat","p":[["〜つもり","berniat ...","Kamus/ない + つもり です","Menyatakan niat atau rencana yang sudah cukup pasti.",[["夏休みに 国へ 帰る【つもりです】。","なつやすみに くにへ かえる つもりです。","Saya berniat pulang kampung saat liburan musim panas."],["もう たばこは 吸わない【つもりです】。","もう たばこは すわない つもりです。","Saya berniat tidak merokok lagi."]],"Jangan pakai untuk bertanya rencana atasan (kurang sopan)."],["〜(よ)うと思う","berpikir untuk ... / mau ...","Bentuk kehendak (行こう・食べよう) + と 思う","Menyatakan rencana atau niat yang baru terpikir.",[["週末は 映画を 見【ようと思います】。","しゅうまつは えいがを みよう とおもいます。","Akhir pekan saya mau menonton film."],["来年 結婚し【ようと思っています】。","らいねん けっこんしよう とおもっています。","Saya berencana menikah tahun depan."]],"Bentuk kehendak: 行く→行こう, 食べる→食べよう, する→しよう."],["〜予定だ","dijadwalkan ...","Kamus + 予定 ・ Kata benda + の 予定","Menyatakan jadwal yang sudah ditetapkan.",[["会議は 3時に 始まる【予定です】。","かいぎは さんじに はじまる よていです。","Rapat dijadwalkan mulai jam 3."],["明日は 出張の【予定です】。","あしたは しゅっちょうの よていです。","Besok jadwalnya dinas luar."]],"Lebih pasti daripada つもり."]]},{"t":"Pengandaian","p":[["〜たら","kalau ... / setelah ...","Bentuk た + ら","Pengandaian paling serbaguna: \"jika\" atau \"setelah (lalu)\".",[["雨が 降っ【たら】、行きません。","あめが ふったら、いきません。","Kalau hujan, saya tidak pergi."],["駅に 着い【たら】、電話して ください。","えきに ついたら、でんわして ください。","Setelah tiba di stasiun, tolong telepon."]],"Paling aman dipakai saat ragu memilih bentuk pengandaian."],["〜ば","kalau ...","Gol.1: u→eba ・ Gol.2: る→れば ・ い-adj: い→ければ","Pengandaian syarat: jika A terpenuhi, B terjadi.",[["練習すれ【ば】、上手に なります。","れんしゅうすれば、じょうずに なります。","Kalau berlatih, kamu akan mahir."],["安けれ【ば】、買います。","やすければ、かいます。","Kalau murah, saya beli."]],"Bagian belakang jarang berupa perintah atau ajakan."],["〜と","kalau ... (pasti) ...","Kamus + と","Hasil yang selalu atau otomatis terjadi.",[["春に なる【と】、桜が 咲きます。","はるに なると、さくらが さきます。","Kalau musim semi tiba, sakura mekar."],["この ボタンを 押す【と】、水が 出ます。","この ボタンを おすと、みずが でます。","Kalau tombol ini ditekan, air keluar."]],"Tidak bisa diikuti ajakan atau permintaan."],["〜なら","kalau (memang) ...","Kata benda / bentuk biasa + なら","Menanggapi topik yang disebut lawan bicara, lalu memberi saran.",[["日本へ 行く【なら】、京都が いいですよ。","にほんへ いくなら、きょうとが いいですよ。","Kalau mau ke Jepang, Kyoto bagus lho."],["コーヒー【なら】、あの 店が おいしいです。","コーヒーなら、あの みせが おいしいです。","Kalau soal kopi, toko itu enak."]],"Sering untuk memberi saran."],["〜ても","walaupun ...","Bentuk て + も","Hasilnya tidak berubah meskipun ada syarat itu.",[["雨が 降っ【ても】、行きます。","あめが ふっても、いきます。","Walaupun hujan, saya tetap pergi."],["高く【ても】、買いたいです。","たかくても、かいたいです。","Walaupun mahal, saya ingin membelinya."]],"Kata benda/-な: 〜でも (学生でも)."]]},{"t":"Dugaan & Kabar","p":[["〜そうだ (kelihatannya)","kelihatannya ...","Stem ます / adj tanpa い・な + そうだ","Dugaan berdasarkan apa yang terlihat langsung.",[["雨が 降り【そうです】。","あめが ふりそうです。","Kelihatannya akan hujan."],["この ケーキは おいし【そうです】ね。","この ケーキは おいしそうですね。","Kue ini kelihatannya enak, ya."]],"いい → よさそう, ない → なさそう."],["〜そうだ (katanya)","katanya ...","Bentuk biasa + そうだ","Menyampaikan informasi yang didengar dari orang lain.",[["天気予報に よると、明日は 雨が 降る【そうです】。","てんきよほうに よると、あしたは あめが ふるそうです。","Menurut ramalan cuaca, katanya besok hujan."],["田中さんは 結婚した【そうです】。","たなかさんは けっこんしたそうです。","Katanya Tanaka-san sudah menikah."]],"Bedakan: 降りそう (kelihatannya) dan 降るそう (katanya)."],["〜ようだ・〜みたいだ","sepertinya ...","Bentuk biasa + ようだ (formal) / みたいだ (santai)","Dugaan berdasarkan pengamatan atau keadaan.",[["電気が 消えて いる。もう 寝た【ようです】。","でんきが きえて いる。もう ねたようです。","Lampunya mati. Sepertinya sudah tidur."],["かぜを ひいた【みたい】。","かぜを ひいたみたい。","Sepertinya saya masuk angin."]],"Juga berarti 'seperti': 夢の ような 話."],["〜らしい","kabarnya / sepertinya","Bentuk biasa + らしい","Dugaan berdasarkan informasi dari luar, agak berjarak.",[["あの 店は 来月 閉まる【らしい】です。","あの みせは らいげつ しまるらしいです。","Kabarnya toko itu tutup bulan depan."],["山田さんは 病気【らしい】。","やまださんは びょうきらしい。","Sepertinya Yamada-san sakit."]],"Kata benda + らしい juga bisa berarti 'khas': 男らしい."],["〜かもしれない","mungkin ...","Bentuk biasa + かもしれない","Kemungkinan sekitar 50%.",[["明日は 雪が 降る【かもしれません】。","あしたは ゆきが ふるかもしれません。","Besok mungkin turun salju."],["遅れる【かもしれない】から、先に 食べて。","おくれるかもしれないから、さきに たべて。","Mungkin saya terlambat, jadi makan duluan saja."]],"Kata benda/-な tanpa だ: 病気かもしれない."],["〜はずだ","seharusnya ...","Bentuk biasa + はずだ","Keyakinan berdasarkan alasan yang jelas.",[["彼は 日本に 10年 いたから、日本語が 上手な【はずです】。","かれは にほんに じゅうねん いたから、にほんごが じょうずな はずです。","Dia tinggal 10 tahun di Jepang, jadi seharusnya mahir bahasa Jepang."],["荷物は 明日 届く【はずです】。","にもつは あした とどく はずです。","Paketnya seharusnya sampai besok."]],"〜はずがない = tidak mungkin."]]},{"t":"Memberi & Menerima","p":[["あげる・くれる・もらう","memberi / diberi / menerima","A は B に あげる ・ B は わたしに くれる ・ わたしは B に もらう","あげる = memberi ke orang lain; くれる = orang lain memberi ke saya; もらう = saya menerima.",[["友だちに プレゼントを 【あげました】。","ともだちに プレゼントを あげました。","Saya memberi teman hadiah."],["母が 時計を 【くれました】。","ははが とけいを くれました。","Ibu memberi saya jam."]],"Hormat: さしあげる・くださる・いただく."],["〜てあげる・〜てくれる・〜てもらう","melakukan untuk orang lain","Bentuk て + あげる / くれる / もらう","Menyatakan kebaikan yang diberikan atau diterima lewat suatu tindakan.",[["友だちが 引っ越しを 手伝っ【てくれました】。","ともだちが ひっこしを てつだって くれました。","Teman membantu saya pindahan."],["先生に 作文を 直し【てもらいました】。","せんせいに さくぶんを なおして もらいました。","Karangan saya diperbaiki oleh guru."]],"〜てあげる ke atasan terdengar sombong."]]},{"t":"Bentuk て Lanjutan","p":[["〜てしまう","telanjur / sampai habis","Bentuk て + しまう (santai: 〜ちゃう)","Menyatakan penyesalan atau tindakan yang selesai tuntas.",[["財布を なくし【てしまいました】。","さいふを なくして しまいました。","Saya (telanjur) kehilangan dompet."],["宿題を 全部 やっ【てしまった】。","しゅくだいを ぜんぶ やって しまった。","Saya sudah menyelesaikan semua PR."]],"Santai: なくしちゃった."],["〜ておく","melakukan sebelumnya (persiapan)","Bentuk て + おく (santai: 〜とく)","Melakukan sesuatu sebagai persiapan, atau membiarkan dalam keadaan tertentu.",[["会議の 前に 資料を コピーし【ておきます】。","かいぎの まえに しりょうを コピーして おきます。","Sebelum rapat saya fotokopi dokumennya dulu."],["窓を 開け【ておいて】 ください。","まどを あけて おいて ください。","Tolong biarkan jendelanya terbuka."]],""],["〜てある","sudah di-... (keadaan)","Kata kerja transitif bentuk て + ある","Keadaan hasil tindakan seseorang yang disengaja. Objeknya memakai が.",[["窓が 開け【てあります】。","まどが あけて あります。","Jendela sudah dibuka (oleh seseorang)."],["壁に 地図が はっ【てあります】。","かべに ちずが はって あります。","Di dinding tertempel peta."]],"Bandingkan: 窓が 開いて いる (terbuka, tanpa menekankan pelaku)."],["〜てみる","mencoba ...","Bentuk て + みる","Mencoba melakukan sesuatu untuk melihat hasilnya.",[["この 服を 着【てみても】 いいですか。","この ふくを きて みても いいですか。","Bolehkah saya mencoba baju ini?"],["日本料理を 作っ【てみました】。","にほんりょうりを つくって みました。","Saya mencoba memasak masakan Jepang."]],""]]},{"t":"Pasif & Kausatif","p":[["Bentuk pasif (受身)","di-... / ter-...","Gol.1: u→areru (よむ→よまれる) ・ Gol.2: る→られる ・ される ・ こられる","Subjek dikenai tindakan. Sering juga untuk kejadian yang merugikan.",[["先生に ほめ【られました】。","せんせいに ほめられました。","Saya dipuji guru."],["電車で 足を 踏ま【れました】。","でんしゃで あしを ふまれました。","Kaki saya diinjak di kereta."]],"Pelakunya ditandai に."],["Bentuk kausatif (使役)","menyuruh / membiarkan","Gol.1: u→aseru (よむ→よませる) ・ Gol.2: る→させる ・ させる ・ こさせる","Menyuruh atau membiarkan orang lain melakukan sesuatu.",[["母は 弟に 野菜を 食べ【させました】。","ははは おとうとに やさいを たべさせました。","Ibu menyuruh adik makan sayur."],["少し 考え【させて】 ください。","すこし かんがえさせて ください。","Izinkan saya berpikir sebentar."]],"〜させてください = minta izin melakukan sesuatu."],["Kausatif-pasif (使役受身)","dipaksa ...","Gol.1: u→aされる (よまされる) ・ Gol.2: る→させられる","Dipaksa melakukan sesuatu oleh orang lain (biasanya tidak mau).",[["子どもの とき、母に ピアノを 習わ【されました】。","こどもの とき、ははに ピアノを ならわされました。","Waktu kecil saya disuruh (dipaksa) les piano oleh ibu."],["部長に 夜まで 働か【されました】。","ぶちょうに よるまで はたらかされました。","Saya dipaksa kerja sampai malam oleh atasan."]],""]]},{"t":"Tujuan, Alasan & Lainnya","p":[["〜ために","untuk / demi ...","Kamus (kehendak) + ために ・ Kata benda + の ために","Menyatakan tujuan dengan kata kerja yang dikendalikan sendiri.",[["家を 買う【ために】、貯金して います。","いえを かう ために、ちょきんして います。","Saya menabung untuk membeli rumah."],["健康の【ために】、毎日 歩きます。","けんこうの ために、まいにち あるきます。","Demi kesehatan, saya berjalan setiap hari."]],"Juga berarti 'karena' (akibat): 雨の ために 中止."],["〜ように","agar ...","Kamus/ない/potensial + ように","Tujuan berupa keadaan, bukan tindakan langsung.",[["忘れない【ように】、メモします。","わすれない ように、メモします。","Saya mencatat agar tidak lupa."],["よく 見える【ように】、前に 座ります。","よく みえる ように、まえに すわります。","Saya duduk di depan agar terlihat jelas."]],"Bandingkan ために (tindakan yang dikendalikan sendiri)."],["〜のに","padahal ...","Bentuk biasa + のに (な-adj/benda: 〜なのに)","Hasilnya bertentangan dengan harapan; sering ada nada kecewa.",[["たくさん 勉強した【のに】、試験に 落ちました。","たくさん べんきょうしたのに、しけんに おちました。","Padahal sudah belajar banyak, saya gagal ujian."],["日曜日な【のに】、仕事です。","にちようびなのに、しごとです。","Padahal hari Minggu, tetap kerja."]],""],["〜ので","karena ...","Bentuk biasa + ので (な-adj/benda: 〜なので)","Alasan yang objektif dan lebih sopan daripada から.",[["頭が 痛い【ので】、早く 帰ります。","あたまが いたいので、はやく かえります。","Karena sakit kepala, saya pulang cepat."],["明日は 休みな【ので】、映画を 見ます。","あしたは やすみなので、えいがを みます。","Karena besok libur, saya menonton film."]],"Cocok untuk minta izin dengan sopan."],["〜やすい・〜にくい","mudah / sulit di-...","Stem ます + やすい / にくい","Menyatakan sesuatu mudah atau sulit dilakukan.",[["この ペンは 書き【やすい】です。","この ペンは かきやすいです。","Pena ini enak dipakai menulis."],["この 薬は 飲み【にくい】です。","この くすりは のみにくいです。","Obat ini sulit diminum."]],"Berubah seperti kata sifat -い."],["〜すぎる","terlalu ...","Stem ます / adj tanpa い・な + すぎる","Melebihi batas wajar, biasanya negatif.",[["食べ【すぎて】、お腹が 痛いです。","たべすぎて、おなかが いたいです。","Terlalu banyak makan, perut jadi sakit."],["この 問題は 難し【すぎます】。","この もんだいは むずかしすぎます。","Soal ini terlalu sulit."]],"いい → よすぎる."],["〜たり〜たりする","kadang ... kadang ... / ... dan lain-lain","Bentuk た + り、bentuk た + り + する","Menyebut beberapa contoh kegiatan, tidak berurutan.",[["週末は 本を 読ん【だり】、映画を 見【たり】 します。","しゅうまつは ほんを よんだり、えいがを みたり します。","Akhir pekan saya membaca buku, menonton film, dan lain-lain."],["雨が 降っ【たり】 やん【だり】 して います。","あめが ふったり やんだり して います。","Hujan turun lalu berhenti, berulang-ulang."]],""],["〜ところだ","baru akan / sedang / baru saja","Kamus + ところ (akan) ・ 〜ている ところ (sedang) ・ 〜た ところ (baru saja)","Menunjukkan tahap suatu tindakan secara tepat.",[["今から 出かける【ところです】。","いまから でかける ところです。","Saya baru akan berangkat."],["今 駅に 着いた【ところです】。","いま えきに ついた ところです。","Saya baru saja tiba di stasiun."]],"〜たばかり = baru (bisa lebih lama dari 〜たところ)."]]},{"t":"Bahasa Hormat (Keigo Dasar)","p":[["Sonkeigo (尊敬語)","bahasa hormat (untuk orang lain)","お + stem + に なる ・ kata khusus: いらっしゃる, 召し上がる, おっしゃる","Meninggikan tindakan atasan, tamu, atau pelanggan.",[["社長は もう お帰り【になりました】。","しゃちょうは もう おかえりに なりました。","Direktur sudah pulang."],["先生は 何と 【おっしゃいました】か。","せんせいは なんと おっしゃいましたか。","Apa yang guru katakan?"]],"Jangan dipakai untuk tindakan diri sendiri."],["Kenjōgo (謙譲語)","bahasa merendah (untuk diri sendiri)","お + stem + する ・ kata khusus: 参る, いただく, 申す, 拝見する","Merendahkan tindakan diri sendiri untuk menghormati lawan bicara.",[["荷物を お持ち【します】。","にもつを おもち します。","Biar saya bawakan barangnya."],["田中と 【申します】。","たなかと もうします。","Nama saya Tanaka."]],""]]}],"n3":[{"t":"Waktu & Situasi","p":[["〜うちに","selagi ... / sebelum ...","Kamus/ている/ない/adj/Nの + うちに","Melakukan sesuatu selagi keadaan masih ada, sebelum berubah.",[["若い 【うちに】 いろいろな 国へ 行きたい。","わかい うちに いろいろな くにへ いきたい。","Selagi masih muda, saya ingin pergi ke berbagai negara."],["温かい 【うちに】 食べて ください。","あたたかい うちに たべて ください。","Silakan makan selagi masih hangat."]],"〜ないうちに = sebelum ... (terjadi)."],["〜たびに","setiap kali ...","Kamus + たびに ・ N + の たびに","Setiap kali A terjadi, B juga terjadi.",[["この 歌を 聞く 【たびに】 故郷を 思い出す。","この うたを きく たびに ふるさとを おもいだす。","Setiap kali mendengar lagu ini, saya teringat kampung halaman."],["出張の 【たびに】 お土産を 買う。","しゅっちょうの たびに おみやげを かう。","Setiap kali dinas luar, saya membeli oleh-oleh."]],""],["〜最中に","di tengah-tengah ...","〜ている + 最中に ・ N + の 最中に","Sesuatu (biasanya mengganggu) terjadi tepat saat sedang berlangsung.",[["会議の 【最中に】 電話が 鳴った。","かいぎの さいちゅうに でんわが なった。","Telepon berdering di tengah rapat."],["食事を して いる 【最中に】 地震が 起きた。","しょくじを して いる さいちゅうに じしんが おきた。","Gempa terjadi saat sedang makan."]],""],["〜ついでに","sekalian ...","Kamus/た + ついでに ・ N + の ついでに","Memanfaatkan kesempatan untuk sekalian melakukan hal lain.",[["駅へ 行った 【ついでに】 本屋に 寄った。","えきへ いった ついでに ほんやに よった。","Sekalian ke stasiun, saya mampir ke toko buku."],["散歩の 【ついでに】 パンを 買って きた。","さんぽの ついでに パンを かって きた。","Sekalian jalan-jalan, saya membeli roti."]],""]]},{"t":"Sebab & Akibat","p":[["〜おかげで","berkat ...","Bentuk biasa + おかげで ・ N + の おかげで","Alasan yang menghasilkan hal baik, dengan rasa terima kasih.",[["先生の 【おかげで】 合格できました。","せんせいの おかげで ごうかくできました。","Berkat guru, saya bisa lulus."],["薬を 飲んだ 【おかげで】 よく なった。","くすりを のんだ おかげで よく なった。","Berkat minum obat, saya jadi membaik."]],""],["〜せいで","gara-gara ...","Bentuk biasa + せいで ・ N + の せいで","Alasan yang menyebabkan hal buruk; ada nada menyalahkan.",[["雨の 【せいで】 試合が 中止に なった。","あめの せいで しあいが ちゅうしに なった。","Gara-gara hujan, pertandingan dibatalkan."],["寝坊した 【せいで】 遅刻した。","ねぼうした せいで ちこくした。","Gara-gara bangun kesiangan, saya terlambat."]],"Kebalikan dari おかげで."],["〜によって","tergantung / oleh / karena","N + によって","Bisa berarti 'tergantung', 'oleh (pelaku pasif)', atau 'karena'.",[["人に 【よって】 考え方が 違う。","ひとに よって かんがえかたが ちがう。","Cara berpikir berbeda tergantung orangnya."],["この 寺は 有名な 僧に 【よって】 建てられた。","この てらは ゆうめいな そうに よって たてられた。","Kuil ini dibangun oleh biksu terkenal."]],""],["〜わけだ","pantas saja / berarti ...","Bentuk biasa + わけだ","Kesimpulan logis dari fakta yang ada.",[["10年 住んで いたの。上手な 【わけだ】。","じゅうねん すんで いたの。じょうずな わけだ。","Sudah tinggal 10 tahun? Pantas saja mahir."],["エアコンが 壊れて いる。暑い 【わけだ】。","エアコンが こわれて いる。あつい わけだ。","AC-nya rusak. Pantas saja panas."]],"〜わけではない = bukan berarti ..."],["〜わけではない","bukan berarti ...","Bentuk biasa + わけではない","Menyangkal sebagian; tidak sepenuhnya begitu.",[["嫌いな 【わけではない】が、あまり 食べない。","きらいな わけではないが、あまり たべない。","Bukan berarti tidak suka, tapi jarang makan."],["全部 わかる 【わけではない】。","ぜんぶ わかる わけではない。","Bukan berarti saya mengerti semuanya."]],""]]},{"t":"Topik & Hubungan","p":[["〜について","tentang ...","N + について","Menyatakan topik pembicaraan atau penelitian.",[["日本の 文化に 【ついて】 調べて います。","にほんの ぶんかに ついて しらべて います。","Saya meneliti tentang budaya Jepang."],["その 問題に 【ついて】 話し合いましょう。","その もんだいに ついて はなしあいましょう。","Mari kita bahas masalah itu."]],""],["〜に対して","terhadap ... / sedangkan ...","N + に対して","Menyatakan sasaran sikap/tindakan, atau perbandingan kontras.",[["お客様に 【対して】 丁寧に 話す。","おきゃくさまに たいして ていねいに はなす。","Berbicara sopan terhadap pelanggan."],["兄は 背が 高いの 【に対して】、弟は 低い。","あには せが たかいの に たいして、おとうとは ひくい。","Kakak tinggi, sedangkan adik pendek."]],""],["〜として","sebagai ...","N + として","Menyatakan peran, status, atau kedudukan.",[["通訳 【として】 会議に 参加した。","つうやく として かいぎに さんかした。","Saya ikut rapat sebagai penerjemah."],["留学生 【として】 日本に 来ました。","りゅうがくせい として にほんに きました。","Saya datang ke Jepang sebagai pelajar asing."]],""],["〜とおりに","sesuai ...","Kamus/た + とおりに ・ N + の とおりに / N + どおりに","Melakukan persis seperti yang disebutkan.",[["説明書の 【とおりに】 組み立てた。","せつめいしょの とおりに くみたてた。","Saya merakit sesuai petunjuk."],["先生が 言った 【とおりに】 書いて ください。","せんせいが いった とおりに かいて ください。","Tulislah persis seperti yang dikatakan guru."]],""]]},{"t":"Keharusan & Saran","p":[["〜べきだ","seharusnya ...","Kamus + べきだ (する → すべき)","Pendapat bahwa sesuatu sebaiknya atau wajib dilakukan secara moral.",[["約束は 守る 【べきだ】。","やくそくは まもる べきだ。","Janji seharusnya ditepati."],["学生は もっと 勉強す 【べきだ】。","がくせいは もっと べんきょうす べきだ。","Pelajar seharusnya lebih giat belajar."]],"Negatif: 〜べきではない."],["〜ことはない","tidak perlu ...","Kamus + ことはない","Menenangkan bahwa sesuatu tidak perlu dilakukan.",[["心配する 【ことはない】よ。","しんぱいする ことはない よ。","Tidak perlu khawatir."],["わざわざ 来る 【ことはない】。","わざわざ くる ことはない。","Tidak perlu repot-repot datang."]],""],["〜しかない","tidak ada pilihan selain ...","Kamus + しかない","Satu-satunya pilihan yang tersisa.",[["バスが ないから、歩く 【しかない】。","バスが ないから、あるく しかない。","Karena tidak ada bus, terpaksa jalan kaki."],["自分で やる 【しかない】。","じぶんで やる しかない。","Tidak ada pilihan selain mengerjakannya sendiri."]],""],["〜てほしい","ingin (orang lain) ...","Bentuk て + ほしい","Keinginan agar orang lain melakukan sesuatu.",[["もっと ゆっくり 話し 【てほしい】。","もっと ゆっくり はなして ほしい。","Saya ingin kamu bicara lebih pelan."],["彼に 来 【てほしい】と 思う。","かれに きて ほしい と おもう。","Saya berharap dia datang."]],"Orangnya ditandai に."],["〜ようにする","berusaha agar ...","Kamus/ない + ようにする","Membiasakan diri atau berusaha secara sadar.",[["毎日 野菜を 食べる 【ようにして】 いる。","まいにち やさいを たべる ようにして いる。","Saya berusaha makan sayur setiap hari."],["遅刻しない 【ようにして】 ください。","ちこくしない ようにして ください。","Usahakan jangan terlambat."]],""]]},{"t":"Kesan & Perbandingan","p":[["〜っぽい","agak ... / kesan ...","N / stem / adj tanpa い + っぽい","Kesan atau kecenderungan (sering untuk hal negatif).",[["熱が あって、少し 風邪 【っぽい】。","ねつが あって、すこし かぜ っぽい。","Ada demam, sepertinya agak masuk angin."],["彼は 忘れ 【っぽい】。","かれは わすれ っぽい。","Dia pelupa."]],""],["〜くせに","padahal ... (nada kritik)","Bentuk biasa + くせに ・ N + の くせに","Mengkritik perilaku yang tidak sesuai keadaan.",[["知って いる 【くせに】、教えて くれない。","しって いる くせに、おしえて くれない。","Padahal tahu, dia tidak mau memberi tahu."],["子どもの 【くせに】 生意気だ。","こどもの くせに なまいきだ。","Masih anak-anak tapi sok."]],"Hanya untuk orang lain, nada negatif."],["〜ば〜ほど","semakin ..., semakin ...","Bentuk ば + kamus yang sama + ほど","Dua hal berubah bersamaan.",[["練習すれ 【ば】 する 【ほど】 上手に なる。","れんしゅうすれば する ほど じょうずに なる。","Semakin berlatih, semakin mahir."],["考えれ 【ば】 考える 【ほど】 わからなく なる。","かんがえれば かんがえる ほど わからなく なる。","Semakin dipikirkan, semakin bingung."]],""],["〜わりに","dibanding ..., (ternyata) ...","Bentuk biasa + わりに ・ N + の わりに","Hasil tidak sesuai dengan yang diharapkan dari kondisinya.",[["この 店は 値段の 【わりに】 おいしい。","この みせは ねだんの わりに おいしい。","Toko ini, dibanding harganya, enak."],["よく 勉強した 【わりに】 点数が 低かった。","よく べんきょうした わりに てんすうが ひくかった。","Meski belajar giat, nilainya rendah."]],""],["〜ということだ","katanya / artinya ...","Bentuk biasa + ということだ","Menyampaikan kabar, atau menyimpulkan maksud.",[["明日は 休みだ 【ということだ】。","あしたは やすみだ ということだ。","Katanya besok libur."],["つまり、計画は 中止 【ということです】ね。","つまり、けいかくは ちゅうし ということです ね。","Jadi artinya rencananya dibatalkan, ya."]],""]]}],"n2":[{"t":"Syarat & Urutan","p":[["〜うえで","setelah ... (baru)","Bentuk た + うえで ・ N + の うえで","Melakukan B berdasarkan hasil A yang sudah dilakukan dulu.",[["よく 考えた 【うえで】 決めて ください。","よく かんがえた うえで きめて ください。","Putuskan setelah dipikirkan baik-baik."],["相談の 【うえで】 返事します。","そうだんの うえで へんじします。","Saya akan menjawab setelah berunding."]],"Juga berarti 'dalam hal ...': 仕事の うえで."],["〜次第","begitu ... (langsung)","Stem ます + 次第","Segera setelah A terjadi, B dilakukan. Formal, dipakai dalam bisnis.",[["資料が 届き 【次第】、お送りします。","しりょうが とどき しだい、おおくりします。","Begitu dokumen tiba, akan segera kami kirim."],["準備が でき 【次第】 出発しましょう。","じゅんびが でき しだい しゅっぱつしましょう。","Begitu siap, mari berangkat."]],"N + 次第 = tergantung: 天気次第."],["〜からには","karena sudah ... (maka harus)","Bentuk biasa + からには","Karena sudah memutuskan atau keadaannya begitu, harus dijalankan sampai tuntas.",[["引き受けた 【からには】、最後まで やる。","ひきうけた からには、さいごまで やる。","Karena sudah menyanggupi, akan saya kerjakan sampai selesai."],["日本に 来た 【からには】、日本語を 身に つけたい。","にほんに きた からには、にほんごを みに つけたい。","Karena sudah datang ke Jepang, saya ingin menguasai bahasa Jepang."]],"Mirip 〜以上は."],["〜にかかわらず","terlepas dari ...","N + にかかわらず","Tidak dipengaruhi oleh perbedaan hal tersebut.",[["年齢に 【かかわらず】 参加できます。","ねんれいに かかわらず さんかできます。","Bisa ikut tanpa memandang usia."],["天気に 【かかわらず】 試合は 行われる。","てんきに かかわらず しあいは おこなわれる。","Pertandingan diadakan apa pun cuacanya."]],""],["〜をきっかけに","berawal dari ...","N + を きっかけに","Suatu kejadian menjadi pemicu perubahan.",[["留学を 【きっかけに】 料理を 始めた。","りゅうがくを きっかけに りょうりを はじめた。","Berawal dari kuliah di luar negeri, saya mulai memasak."],["病気を 【きっかけに】 たばこを やめた。","びょうきを きっかけに たばこを やめた。","Karena sakit, saya berhenti merokok."]],""]]},{"t":"Kontras & Hasil","p":[["〜ものの","meskipun ...","Bentuk biasa + ものの","A memang benar, tetapi hasilnya tidak sesuai harapan.",[["買った 【ものの】、まだ 一度も 使って いない。","かった ものの、まだ いちども つかって いない。","Meski sudah dibeli, belum pernah dipakai sekali pun."],["約束した 【ものの】、行けそうに ない。","やくそくした ものの、いけそうに ない。","Meski sudah berjanji, sepertinya tidak bisa pergi."]],""],["〜あげく","setelah (lama) ..., akhirnya ...","Bentuk た + あげく ・ N + の あげく","Setelah proses panjang atau sulit, berakhir dengan hasil (biasanya buruk).",[["さんざん 迷った 【あげく】、何も 買わなかった。","さんざん まよった あげく、なにも かわなかった。","Setelah lama bimbang, akhirnya tidak membeli apa-apa."],["長い 議論の 【あげく】、計画は 中止に なった。","ながい ぎろんの あげく、けいかくは ちゅうしに なった。","Setelah perdebatan panjang, rencana dibatalkan."]],""],["〜一方だ","terus-menerus (makin) ...","Kamus (perubahan) + 一方だ","Perubahan yang terus berlanjut ke satu arah, sering negatif.",[["物価は 上がる 【一方だ】。","ぶっかは あがる いっぽうだ。","Harga barang terus naik."],["人口が 減る 【一方だ】。","じんこうが へる いっぽうだ。","Jumlah penduduk terus berkurang."]],""],["〜にすぎない","hanyalah ...","Bentuk biasa / N + にすぎない","Tidak lebih dari itu; menekankan bahwa hal itu kecil atau sepele.",[["これは 私の 意見 【にすぎない】。","これは わたしの いけん に すぎない。","Ini hanyalah pendapat saya."],["彼は ただの 新人 【にすぎない】。","かれは ただの しんじん に すぎない。","Dia hanyalah karyawan baru."]],""]]},{"t":"Tidak Bisa & Terpaksa","p":[["〜わけにはいかない","tidak bisa (karena alasan moral/sosial)","Kamus + わけにはいかない","Secara kemampuan bisa, tapi karena keadaan atau norma tidak boleh dilakukan.",[["明日は 試験だから、休む 【わけにはいかない】。","あしたは しけんだから、やすむ わけにはいかない。","Besok ujian, jadi tidak mungkin bolos."],["お酒を 飲んだので、運転する 【わけにはいかない】。","おさけを のんだので、うんてんする わけにはいかない。","Karena sudah minum alkohol, tidak boleh menyetir."]],"〜ないわけにはいかない = harus."],["〜ずにはいられない","tidak bisa tidak ...","Bentuk ない (buang ない) + ずにはいられない (する → せずには)","Tidak bisa menahan diri untuk melakukannya.",[["その 映画を 見て、泣か 【ずにはいられなかった】。","その えいがを みて、なか ずにはいられなかった。","Menonton film itu, saya tak bisa menahan tangis."],["彼の 話を 聞くと、笑わ 【ずにはいられない】。","かれの はなしを きくと、わらわ ずにはいられない。","Mendengar ceritanya, saya pasti tertawa."]],""],["〜ざるを得ない","terpaksa ...","Bentuk ない (buang ない) + ざるを得ない (する → せざるを得ない)","Tidak ada pilihan lain selain melakukannya, meski tidak mau.",[["雨なので、中止せ 【ざるを得ない】。","あめなので、ちゅうしせ ざるをえない。","Karena hujan, terpaksa dibatalkan."],["社長の 命令なら、従わ 【ざるを得ない】。","しゃちょうの めいれいなら、したがわ ざるをえない。","Kalau perintah direktur, terpaksa dituruti."]],""],["〜かねない","bisa-bisa ... (hal buruk)","Stem ます + かねない","Ada kemungkinan terjadi hal buruk.",[["そんな 運転を したら、事故を 起こし 【かねない】。","そんな うんてんを したら、じこを おこし かねない。","Menyetir seperti itu bisa-bisa menyebabkan kecelakaan."],["無理を すると、体を 壊し 【かねない】。","むりを すると、からだを こわし かねない。","Kalau memaksakan diri, bisa-bisa jatuh sakit."]],""],["〜かねる","sulit untuk ... (sopan)","Stem ます + かねる","Menolak dengan sopan; sulit dilakukan dalam posisi saya.",[["その ご質問には お答えし 【かねます】。","その ごしつもんには おこたえし かねます。","Mohon maaf, pertanyaan itu sulit kami jawab."],["私には 判断し 【かねます】。","わたしには はんだんし かねます。","Saya sulit untuk memutuskannya."]],"Kebalikannya: 〜かねない (bisa-bisa)."],["〜っこない","mustahil ... (santai)","Stem ます + っこない","Sangat yakin tidak mungkin terjadi (lisan).",[["そんな こと、できっ 【こない】よ。","そんな こと、できっ こない よ。","Hal seperti itu mustahil bisa."],["一日で 終わり 【っこない】。","いちにちで おわり っこない。","Mustahil selesai dalam sehari."]],""]]},{"t":"Cakupan & Penekanan","p":[["〜に限らず","tidak terbatas pada ...","N + に限らず","Bukan hanya A, tapi juga yang lain.",[["この 店は 若者に 【限らず】、お年寄りにも 人気だ。","この みせは わかものに かぎらず、おとしよりにも にんきだ。","Toko ini populer tidak hanya di kalangan anak muda, tapi juga lansia."],["日本に 【限らず】、世界中で 問題に なって いる。","にほんに かぎらず、せかいじゅうで もんだいに なって いる。","Bukan hanya di Jepang, ini jadi masalah di seluruh dunia."]],""],["〜をはじめ","dimulai dari ... / termasuk ...","N + を はじめ (として)","Menyebut contoh utama, lalu yang lainnya.",[["社長を 【はじめ】、社員 全員が 参加した。","しゃちょうを はじめ、しゃいん ぜんいんが さんかした。","Mulai dari direktur, semua karyawan ikut."],["東京を 【はじめ】、多くの 都市で 雪が 降った。","とうきょうを はじめ、おおくの としで ゆきが ふった。","Salju turun di banyak kota, termasuk Tokyo."]],""],["〜ことか","betapa ...!","Kata tanya + bentuk biasa + ことか","Menyatakan perasaan yang sangat kuat.",[["合格の 知らせを 聞いて、どんなに うれしかった 【ことか】。","ごうかくの しらせを きいて、どんなに うれしかった ことか。","Betapa senangnya saya saat mendengar kabar kelulusan!"],["何度 注意した 【ことか】。","なんど ちゅういした ことか。","Entah sudah berapa kali saya peringatkan!"]],""],["〜としても","seandainya pun ...","Bentuk biasa + としても","Meskipun diandaikan begitu, hasilnya tidak berubah.",[["今から 急いだ 【としても】、間に合わない。","いまから いそいだ としても、まにあわない。","Seandainya pun buru-buru sekarang, tetap tidak keburu."],["反対された 【としても】、私は 行く。","はんたいされた としても、わたしは いく。","Seandainya pun ditentang, saya tetap pergi."]],""]]}],"n1":[{"t":"Syarat & Kedudukan","p":[["〜なくして(は)","tanpa ... (tidak mungkin)","N + なくして(は) + negatif","Tanpa A, B tidak mungkin terwujud.",[["努力 【なくして】 成功は ない。","どりょく なくして せいこうは ない。","Tanpa usaha, tidak ada kesuksesan."],["皆様の ご協力 【なくしては】 実現できませんでした。","みなさまの ごきょうりょく なくしては じつげんできませんでした。","Tanpa kerja sama Anda semua, ini tidak bisa terwujud."]],""],["〜ともなると","kalau sudah (setingkat) ...","N / kamus + ともなると / ともなれば","Kalau sudah mencapai posisi atau tingkat tertentu, wajar jika keadaannya berbeda.",[["社長 【ともなると】、休む 暇も ない。","しゃちょう ともなると、やすむ ひまも ない。","Kalau sudah jadi direktur, tidak sempat istirahat."],["大学生 【ともなれば】、自分で 考えて 行動すべきだ。","だいがくせい ともなれば、じぶんで かんがえて こうどうすべきだ。","Kalau sudah mahasiswa, seharusnya berpikir dan bertindak sendiri."]],""],["〜ならでは","khas / hanya ada pada ...","N + ならでは の N","Sesuatu yang hanya mungkin karena hal itu.",[["これは 京都 【ならでは】の 景色だ。","これは きょうと ならでは の けしきだ。","Ini pemandangan khas Kyoto."],["手作り 【ならでは】の 温かさが ある。","てづくり ならでは の あたたかさが ある。","Ada kehangatan yang khas buatan tangan."]],""],["〜いかんによらず","apa pun ...","N(の) + いかんによらず / いかんにかかわらず","Tidak dipengaruhi oleh bagaimana keadaan A.",[["理由の 【いかんによらず】、遅刻は 認めない。","りゆうの いかんによらず、ちこくは みとめない。","Apa pun alasannya, keterlambatan tidak diterima."],["結果の 【いかんにかかわらず】、報告して ください。","けっかの いかんにかかわらず、ほうこくして ください。","Apa pun hasilnya, tolong laporkan."]],""]]},{"t":"Waktu & Kecepatan","p":[["〜が早いか","begitu ..., langsung ...","Kamus + が早いか","Segera setelah A, B langsung terjadi (sangat cepat).",[["ベルが 鳴る 【が早いか】、学生たちは 教室を 飛び出した。","ベルが なる がはやいか、がくせいたちは きょうしつを とびだした。","Begitu bel berbunyi, para murid langsung berhamburan keluar kelas."],["家に 帰る 【が早いか】、ゲームを 始めた。","いえに かえる がはやいか、ゲームを はじめた。","Begitu sampai rumah, langsung main game."]],"Mirip: 〜や否や, 〜なり."],["〜や否や","begitu ... (seketika)","Kamus + や否や","Hampir bersamaan: A terjadi lalu langsung B (bahasa tulis).",[["ドアが 開く 【や否や】、客が 店に 押し寄せた。","ドアが ひらく やいなや、きゃくが みせに おしよせた。","Begitu pintu dibuka, pelanggan langsung menyerbu toko."],["その 知らせを 聞く 【や否や】、彼は 走り出した。","その しらせを きく やいなや、かれは はしりだした。","Begitu mendengar kabar itu, dia langsung berlari."]],""],["〜かたわら","sambil (kegiatan lain) ...","Kamus / N の + かたわら","Di samping pekerjaan utama, juga melakukan kegiatan lain dalam jangka panjang.",[["彼は 会社勤めの 【かたわら】、小説を 書いて いる。","かれは かいしゃづとめの かたわら、しょうせつを かいて いる。","Selain bekerja kantoran, dia menulis novel."],["子育ての 【かたわら】、大学で 学んで いる。","こそだての かたわら、だいがくで まなんで いる。","Sambil mengasuh anak, dia kuliah."]],""]]},{"t":"Perasaan & Penilaian","p":[["〜にかたくない","mudah untuk ...","N (想像・察する) + にかたくない","Dipakai dengan kata seperti 想像 atau 察する: mudah dibayangkan/dimengerti.",[["彼の 苦労は 想像 【にかたくない】。","かれの くろうは そうぞう にかたくない。","Kesulitannya mudah dibayangkan."],["親の 気持ちは 察する 【にかたくない】。","おやの きもちは さっする にかたくない。","Perasaan orang tua mudah dimengerti."]],""],["〜を禁じ得ない","tidak bisa menahan ...","N (perasaan) + を禁じ得ない","Perasaan muncul dengan sendirinya dan tak bisa ditahan.",[["被害者の 話に、涙 【を禁じ得なかった】。","ひがいしゃの はなしに、なみだ をきんじえなかった。","Mendengar cerita korban, saya tak bisa menahan air mata."],["その 判決には 怒り 【を禁じ得ない】。","その はんけつには いかり をきんじえない。","Saya tak bisa menahan amarah atas putusan itu."]],""],["〜にほかならない","tidak lain adalah ...","N / bentuk biasa + にほかならない","Menegaskan bahwa itulah satu-satunya jawaban atau alasan.",[["成功は 努力の 結果 【にほかならない】。","せいこうは どりょくの けっか にほかならない。","Kesuksesan tidak lain adalah hasil dari usaha."],["彼が 厳しいのは、君を 思って いるから 【にほかならない】。","かれが きびしいのは、きみを おもって いるから にほかならない。","Dia tegas tidak lain karena peduli padamu."]],""],["〜までもない","tidak perlu sampai ...","Kamus + までもない","Sudah jelas, sehingga tidak perlu dilakukan.",[["言う 【までもなく】、健康は 大切だ。","いう までもなく、けんこうは たいせつだ。","Tak perlu dikatakan lagi, kesehatan itu penting."],["わざわざ 行く 【までもない】。","わざわざ いく までもない。","Tidak perlu repot-repot pergi."]],""]]},{"t":"Penekanan & Gaya Formal","p":[["〜たりとも","sedikit pun / bahkan satu ...","一 + satuan + たりとも + negatif","Menegaskan tidak boleh ada sedikit pun.",[["一円 【たりとも】 無駄に できない。","いちえん たりとも むだに できない。","Satu yen pun tidak boleh dihamburkan."],["一日 【たりとも】 休まなかった。","いちにち たりとも やすまなかった。","Tidak libur sehari pun."]],""],["〜をもって","dengan / per (tanggal) ...","N + を もって","Bahasa formal: 'dengan (cara/alat)' atau 'per (batas waktu)'.",[["本日 【をもって】 営業を 終了いたします。","ほんじつ をもって えいぎょうを しゅうりょういたします。","Per hari ini, kami mengakhiri operasional."],["書面 【をもって】 ご連絡します。","しょめん をもって ごれんらくします。","Kami akan menghubungi Anda secara tertulis."]],""],["〜を余儀なくされる","terpaksa ...","N + を余儀なくされる","Terpaksa melakukan sesuatu karena keadaan di luar kendali.",[["台風の ため、大会は 中止 【を余儀なくされた】。","たいふうの ため、たいかいは ちゅうし をよぎなくされた。","Karena topan, turnamen terpaksa dibatalkan."],["不況で 工場の 閉鎖 【を余儀なくされた】。","ふきょうで こうじょうの へいさ をよぎなくされた。","Karena resesi, pabrik terpaksa ditutup."]],""],["〜ずくめ","serba ... / penuh ...","N + ずくめ","Dipenuhi oleh hal yang sama (biasanya hal baik).",[["今年は いい こと 【ずくめ】だった。","ことしは いい こと ずくめ だった。","Tahun ini penuh hal baik."],["黒 【ずくめ】の 服を 着て いる。","くろ ずくめ の ふくを きて いる。","Memakai pakaian serba hitam."]],""],["〜めく","mulai terasa ...","N + めく","Mulai menunjukkan tanda-tanda sesuatu.",[["日差しが 春 【めいて】 きた。","ひざしが はる めいて きた。","Sinar matahari mulai terasa seperti musim semi."],["彼の 言葉には 皮肉 【めいた】 響きが あった。","かれの ことばには ひにく めいた ひびきが あった。","Kata-katanya terdengar agak sinis."]],""],["〜とはいえ","meskipun dikatakan ...","Bentuk biasa / N + とはいえ","Mengakui A, tetapi kenyataannya tidak sepenuhnya begitu.",[["春 【とはいえ】、まだ 寒い。","はる とはいえ、まだ さむい。","Meski sudah musim semi, masih dingin."],["仕事が 忙しい 【とはいえ】、連絡ぐらいは できる はずだ。","しごとが いそがしい とはいえ、れんらくぐらいは できる はずだ。","Meski sibuk bekerja, seharusnya bisa sekadar menghubungi."]],""]]}]};
+const GLV = ['n5','n4','n3','n2','n1'];
+const GPTS = {};   // level -> [{lv,ti,theme,i,p,m,f,x,e,n}]
+GLV.forEach(lv=>{ GPTS[lv]=[]; GRAM[lv].forEach((th,ti)=>th.p.forEach(a=>GPTS[lv].push({lv,ti,theme:th.t,i:GPTS[lv].length,p:a[0],m:a[1],f:a[2],x:a[3],e:a[4],n:a[5]||''}))); });
+const gSpace = lv => lv==='n5'||lv==='n4';
+const gText = (s,lv) => gSpace(lv)? s : s.replace(/ /g,'');
+const gPlain = (s,lv) => gText(s,lv).replace(/[【】]/g,'');
+const gMark = (s,lv) => esc(gText(s,lv)).replace(/【(.+?)】/g,'<em class="gm">$1</em>');
+const gBest = (lv,i) => store.get(`g:${lv}:${i}`,null);
+const gDone = (lv,i) => (gBest(lv,i)||0)>=80;
+let GLEVEL = 'n5';
+
+function gramView(){
+  GLEVEL = store.get('glv','n5');
+  const pts=GPTS[GLEVEL], done=pts.filter(p=>gDone(GLEVEL,p.i)).length;
+  app.innerHTML = `
+    <div class="hero"><div class="eyebrow">文法 · ぶんぽう</div><h1>Tata Bahasa</h1>
+      <p class="sub">Pelajari pola kalimat dari dasar. Setiap pola punya rumus, contoh dengan suara, dan latihan singkat.</p></div>
+    <button type="button" class="deck conjcard" id="conjcard" style="--c:var(--n2)"><span class="badge jp">活</span><span class="meta"><b>Latihan Konjugasi</b><span class="num">Ubah bentuk kata kerja & kata sifat: ます, て, ない, た, bisa, pasif …</span></span><span class="chev" aria-hidden="true">›</span></button>
+    <div class="seg lvseg">${GLV.map(l=>`<button type="button" data-glv="${l}" aria-pressed="${l===GLEVEL}">${l.toUpperCase()}</button>`).join('')}</div>
+    <div class="panel" style="--c:var(--${GLEVEL})">
+      <div class="statrow"><b>${GLEVEL.toUpperCase()} · ${pts.length} pola</b><span class="num">${done} / ${pts.length} dikuasai</span><span class="bar"><i style="width:${pct(done,pts.length)}%"></i></span></div>
+      <button class="btn ghost sm" id="gmix">Latihan campur ${GLEVEL.toUpperCase()} (10 soal)</button>
+    </div>
+    ${GRAM[GLEVEL].map((th,ti)=>`<h2>${esc(th.t)}</h2><div class="glist">${pts.filter(p=>p.ti===ti).map(p=>{const b=gBest(GLEVEL,p.i);return `
+      <button type="button" class="grow" data-gp="${p.i}"><span class="gp">${esc(p.p)}</span><span class="gmn">${esc(p.m)}</span><span class="gst ${b>=80?'ok':b!=null?'mid':''}">${b>=80?'✓':b!=null?b+'%':'Baru'}</span></button>`}).join('')}</div>`).join('')}`;
+  app.querySelectorAll('[data-glv]').forEach(b=>b.onclick=()=>{ store.set('glv',b.dataset.glv); gramView(); window.scrollTo(0,0); });
+  app.querySelectorAll('[data-gp]').forEach(b=>b.onclick=()=>gLesson(GLEVEL,+b.dataset.gp));
+  app.querySelector('#gmix').onclick=()=>gQuiz(GLEVEL,null);
+  app.querySelector('#conjcard').onclick=()=>conjHome();
+}
+
+function gLesson(lv,i){
+  stopRec(); VIEW='glesson'; setNav(false); foot.hidden=true;
+  const pts=GPTS[lv], p=pts[i], b=gBest(lv,i);
+  app.innerHTML = `
+    <button class="back" id="back">‹ Tata Bahasa</button>
+    <div><div class="eyebrow" style="color:var(--${lv})">${lv.toUpperCase()} · ${esc(p.theme)} · ${i+1}/${pts.length}</div>
+      <h1 class="gtitle">${esc(p.p)}</h1><p class="gmean">${esc(p.m)}</p></div>
+    <div class="panel"><label class="lbl">RUMUS</label><p class="gform">${esc(p.f)}</p></div>
+    <div class="panel"><label class="lbl">PENJELASAN</label><p class="gx">${esc(p.x)}</p></div>
+    <div class="panel"><label class="lbl">CONTOH</label>
+      ${p.e.map((e,k)=>`<div class="gex"><button class="gplay" data-ex="${k}" aria-label="Dengarkan">▶</button><div><p class="gjp">${gMark(e[0],lv)}</p>${e[1]?`<p class="grd">${esc(gText(e[1],lv))}</p>`:''}<p class="gid">${esc(e[2])}</p></div></div>`).join('')}
+    </div>
+    ${p.n?`<div class="panel gnote"><label class="lbl">💡 CATATAN</label><p class="gx">${esc(p.n)}</p></div>`:''}
+    <button class="btn" id="gtry">Latihan pola ini${b!=null?` · terbaik ${b}%`:''}</button>
+    <div class="row" style="gap:8px">${i>0?`<button class="btn ghost sm" id="gprev">‹ ${esc(pts[i-1].p)}</button>`:''}${i<pts.length-1?`<button class="btn ghost sm" id="gnext" style="margin-left:auto">${esc(pts[i+1].p)} ›</button>`:''}</div>`;
+  app.querySelector('#back').onclick=()=>{ VIEW='gram'; setNav(true); gramView(); };
+  app.querySelectorAll('[data-ex]').forEach(x=>x.onclick=()=>{ const e=p.e[+x.dataset.ex]; speak(gPlain(e[1]||e[0],lv)); });
+  app.querySelector('#gtry').onclick=()=>gQuiz(lv,i);
+  const pv=app.querySelector('#gprev'); if(pv) pv.onclick=()=>gLesson(lv,i-1);
+  const nx=app.querySelector('#gnext'); if(nx) nx.onclick=()=>gLesson(lv,i+1);
+  window.scrollTo(0,0);
+}
+
+/* kuis tata bahasa */
+let GQ=null;
+function gMakeQs(lv, i){
+  const pts=GPTS[lv];
+  const src = i==null ? shuffle(pts).slice(0,10).map(p=>[p, p.e[Math.random()*p.e.length|0]]) : pts[i].e.map(e=>[pts[i],e]);
+  const marks = p => p.e.map(e=>(e[0].match(/【(.+?)】/g)||[]).map(m=>m.slice(1,-1)).join('…'));
+  const qs=[];
+  for(const [p,e] of src){
+    const ans=(e[0].match(/【(.+?)】/g)||[]).map(m=>m.slice(1,-1)).join('…');
+    const near=pts.filter(q=>q.ti===p.ti && q!==p).flatMap(marks), far=pts.filter(q=>q!==p).flatMap(marks);
+    const wrong=uniq3(ans, near, far);
+    if(wrong.length===3){ const blank=esc(gText(e[0],lv)).replace(/【(.+?)】/g,'<span class="gblank">（　　）</span>'); qs.push({type:'cloze',p,e,prompt:blank,opts:shuffle([ans,...wrong]),ans}); }
+    const tr=uniq3(e[2], pts.filter(q=>q!==p).flatMap(q=>q.e.map(x=>x[2])), []);
+    qs.push({type:'mean',p,e,prompt:gMark(e[0],lv),opts:shuffle([e[2],...tr]),ans:e[2]});
+    const chunks=e[0].replace(/[【】]/g,'').split(' ').filter(Boolean);
+    if(chunks.length>=3 && chunks.length<=8) qs.push({type:'order',p,e,chunks});
+  }
+  let out = i==null ? shuffle(qs).slice(0,10) : shuffle(qs).slice(0,6);
+  // urutkan agar tipe bervariasi
+  return out;
+}
+function gQuiz(lv,i){
+  stopRec(); VIEW='gquiz'; setNav(false);
+  GQ={lv,i,qs:gMakeQs(lv,i),k:0,ok:0,missed:[]};
+  gAsk();
+}
+function gAsk(){
+  foot.hidden=true; answered=false;
+  if(GQ.k>=GQ.qs.length) return gDoneView();
+  const q=GQ.qs[GQ.k], lv=GQ.lv;
+  const head=`<div class="top"><button class="x" id="gquit" aria-label="Keluar">✕</button><div class="bar"><i style="width:${GQ.k/GQ.qs.length*100}%"></i></div><span class="streak">${GQ.ok}✓</span></div>
+    <span class="tag">${lv.toUpperCase()} · ${esc(q.p.p)}</span>`;
+  if(q.type==='order'){
+    q.pool=shuffle(q.chunks.map((c,j)=>({c,j}))); q.sel=[];
+    app.innerHTML = head+`<p class="prompt">Susun menjadi kalimat yang benar</p>
+      <div class="card exq"><p class="gid" style="font-size:1.05rem">${esc(q.e[2])}</p></div>
+      <div class="gline" id="gline"></div><div class="gpool" id="gpool"></div>`;
+    const draw=()=>{
+      app.querySelector('#gline').innerHTML = q.sel.length? q.sel.map((t,j)=>`<button class="gtile on" data-s="${j}">${esc(gText(t.c,lv))}</button>`).join('') : '<span class="num">Ketuk kata di bawah sesuai urutan</span>';
+      app.querySelector('#gpool').innerHTML = q.pool.map((t,j)=>`<button class="gtile" data-p="${j}" ${q.sel.includes(t)?'disabled':''}>${esc(gText(t.c,lv))}</button>`).join('');
+      app.querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>{ if(answered) return; q.sel.push(q.pool[+b.dataset.p]); draw(); });
+      app.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{ if(answered) return; q.sel.splice(+b.dataset.s,1); draw(); });
+    };
+    draw();
+    foot.hidden=false; foot.className='foot'; verdict.hidden=true; nextBtn.textContent='Periksa';
+    nextBtn.onclick=()=>{ if(q.sel.length<q.chunks.length) return; const got=q.sel.map(t=>t.c).join(''), want=q.chunks.join(''); gCheck(got===want); };
+  } else {
+    app.innerHTML = head+`<p class="prompt">${q.type==='cloze'?'Pilih yang tepat untuk mengisi （　　）':'Apa arti kalimat ini?'}</p>
+      <div class="card exq"><button class="speak" id="say">▶ Dengar</button><p class="gjp" style="font-size:1.3rem">${q.prompt}</p>${q.type==='mean'&&q.e[1]?`<p class="grd">${esc(gText(q.e[1],lv))}</p>`:''}</div>
+      <div class="exopts">${q.opts.map((o,j)=>`<button type="button" class="exopt ${q.type==='mean'?'long':''}" data-j="${j}"><span class="exnum">${j+1}</span><span>${esc(q.type==='cloze'?gText(o,lv):o)}</span></button>`).join('')}</div>`;
+    app.querySelector('#say').onclick=()=>speak(gPlain(q.e[1]||q.e[0],lv));
+    if(q.type==='mean') speak(gPlain(q.e[1]||q.e[0],lv));
+    app.querySelectorAll('.exopt').forEach(b=>b.onclick=()=>{ if(answered) return; const v=q.opts[+b.dataset.j];
+      app.querySelectorAll('.exopt').forEach(x=>{ x.disabled=true; if(q.opts[+x.dataset.j]===q.ans) x.classList.add('good'); });
+      if(v!==q.ans) b.classList.add('bad'); gCheck(v===q.ans); });
+  }
+  app.querySelector('#gquit').onclick=()=> GQ.i==null ? (VIEW='gram', setNav(true), gramView()) : gLesson(GQ.lv,GQ.i);
+  window.scrollTo(0,0);
+}
+function gCheck(ok){
+  answered=true; const q=GQ.qs[GQ.k], lv=GQ.lv;
+  if(ok) GQ.ok++; else GQ.missed.push(q);
+  if(q.type!=='mean') speak(gPlain(q.e[1]||q.e[0],lv));
+  const full=`<span class="jp">${gMark(q.e[0],lv)}</span><br>${esc(q.e[2])}`;
+  verdict.hidden=false;
+  verdict.innerHTML = ok ? `<div class="stamp">正解</div><div><b>Benar!</b><span>${full}</span></div>` : `<div class="stamp">残念</div><div><b>Jawaban yang benar:</b><span>${full}</span></div>`;
+  foot.hidden=false; foot.className='foot '+(ok?'good':'bad'); nextBtn.textContent='Lanjut';
+  nextBtn.onclick=()=>{ GQ.k++; gAsk(); };
+  const gl=app.querySelector('#gline'); if(gl && !ok) gl.classList.add('shake');
+}
+function gDoneView(){
+  foot.hidden=true; const {lv,i}=GQ, score=Math.round(GQ.ok/GQ.qs.length*100);
+  if(i!=null){ const b=gBest(lv,i); if(b==null||score>b) store.set(`g:${lv}:${i}`,score); }
+  else { const seen=new Set(); GQ.qs.forEach(q=>{ if(seen.has(q.p.i)) return; seen.add(q.p.i); const okP=!GQ.missed.some(m=>m.p===q.p); const b=gBest(lv,q.p.i); if(okP && (b==null||b<80)) store.set(`g:${lv}:${q.p.i}`,Math.max(b||0,80)); }); }
+  app.innerHTML = `
+    <div><div class="eyebrow">${lv.toUpperCase()} · ${i!=null?esc(GPTS[lv][i].p):'Latihan campur'}</div><h1>${score===100?'Sempurna! すごい！':score>=80?'Bagus! よくできました':score>=50?'Lumayan, coba lagi ya':'Pelan-pelan, がんばって！'}</h1></div>
+    <div class="score"><div><b>${score}%</b><span>Benar</span></div><div><b>${GQ.ok}/${GQ.qs.length}</b><span>Soal</span></div><div><b>${score>=80?'✓':'—'}</b><span>Dikuasai (≥80%)</span></div></div>
+    ${GQ.missed.length?`<div class="panel"><label class="lbl">PERLU DIULANG</label>${GQ.missed.map(q=>`<div class="gex"><div><p class="gjp">${gMark(q.e[0],lv)}</p><p class="gid">${esc(q.e[2])} · <b>${esc(q.p.p)}</b></p></div></div>`).join('')}</div>`:''}
+    <button class="btn" id="gagain">Ulangi latihan</button>
+    ${i!=null && i<GPTS[lv].length-1?`<button class="btn ghost" id="gnextp">Pola berikutnya: ${esc(GPTS[lv][i+1].p)}</button>`:''}
+    <button class="btn ghost" id="gback">${i!=null?'Kembali ke pelajaran':'Kembali ke Tata Bahasa'}</button>`;
+  app.querySelector('#gagain').onclick=()=>gQuiz(lv,i);
+  const np=app.querySelector('#gnextp'); if(np) np.onclick=()=>gLesson(lv,i+1);
+  app.querySelector('#gback').onclick=()=> i!=null ? gLesson(lv,i) : (VIEW='gram', setNav(true), gramView());
+  window.scrollTo(0,0);
+}
+
+/* ---------- konjugasi (活用) ---------- */
+const ROWS={u:'うくぐすつぬぶむる',a:'わかがさたなばまら',i:'いきぎしちにびみり',e:'えけげせてねべめれ',o:'おこごそとのぼもろ'};
+const sh=(c,to)=>ROWS[to][ROWS.u.indexOf(c)];
+const GODAN_RU=new Set(['帰る','入る','走る','知る','要る','切る','減る','滑る','握る','喋る','限る','参る','照る','散る','蹴る','焦る','練る']);
+const N5D = DECK.n5;
+const secIdx = name => N5D.secs.findIndex(s=>s===name);
+const VERBS = N5D.items.filter(w=>w.sec===secIdx('Kata Kerja') && /[うくぐすつぬぶむる]$/.test(w.kana)).map(w=>{
+  const k=w.kanji||w.kana, r=w.kana;
+  let g=1; if(/する$/.test(r)) g=3; else if(r==='くる') g=3;
+  else if(r.endsWith('る') && /[いきぎしじちにひびぴみりえけげせぜてでねへべぺめれ]$/.test(r.slice(-2,-1)) && !GODAN_RU.has(k) && !(k==='要る')) g=2;
+  return {k,r,arti:w.arti,g,suru:/する$/.test(r),kuru:r==='くる'};
+});
+const ADJS = N5D.items.filter(w=>w.sec===secIdx('Kata Sifat -i')||w.sec===secIdx('Kata Sifat -na')).map(w=>({k:w.kanji||w.kana,r:w.kana,arti:w.arti,t:w.sec===secIdx('Kata Sifat -i')?'i':'na'}));
+const VFORMS = [
+  ['masu','Sopan (〜ます)','n5'],['masen','Sopan negatif (〜ません)','n5'],['mashita','Sopan lampau (〜ました)','n5'],['masendeshita','Sopan lampau negatif (〜ませんでした)','n5'],
+  ['nai','Negatif biasa (〜ない)','n5'],['nakatta','Negatif lampau (〜なかった)','n5'],['te','Bentuk て','n5'],['ta','Lampau biasa (〜た)','n5'],['tai','Ingin (〜たい)','n5'],
+  ['kanou','Potensial / bisa','n4'],['ikou','Kehendak (〜よう)','n4'],['ba','Pengandaian (〜ば)','n4'],['meirei','Perintah','n4'],['ukemi','Pasif (〜られる)','n4'],['shieki','Kausatif (〜させる)','n4'],['shiekiukemi','Kausatif-pasif','n4']];
+const AFORMS = [['neg','Negatif'],['past','Lampau'],['pastneg','Lampau negatif'],['te','Bentuk て (sambung)'],['adv','Kata keterangan'],['naru','Menjadi ... (〜なる)']];
+const TE_END={'う':'って','つ':'って','る':'って','む':'んで','ぶ':'んで','ぬ':'んで','く':'いて','ぐ':'いで','す':'して'};
+function vStemTail(v){ // [kanjiBase, kanaBase]
+  if(v.suru) return [v.k.slice(0,-2), v.r.slice(0,-2)];
+  if(v.kuru) return [v.k==='来る'?'来':'', ''];
+  return [v.k.slice(0,-1), v.r.slice(0,-1)];
+}
+function conjAs(v, f, g){
+  const [bk,br]=vStemTail(v), c=v.r.slice(-1);
+  const both = (endK, endR=endK) => ({k:bk+endK, r:br+endR});
+  if(v.suru && g===3){ const m={masu:'します',masen:'しません',mashita:'しました',masendeshita:'しませんでした',nai:'しない',nakatta:'しなかった',te:'して',ta:'した',tai:'したい',kanou:'できる',ikou:'しよう',ba:'すれば',meirei:'しろ',ukemi:'される',shieki:'させる',shiekiukemi:'させられる'}[f]; return both(m); }
+  if(v.kuru && g===3){ const kr={masu:['ます','きます'],masen:['ません','きません'],mashita:['ました','きました'],masendeshita:['ませんでした','きませんでした'],nai:['ない','こない'],nakatta:['なかった','こなかった'],te:['て','きて'],ta:['た','きた'],tai:['たい','きたい'],kanou:['られる','こられる'],ikou:['よう','こよう'],ba:['れば','くれば'],meirei:['い','こい'],ukemi:['られる','こられる'],shieki:['させる','こさせる'],shiekiukemi:['させられる','こさせられる']}[f];
+    return v.k==='来る'? {k:'来'+kr[0], r:kr[1]} : {k:kr[1], r:kr[1]}; }
+  const stem = g===2 ? '' : null;
+  const i_ = g===2?'':sh(c,'i'), a_ = g===2?'':(c==='う'?'わ':sh(c,'a')), e_=g===2?'':sh(c,'e'), o_=g===2?'':sh(c,'o');
+  const isAru = v.r==='ある' && g===1, isIku = (v.r==='いく') && g===1;
+  switch(f){
+    case 'masu': return both(i_+'ます'); case 'masen': return both(i_+'ません'); case 'mashita': return both(i_+'ました'); case 'masendeshita': return both(i_+'ませんでした');
+    case 'tai': return both(i_+'たい');
+    case 'nai': return isAru? {k:'ない',r:'ない'} : both(a_+'ない');
+    case 'nakatta': return isAru? {k:'なかった',r:'なかった'} : both(a_+'なかった');
+    case 'te': return g===2? both('て') : isIku? both('って') : both(TE_END[c]);
+    case 'ta': return g===2? both('た') : isIku? both('った') : both(TE_END[c].replace(/て$/,'た').replace(/で$/,'だ'));
+    case 'kanou': return g===2? both('られる') : both(e_+'る');
+    case 'ikou': return g===2? both('よう') : both(o_+'う');
+    case 'ba': return g===2? both('れば') : both(e_+'ば');
+    case 'meirei': return g===2? both('ろ') : both(e_);
+    case 'ukemi': return g===2? both('られる') : both(a_+'れる');
+    case 'shieki': return g===2? both('させる') : both(a_+'せる');
+    case 'shiekiukemi': return g===2? both('させられる') : (c==='す'? both(a_+'せられる') : both(a_+'される'));
+  }
+}
+const conjV = (v,f) => conjAs(v,f,v.g);
+const NO_N4 = v => ['ある','わかる','できる'].includes(v.r) || v.k==='要る' || v.k==='分かる';
+const formOk = (v,f) => !(NO_N4(v) && VFORMS.find(x=>x[0]===f)[2]==='n4');
+function conjA(a,f,t=a.t){
+  if(t==='i'){ const ii=a.r==='いい'; const bk=ii?'よ':a.k.slice(0,-1), br=ii?'よ':a.r.slice(0,-1);
+    const e={neg:'くない',past:'かった',pastneg:'くなかった',te:'くて',adv:'く',naru:'くなる'}[f]; return {k:bk+e, r:br+e}; }
+  const e={neg:'じゃない',past:'だった',pastneg:'じゃなかった',te:'で',adv:'に',naru:'になる'}[f]; return {k:a.k+e, r:a.r+e};
+}
+function vRule(v,f){
+  const c=v.r.slice(-1), name=VFORMS.find(x=>x[0]===f)[1];
+  if(v.suru) return `する adalah kata kerja tidak beraturan (golongan 3). ${name}: する → ${conjV({...v,k:'する',r:'する'},f).r}.`;
+  if(v.kuru) return `来る (くる) adalah kata kerja tidak beraturan (golongan 3). ${name}: くる → ${conjV({...v,k:'くる'},f).r}.`;
+  if(v.g===2) return `Golongan 2 (ichidan, berakhiran -iru/-eru): buang る lalu tambahkan akhiran. ${v.r} → ${conjV(v,f).r}.`;
+  const map={masu:`ubah ${c} ke baris i (${sh(c,'i')}) + ます`,masen:`baris i + ません`,mashita:`baris i + ました`,masendeshita:`baris i + ませんでした`,tai:`baris i + たい`,
+    nai: v.r==='ある'?'ある → ない (khusus)':`ubah ${c} ke baris a (${c==='う'?'わ':sh(c,'a')}) + ない${c==='う'?' (う → わ, bukan あ)':''}`, nakatta: v.r==='ある'?'ある → なかった (khusus)':`baris a + なかった`,
+    te: v.r==='いく'?'いく → いって (pengecualian)':`akhiran ${c} → ${TE_END[c]}`, ta: v.r==='いく'?'いく → いった (pengecualian)':`akhiran ${c} → ${TE_END[c].replace(/て$/,'た').replace(/で$/,'だ')}`,
+    kanou:`ubah ${c} ke baris e (${sh(c,'e')}) + る`, ikou:`ubah ${c} ke baris o (${sh(c,'o')}) + う`, ba:`ubah ${c} ke baris e (${sh(c,'e')}) + ば`, meirei:`ubah ${c} ke baris e (${sh(c,'e')})`,
+    ukemi:`baris a + れる`, shieki:`baris a + せる`, shiekiukemi: c==='す'?'baris a + せられる (akhiran す)':'baris a + される'}[f];
+  return `Golongan 1 (godan): ${map}. ${v.r} → ${conjV(v,f).r}.`;
+}
+function aRule(a,f){
+  const r=conjA(a,f).r;
+  if(a.t==='i') return `Kata sifat -い: buang い lalu tambah akhiran${a.r==='いい'?' (いい berubah jadi よ〜)':''}. ${a.r} → ${r}.`;
+  return `Kata sifat -な: langsung tambahkan akhiran seperti kata benda. ${a.r} → ${r}.`;
+}
+function conjDistractors(item,f,isAdj){
+  const ans = isAdj? conjA(item,f).k : conjV(item,f).k, c=[];
+  if(isAdj){ c.push(conjA(item,f,item.t==='i'?'na':'i').k); AFORMS.forEach(([x])=>x!==f&&c.push(conjA(item,x).k)); c.push(item.k+(f==='past'?'でした':'くない')); }
+  else {
+    [1,2].forEach(g=>{ if(g!==item.g && !item.suru && !item.kuru) c.push(conjAs(item,f,g).k); });
+    if(!item.suru && !item.kuru && (f==='te'||f==='ta')){ const [bk]=vStemTail(item); Object.values(TE_END).forEach(e=>c.push(bk+(f==='ta'?e.replace(/て$/,'た').replace(/で$/,'だ'):e))); }
+    VFORMS.forEach(([x])=>{ if(x!==f) c.push(conjV(item,x).k); });
+  }
+  return uniq3(ans, c.filter(x=>x!==ans).slice(0,12), c);
+}
+let CJ=null;
+function conjHome(){
+  stopRec(); VIEW='conj'; setNav(false); foot.hidden=true;
+  const s=Object.assign({kind:'v',forms:['masu','nai','te','ta'],aforms:['neg','past','pastneg','te'],grp:'all',mode:'pick',len:10}, store.get('conjset',{}));
+  const save=()=>store.set('conjset',s);
+  const fl = s.kind==='v' ? VFORMS : AFORMS.map(x=>[x[0],x[1],'n5']);
+  const sel = s.kind==='v' ? s.forms : s.aforms;
+  app.innerHTML = `
+    <button class="back" id="back">‹ Tata Bahasa</button>
+    <div class="hero"><div class="eyebrow">活用 · かつよう</div><h1>Latihan Konjugasi</h1><p class="sub">Ubah bentuk kata. Setiap jawaban disertai aturannya, jadi kamu belajar polanya, bukan sekadar menghafal.</p></div>
+    <div class="panel">
+      <div class="seg">${[['v','Kata kerja',`${VERBS.length} kata N5`],['a','Kata sifat',`${ADJS.length} kata N5`]].map(([k,t,d])=>`<button type="button" data-kind="${k}" aria-pressed="${s.kind===k}">${t}<small>${d}</small></button>`).join('')}</div>
+      <label class="lbl">BENTUK YANG DILATIH</label>
+      <div class="chips">${fl.map(([k,t,l])=>`<button type="button" class="chip" data-f="${k}" aria-pressed="${sel.includes(k)}">${esc(t)}${s.kind==='v'?` <small>${l.toUpperCase()}</small>`:''}</button>`).join('')}</div>
+      ${s.kind==='v'?`<label class="lbl">GOLONGAN</label><div class="seg" style="grid-template-columns:repeat(4,1fr)">${[['all','Semua'],['1','Gol. 1'],['2','Gol. 2'],['3','Gol. 3']].map(([k,t])=>`<button type="button" data-grp="${k}" aria-pressed="${s.grp===k}" style="text-align:center">${t}</button>`).join('')}</div>`:''}
+      <label class="lbl">CARA MENJAWAB</label>
+      <div class="seg">${[['pick','Pilih jawaban','pilihan ganda'],['type','Ketik','hiragana / kanji']].map(([k,t,d])=>`<button type="button" data-mode="${k}" aria-pressed="${s.mode===k}">${t}<small>${d}</small></button>`).join('')}</div>
+    </div>
+    <button class="btn" id="cstart">Mulai (${s.len} soal)</button>
+    <details class="panel"><summary><b>📋 Tabel konjugasi</b> — lihat semua bentuk satu kata</summary>
+      <select id="ctab">${(s.kind==='v'?VERBS:ADJS).map((w,j)=>`<option value="${j}">${esc(w.k)}（${esc(w.r)}）${esc(w.arti)}</option>`).join('')}</select><div id="ctabout"></div></details>
+    <div class="panel"><label class="lbl">CARA MENGENALI GOLONGAN KATA KERJA</label><p class="gx"><b>Gol. 3</b>: hanya する dan 来る (くる).<br><b>Gol. 2</b>: berakhiran -iru / -eru, misalnya 食べる, 見る, 起きる.<br><b>Gol. 1</b>: semua yang lain, misalnya 書く, 飲む, 話す. Ada juga yang tampak seperti -iru/-eru tapi termasuk Gol. 1: 帰る, 入る, 走る, 知る, 切る, 要る.</p></div>`;
+  app.querySelector('#back').onclick=()=>{ VIEW='gram'; setNav(true); gramView(); };
+  app.querySelectorAll('[data-kind]').forEach(b=>b.onclick=()=>{ s.kind=b.dataset.kind; save(); conjHome(); });
+  app.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{ const arr=s.kind==='v'?s.forms:s.aforms, k=b.dataset.f, j=arr.indexOf(k); if(j>=0){ if(arr.length>1) arr.splice(j,1); } else arr.push(k); save(); conjHome(); });
+  app.querySelectorAll('[data-grp]').forEach(b=>b.onclick=()=>{ s.grp=b.dataset.grp; save(); conjHome(); });
+  app.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>{ s.mode=b.dataset.mode; save(); conjHome(); });
+  app.querySelector('#cstart').onclick=()=>conjStart(s);
+  const tab=app.querySelector('#ctab'), out=app.querySelector('#ctabout');
+  const drawTab=()=>{ const w=(s.kind==='v'?VERBS:ADJS)[+tab.value];
+    const rows = s.kind==='v' ? VFORMS.filter(([k])=>formOk(w,k)).map(([k,t,l])=>[t,conjV(w,k)]) : AFORMS.map(([k,t])=>[t,conjA(w,k)]);
+    out.innerHTML = `<p class="num">${s.kind==='v'?`Golongan ${w.g}`:`Kata sifat -${w.t==='i'?'い':'な'}`}</p><table class="ctable">${rows.map(([t,f])=>`<tr><td>${esc(t)}</td><td class="jp">${esc(f.k)}</td><td class="num">${f.k!==f.r?esc(f.r):''}</td><td><button class="gplay sm" data-say="${esc(f.r)}">▶</button></td></tr>`).join('')}</table>`;
+    out.querySelectorAll('[data-say]').forEach(b=>b.onclick=()=>speak(b.dataset.say)); };
+  tab.onchange=drawTab; drawTab();
+  window.scrollTo(0,0);
+}
+function conjStart(s){
+  const isA=s.kind==='a', forms=isA?s.aforms:s.forms;
+  let pool = isA? ADJS : VERBS.filter(v=>s.grp==='all'||String(v.g)===s.grp);
+  if(!pool.length) pool=VERBS;
+  const qs=[]; let guard=0; while(qs.length<s.len && guard++<500){ const w=pool[Math.random()*pool.length|0], f=forms[Math.random()*forms.length|0]; if(!isA && !formOk(w,f)) continue; qs.push({w,f}); }
+  CJ={s,isA,qs,k:0,ok:0,missed:[]}; VIEW='conjq'; cjAsk();
+}
+function cjAsk(){
+  foot.hidden=true; answered=false;
+  if(CJ.k>=CJ.qs.length) return cjDone();
+  const {w,f}=CJ.qs[CJ.k], isA=CJ.isA, fname=(isA?AFORMS:VFORMS).find(x=>x[0]===f)[1];
+  const ans = isA? conjA(w,f) : conjV(w,f);
+  CJ.cur={w,f,ans,fname};
+  const tag = isA? `Kata sifat -${w.t==='i'?'い':'な'}` : `Kata kerja · Gol. ${w.g}`;
+  let body=`<div class="top"><button class="x" id="cquit" aria-label="Keluar">✕</button><div class="bar"><i style="width:${CJ.k/CJ.qs.length*100}%"></i></div><span class="streak">${CJ.ok}✓</span></div>
+    <p class="prompt">Ubah ke: <span class="cform">${esc(fname)}</span></p>
+    <div class="card"><span class="tag">${tag}</span><span class="big">${esc(w.k)}</span>${w.k!==w.r?`<span class="reading">${esc(w.r)}</span>`:''}<span class="rom">${esc(w.arti)}</span></div>`;
+  if(CJ.s.mode==='type'){
+    body+=`<form class="typebox" id="cf" autocomplete="off"><input id="cin" lang="ja" placeholder="tulis dalam hiragana atau kanji" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Jawaban"><p>Contoh: たべます / 食べます</p></form>`;
+    app.innerHTML=body; const inp=app.querySelector('#cin'); setTimeout(()=>inp.focus(),50);
+    const sub=()=>{ const v=inp.value.trim().replace(/[。\s]/g,''); if(!v||answered) return; cjCheck(v===ans.k||v===ans.r||toHira(v)===ans.r); };
+    app.querySelector('#cf').onsubmit=e=>{e.preventDefault(); sub();};
+    foot.hidden=false; foot.className='foot'; verdict.hidden=true; nextBtn.textContent='Periksa'; nextBtn.onclick=sub;
+  } else {
+    const opts=shuffle([ans.k,...conjDistractors(w,f,isA)]);
+    body+=`<div class="exopts">${opts.map((o,j)=>`<button type="button" class="exopt" data-j="${j}"><span class="exnum">${j+1}</span><span>${esc(o)}</span></button>`).join('')}</div>`;
+    app.innerHTML=body;
+    app.querySelectorAll('.exopt').forEach(b=>b.onclick=()=>{ if(answered) return; const v=opts[+b.dataset.j];
+      app.querySelectorAll('.exopt').forEach(x=>{ x.disabled=true; if(opts[+x.dataset.j]===ans.k) x.classList.add('good'); }); if(v!==ans.k) b.classList.add('bad'); cjCheck(v===ans.k); });
+  }
+  app.querySelector('#cquit').onclick=()=>conjHome();
+  window.scrollTo(0,0);
+}
+function cjCheck(ok){
+  answered=true; const {w,f,ans}=CJ.cur;
+  if(ok) CJ.ok++; else CJ.missed.push(CJ.cur);
+  speak(ans.r);
+  const rule = CJ.isA? aRule(w,f) : vRule(w,f);
+  verdict.hidden=false;
+  verdict.innerHTML = `<div class="stamp">${ok?'正解':'残念'}</div><div><b>${ok?'Benar!':'Jawaban yang benar:'}</b><span><span class="jp">${esc(ans.k)}</span>${ans.k!==ans.r?` (${esc(ans.r)})`:''}<br><small>${esc(rule)}</small></span></div>`;
+  foot.hidden=false; foot.className='foot '+(ok?'good':'bad'); nextBtn.textContent='Lanjut'; nextBtn.onclick=()=>{ CJ.k++; cjAsk(); };
+  const inp=app.querySelector('#cin'); if(inp){ inp.disabled=true; if(!ok) inp.classList.add('shake'); }
+}
+function cjDone(){
+  foot.hidden=true; const score=Math.round(CJ.ok/CJ.qs.length*100);
+  app.innerHTML = `<div><div class="eyebrow">Latihan Konjugasi · selesai</div><h1>${score===100?'Sempurna! すごい！':score>=80?'Bagus! よくできました':'Terus berlatih, がんばって！'}</h1></div>
+    <div class="score"><div><b>${score}%</b><span>Benar</span></div><div><b>${CJ.ok}/${CJ.qs.length}</b><span>Soal</span></div><div><b>${CJ.missed.length}</b><span>Salah</span></div></div>
+    ${CJ.missed.length?`<div class="panel"><label class="lbl">PERLU DIULANG</label><table class="ctable">${CJ.missed.map(m=>`<tr><td class="jp">${esc(m.w.k)}</td><td>${esc(m.fname)}</td><td class="jp">${esc(m.ans.k)}</td><td class="num">${m.ans.k!==m.ans.r?esc(m.ans.r):''}</td></tr>`).join('')}</table></div>`:''}
+    <button class="btn" id="cagain">Latihan lagi</button><button class="btn ghost" id="cback">Ubah pengaturan</button>`;
+  app.querySelector('#cagain').onclick=()=>conjStart(CJ.s);
+  app.querySelector('#cback').onclick=()=>conjHome();
   window.scrollTo(0,0);
 }
 
