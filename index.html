@@ -410,12 +410,12 @@ function home(){
     ${reviewCard()}
     <h2>Kosakata</h2><div class="decks">${vocab.map(deckCard).join('')}</div>
     <h2>Huruf</h2><div class="decks">${kana.map(deckCard).join('')}</div>
-    <h2>Latihan Percakapan</h2><p class="sub" style="margin:-4px 0 10px">Ngobrol bergantian seperti dengan orang Jepang — pilih atau ucapkan balasanmu.</p><div class="decks">${vocab.filter(d=>CONV[d.id]).map(convCard).join('')}</div>
+    <h2>Latihan Percakapan</h2><div class="decks"><button type="button" class="deck" id="convcard" style="--c:var(--n4)"><span class="badge jp">話</span><span class="meta"><b>Percakapan Harian–N1</b><span class="num">${(()=>{let m=0,n=0;DECKS.filter(d=>CONV[d.id]).forEach(d=>CONV[d.id].forEach((_,i)=>{n++;if(convBest(d.id,i)>=80)m++;}));const l=store.get('convlv',null);return m||l?`${m} / ${n} dialog dikuasai${l&&DECK[l]?` · terakhir: ${convLv(DECK[l])}`:''}`:'Ngobrol bergantian, pilih atau ucapkan balasan'})()}</span></span><span class="chev" aria-hidden="true">›</span></button></div>
     <h2>Latihan Ujian</h2><div class="decks"><button type="button" class="deck" id="examcard" style="--c:var(--n5)"><span class="badge jp">試</span><span class="meta"><b>Simulasi JLPT N5–N1</b><span class="num">${(()=>{const h=store.get('exhist',[]);return h.length?`Terakhir: ${(h[0].lv||'n5').toUpperCase()} · ${h[0].pct}%${h[0].score!=null?` · ${h[0].score}/180`:''}`:'Format ujian asli tiap level, soal acak'})()}</span></span><span class="chev" aria-hidden="true">›</span></button></div>`;
   app.querySelectorAll('[data-deck]').forEach(b=>b.onclick=()=>setup(DECK[b.dataset.deck]));
   const rv=app.querySelector('#rev'); if(rv) rv.onclick=()=>startReview();
   app.querySelector('#examcard').onclick=()=>exHome();
-  app.querySelectorAll('[data-conv]').forEach(b=>b.onclick=()=>convList(DECK[b.dataset.conv]));
+  app.querySelector('#convcard').onclick=()=>convList(DECK[store.get('convlv','salam')]||DECK.salam);
 }
 function reviewCard(){
   const t=today(), due=dueAll(t), tmr=dueAll(t+1)-due;
@@ -1419,6 +1419,7 @@ const fillN = (s,cs,roma) => s.replace(/\{N\}/g, roma? nameRoma(cs.name) : cs.na
 const convBest = (d,i) => store.get(`conv:${d}:${i}`,null);
 
 function convList(d){
+  store.set('convlv',d.id);
   stopRec(); VIEW='convlist'; setNav(false); foot.hidden=true; exfoot.hidden=true;
   const list=CONV[d.id]||[], cs=convSet(), save=()=>store.set('convset',cs);
   app.innerHTML = `
