@@ -1433,6 +1433,8 @@ function convList(d){
     <div class="panel">
       <label class="lbl">CARA MEMBALAS</label>
       <div class="seg">${[['pick','👆 Pilih balasan','pilih kalimat yang tepat'],['speak','🎤 Ucapkan balasan','bicara langsung pakai mic']].map(([k,t,s])=>`<button type="button" data-cm="${k}" aria-pressed="${cs.mode===k}">${t}<small>${s}</small></button>`).join('')}</div>
+      <label class="lbl">JUMLAH GILIRAN BICARA</label>
+      <div class="seg" style="grid-template-columns:repeat(3,1fr)">${[20,30,50].map(n=>{const b=store.get(`convsess:${d.id}:${n}`,null);return `<button type="button" data-clen="${n}" aria-pressed="${cs.len===n}" style="text-align:center">${n} giliran<small>${b!=null?`terbaik ${b}%`:'≈ '+Math.round(n*0.6)+' menit'}</small></button>`}).join('')}</div>
       <div class="row">
         <label class="toggle"><input type="checkbox" id="cvrom" ${cs.romaji?'checked':''}> Tampilkan romaji</label>
         <label class="toggle"><input type="checkbox" id="cvarti" ${cs.arti?'checked':''}> Tampilkan arti</label>
@@ -1441,13 +1443,8 @@ function convList(d){
       <input id="cvname" class="cvname" value="${esc(cs.name)}" lang="ja" autocomplete="off" aria-label="Nama dalam katakana">
       <span class="num">Dipakai saat kamu memperkenalkan diri, misalnya「${esc(cs.name)}です」(${esc(nameRoma(cs.name))} desu).</span>
     </div>
-    <div class="panel cvsess">
-      <div><div class="eyebrow">Sesi percakapan</div><b class="cvst">Ngobrol panjang, situasi berganti-ganti</b><span class="num">Dialog dari ${list.length} situasi ${esc(convLv(d))} dirangkai acak sampai jumlah giliran bicaramu terpenuhi. Situasi yang belum dikuasai muncul lebih dulu.</span></div>
-      <label class="lbl">JUMLAH GILIRAN BICARA</label>
-      <div class="seg" style="grid-template-columns:repeat(3,1fr)">${[20,30,50].map(n=>{const b=store.get(`convsess:${d.id}:${n}`,null);return `<button type="button" data-clen="${n}" aria-pressed="${cs.len===n}" style="text-align:center">${n} giliran<small>${b!=null?`terbaik ${b}%`:'≈ '+Math.round(n*0.6)+' menit'}</small></button>`}).join('')}</div>
-      <button class="btn" id="cvsess">Mulai sesi ${cs.len} giliran</button>
-    </div>
-    <h2>Atau pilih satu situasi</h2>
+    <button class="btn" id="cvsess">Mulai sesi ${cs.len} giliran</button>
+    <h2 style="margin-top:22px">Atau pilih satu situasi</h2>
     <div class="glist">${list.map((g,i)=>{const b=convBest(d.id,i), nU=g.l.filter(x=>x[0]==='u').length;return `
       <button type="button" class="grow cvrow" data-cv="${i}"><span class="cvemoji" aria-hidden="true">${g.e}</span><span class="cvt"><span class="gp" style="font-family:var(--f-ui)">${esc(g.t)}</span><span class="gmn">${esc(g.p)} · ${nU} giliran bicara</span></span><span class="gst ${b>=80?'ok':b!=null?'mid':''}">${b>=80?'✓':b!=null?b+'%':'Baru'}</span></button>`}).join('')}</div>`;
   app.querySelector('#back').onclick=()=>go('home');
