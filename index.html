@@ -451,6 +451,8 @@ const shuffle = a => {a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.ran
 const clean = s => s.replace(/^～/,'');
 const jpMain = w => clean(w.kanji || w.kana);
 const pct = (a,b) => b? (a/b*100).toFixed(1) : 0;
+let TTSOK=false;
+function unlockTTS(){ if(TTSOK) return; TTSOK=true; try{ const u=new SpeechSynthesisUtterance(' '); u.volume=0; speechSynthesis.speak(u); }catch(e){} }
 function speak(text){
   try{
     if(!('speechSynthesis' in window)) return;
@@ -791,6 +793,7 @@ function writeMount(W,w){
   const showGuide=()=>{ guide.innerHTML = (!W.memory||W.help) && W.i<G.strokes.length ? guideHTML(G.strokes[W.i]) : ''; cnt.textContent=`Goresan ${Math.min(W.i+1,G.strokes.length)} / ${G.strokes.length}`; };
   const redrawDone=()=>{ done.innerHTML=G.strokes.slice(0,W.i).map(s=>`<path d="${s.d}" transform="translate(${s.dx},0)"/>`).join(''); };
   const finish=()=>{ guide.innerHTML=''; cnt.textContent='Selesai ✓'; ink.setAttribute('d','');
+    if(S.voice!==false){ speak(w.kana); cur.spoken=true; }
     const ok = W.miss<=1 && !W.assist;
     msg.textContent = ok ? (W.miss?'Bagus! Hampir sempurna.':'Sempurna! Urutan goresannya benar.') : 'Sudah selesai — ulangi lagi nanti supaya makin hafal.';
     app.querySelectorAll('.wbtns button').forEach(b=>b.disabled=true);
@@ -809,7 +812,7 @@ function writeMount(W,w){
   };
   const toXY=e=>{ const r=svg.getBoundingClientRect(); return [ (e.clientX-r.left)/(r.width||1)*G.vw, (e.clientY-r.top)/(r.height||1)*109 ]; };
   const line=p=>'M'+p.map(q=>q[0].toFixed(1)+' '+q[1].toFixed(1)).join(' L');
-  svg.addEventListener('pointerdown',e=>{ if(W.busy||answered||W.i>=G.strokes.length) return; e.preventDefault(); try{svg.setPointerCapture(e.pointerId)}catch(_){} W.pts=[toXY(e)]; ink.setAttribute('d',line(W.pts)); });
+  svg.addEventListener('pointerdown',e=>{ unlockTTS(); if(W.busy||answered||W.i>=G.strokes.length) return; e.preventDefault(); try{svg.setPointerCapture(e.pointerId)}catch(_){} W.pts=[toXY(e)]; ink.setAttribute('d',line(W.pts)); });
   svg.addEventListener('pointermove',e=>{ if(!W.pts) return; e.preventDefault(); const p=toXY(e), q=W.pts[W.pts.length-1]; if(Math.hypot(p[0]-q[0],p[1]-q[1])>0.8){ W.pts.push(p); ink.setAttribute('d',line(W.pts)); } });
   const up=e=>{ if(!W.pts) return; const p=W.pts; W.pts=null; if(strokeOK(p,G.strokes[W.i])) accept(); else reject(); };
   svg.addEventListener('pointerup',up); svg.addEventListener('pointercancel',()=>{ W.pts=null; ink.setAttribute('d',''); });
@@ -1121,7 +1124,7 @@ function check(ok,btn){
   }
   const bar=app.querySelector('.top .bar>i'); if(bar) bar.style.width=(R.done/R.total*100)+'%';
   const st=app.querySelector('.streak'); if(st) st.textContent=R.streak?R.streak+'🔥':'';
-  if(S.voice && !['jp2id','listen'].includes(cur.type)) speak(w.kana);
+  if(S.voice && !['jp2id','listen'].includes(cur.type) && !cur.spoken) speak(w.kana);
   const ans = d.kind==='kana'
     ? `<span class="jp">${esc(w.kana)}</span> = ${esc(w.rom)}`
     : `<span class="jp">${esc(jpMain(w))}</span>${w.kanji?` (${esc(clean(w.kana))})`:''} · ${esc(w.rom)} = ${esc(w.arti)}`;
