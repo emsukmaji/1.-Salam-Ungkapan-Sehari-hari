@@ -566,6 +566,11 @@ function setup(d){
 /* ---------- ronde ---------- */
 let R=null, cur=null, answered=false;
 function poolFor(){
+  const p=poolFor0();
+  if(CUR.kind==='kana' && S.mode==='write'){ const one=p.filter(w=>[...w.kana].length===1); if(one.length) return one; const all=CUR.items.filter(w=>[...w.kana].length===1); return all; }
+  return p;
+}
+function poolFor0(){
   const d=CUR;
   if(S.sec==='all') return d.items;
   if(S.sec==='weak'){const p=d.items.filter(w=>lvOf(d,w)<3); return p.length?p:d.items;}
@@ -587,7 +592,7 @@ function pickType(w,d=CUR,review=false){
   const modes = review ? (d.kind==='kana'?['k2r','r2k','listen']:['id2jp','jp2id','sit']) : modesFor(d).map(m=>m[0]).filter(m=>m!=='mix');
   let t = (review || S.mode==='mix') ? modes[Math.random()*modes.length|0] : S.mode;
   if(t==='sit' && !w.sit) t='id2jp';
-  if(t==='write' && !hasStrokes(w.kana)) t='k2r';
+  if(t==='write' && ([...w.kana].length!==1 || !hasStrokes(w.kana))) t='k2r';
   return t;
 }
 function startRound(){
@@ -726,13 +731,13 @@ function resample(p,n){
   return out;
 }
 function glyph(kana){
-  const chars=[...kana], strokes=[]; let x=0;
+  const chars=[...kana], strokes=[], offs=[]; let x=0;
   chars.forEach((c,i)=>{
     const dx = i===0 ? 0 : x + (SMALLK.test(c) ? -14 : 0);
     (STROKES[c]||[]).forEach(d=>{ const pts=pathPts(d).map(([a,b])=>[a+dx,b]); strokes.push({d,dx,pts,len:plen(pts),ch:c}); });
-    x = dx + 109;
+    offs.push(dx); x = dx + 109;
   });
-  return {strokes, vw:Math.round(x), boxes:chars.map((c,i)=>i)};
+  return {strokes, vw:Math.round(x), boxes:offs};
 }
 const hasStrokes = kana => [...kana].every(c=>STROKES[c]);
 function strokeOK(user,ref){
@@ -747,7 +752,7 @@ function strokeOK(user,ref){
   return s<26 && e<30 && m<17;
 }
 function padSVG(G,{ghost=true}={}){
-  const grid=G.boxes.map((_,i)=>{ const ox=i*109; return `<rect x="${ox+2}" y="2" width="105" height="105" rx="8" class="wbox"/><line x1="${ox+54.5}" y1="6" x2="${ox+54.5}" y2="103" class="wgrid"/><line x1="${ox+6}" y1="54.5" x2="${ox+103}" y2="54.5" class="wgrid"/>`; }).join('');
+  const grid=G.boxes.map((ox)=>{ return `<rect x="${ox+2}" y="2" width="105" height="105" rx="8" class="wbox"/><line x1="${ox+54.5}" y1="6" x2="${ox+54.5}" y2="103" class="wgrid"/><line x1="${ox+6}" y1="54.5" x2="${ox+103}" y2="54.5" class="wgrid"/>`; }).join('');
   return `<svg class="wpad" viewBox="0 0 ${G.vw} 109" style="aspect-ratio:${G.vw}/109;max-width:${Math.min(100, Math.round(G.vw/109*80))}%" role="img" aria-label="Area menulis">
     <defs><marker id="warr" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="warrhead"/></marker></defs>
     ${grid}
