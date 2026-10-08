@@ -793,7 +793,7 @@ function writeMount(W,w){
   const showGuide=()=>{ guide.innerHTML = (!W.memory||W.help) && W.i<G.strokes.length ? guideHTML(G.strokes[W.i]) : ''; cnt.textContent=`Goresan ${Math.min(W.i+1,G.strokes.length)} / ${G.strokes.length}`; };
   const redrawDone=()=>{ done.innerHTML=G.strokes.slice(0,W.i).map(s=>`<path d="${s.d}" transform="translate(${s.dx},0)"/>`).join(''); };
   const finish=()=>{ guide.innerHTML=''; cnt.textContent='Selesai ✓'; ink.setAttribute('d','');
-    if(S.voice!==false){ speak(w.kana); cur.spoken=true; }
+    if(S.voice!==false){ cur.spoken=true; W.say=true; setTimeout(()=>{ if(W.say){ W.say=false; speak(w.kana); } },80); }
     const ok = W.miss<=1 && !W.assist;
     msg.textContent = ok ? (W.miss?'Bagus! Hampir sempurna.':'Sempurna! Urutan goresannya benar.') : 'Sudah selesai — ulangi lagi nanti supaya makin hafal.';
     app.querySelectorAll('.wbtns button').forEach(b=>b.disabled=true);
@@ -812,10 +812,12 @@ function writeMount(W,w){
   };
   const toXY=e=>{ const r=svg.getBoundingClientRect(); return [ (e.clientX-r.left)/(r.width||1)*G.vw, (e.clientY-r.top)/(r.height||1)*109 ]; };
   const line=p=>'M'+p.map(q=>q[0].toFixed(1)+' '+q[1].toFixed(1)).join(' L');
-  svg.addEventListener('pointerdown',e=>{ unlockTTS(); if(W.busy||answered||W.i>=G.strokes.length) return; e.preventDefault(); try{svg.setPointerCapture(e.pointerId)}catch(_){} W.pts=[toXY(e)]; ink.setAttribute('d',line(W.pts)); });
+  svg.addEventListener('pointerdown',e=>{ if(e.pointerType==='mouse') unlockTTS(); if(W.busy||answered||W.i>=G.strokes.length) return; e.preventDefault(); try{svg.setPointerCapture(e.pointerId)}catch(_){} W.pts=[toXY(e)]; ink.setAttribute('d',line(W.pts)); });
   svg.addEventListener('pointermove',e=>{ if(!W.pts) return; e.preventDefault(); const p=toXY(e), q=W.pts[W.pts.length-1]; if(Math.hypot(p[0]-q[0],p[1]-q[1])>0.8){ W.pts.push(p); ink.setAttribute('d',line(W.pts)); } });
   const up=e=>{ if(!W.pts) return; const p=W.pts; W.pts=null; if(strokeOK(p,G.strokes[W.i])) accept(); else reject(); };
-  svg.addEventListener('pointerup',up); svg.addEventListener('pointercancel',()=>{ W.pts=null; ink.setAttribute('d',''); });
+  svg.addEventListener('pointerup',up);
+  /* iOS: suara hanya boleh diputar dari touchend */
+  svg.addEventListener('touchend',()=>{ if(W.say){ W.say=false; TTSOK=true; speak(w.kana); } else unlockTTS(); },{passive:true}); svg.addEventListener('pointercancel',()=>{ W.pts=null; ink.setAttribute('d',''); });
   app.querySelector('#wdemo').onclick=()=>{ if(W.busy) return; W.busy=true; guide.innerHTML=''; demoStrokes(svg,G,()=>{ setTimeout(()=>{ W.busy=false; redrawDone(); showGuide(); },500); }); };
   const hp=app.querySelector('#whelp'); if(hp) hp.onclick=()=>{ W.miss++; W.help=true; svg.querySelector('.wghost').style.display=''; showGuide(); msg.textContent='Panduan ditampilkan (dihitung sebagai bantuan).'; };
   app.querySelector('#wskip').onclick=()=>{ if(answered) return; W.busy=true; guide.innerHTML=''; demoStrokes(svg,G,()=>{}); check(false); };
