@@ -315,6 +315,45 @@ details.cvall summary{cursor:pointer;font-weight:800;padding:6px 0}
 .ksheet .in{max-width:420px;margin:0 auto;display:flex;flex-direction:column;align-items:center;gap:8px}
 .kshead{display:flex;align-items:center;gap:10px;width:100%}.kshead b{flex:1;display:flex;align-items:baseline;gap:8px}
 .ksheet .wpad{max-width:min(240px,100%) !important}
+
+/* progres */
+.pgoal{flex-direction:row;align-items:center;gap:16px}
+.pring{--p:0;flex:none;width:112px;height:112px;border-radius:50%;background:conic-gradient(var(--accent) calc(var(--p)*1%),var(--chip) 0);display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative}
+.pring::before{content:"";position:absolute;inset:11px;border-radius:50%;background:var(--surface)}
+.pring b,.pring span{position:relative}.pring b{font-size:1.6rem;line-height:1}.pring span{font-size:.68rem;color:var(--muted);text-align:center;max-width:70px;line-height:1.2;margin-top:3px}
+.pstat{display:flex;flex-direction:column;gap:6px;min-width:0}.pstat>b{font-size:1.02rem}.pstat.good>b{color:var(--good)}.pstat.bad>b{color:var(--bad)}
+.pstat>span{font-size:.9rem;color:var(--muted)}
+h2 .num{text-transform:none;letter-spacing:0;margin-left:6px}
+.ptasks{display:flex;flex-direction:column;gap:8px}
+.ptask{font:inherit;color:var(--ink);text-align:left;display:flex;align-items:center;gap:12px;background:var(--surface);border:1.5px solid var(--line);border-bottom-width:4px;border-radius:16px;padding:12px 14px;cursor:pointer}
+.ptask:disabled{cursor:default}
+.ptask>span:nth-child(2){flex:1;display:flex;flex-direction:column}.ptask small{color:var(--muted)}
+.pchk{flex:none;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-weight:800;background:var(--chip);color:var(--muted)}
+.ptask.done{border-color:var(--good);background:var(--good-bg)}.ptask.done .pchk{background:var(--good);color:var(--surface)}
+.pnote{margin:2px 2px 0}
+.road{display:flex;flex-direction:column;position:relative}
+.rph{display:flex;gap:12px;position:relative;padding-bottom:14px}
+.rph:not(:last-child)::before{content:"";position:absolute;left:19px;top:40px;bottom:0;width:2px;background:var(--line)}
+.rdot{flex:none;width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-weight:800;font-family:var(--f-jp);background:var(--chip);color:var(--muted);font-size:.95rem}
+.rph.now .rdot,.rph.late .rdot{background:var(--c);color:#fff}.rph.done .rdot{background:var(--good);color:#fff}
+.rbody{flex:1;min-width:0;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:12px 14px;display:flex;flex-direction:column;gap:6px}
+.rph.now .rbody{border-color:var(--c);border-width:1.5px}.rph.late .rbody{border-color:var(--bad)}
+.rtop{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+.rchip{flex:none;font-size:.7rem;font-weight:800;padding:3px 8px;border-radius:99px;background:var(--chip);color:var(--muted)}
+.rph.now .rchip{background:color-mix(in srgb,var(--c) 22%,transparent);color:var(--ink)}.rph.done .rchip{background:var(--good-bg);color:var(--good)}.rph.late .rchip{background:var(--bad-bg);color:var(--bad)}
+.rbody .bar>i{background:var(--c)}.rph.done .bar>i{background:var(--good)}
+.rcomps{display:flex;flex-direction:column;gap:8px;margin-top:4px;padding-top:8px;border-top:1px dashed var(--line)}
+.rcomps>div{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:3px 8px;font-size:.88rem}.rcomps .bar{grid-column:1/-1}
+.bar.sm{height:6px}
+.bar.two{display:flex}.bar.two>i{border-radius:0}.bar.two>i.l{background:color-mix(in srgb,var(--c) 35%,transparent)}
+.plegend{display:flex;gap:14px;flex-wrap:wrap}.lg{display:inline-block;width:10px;height:10px;border-radius:3px;vertical-align:-1px}.lg.h{background:var(--n4)}.lg.l{background:color-mix(in srgb,var(--n4) 35%,transparent)}
+.heat{display:grid;grid-template-rows:repeat(7,1fr);grid-auto-flow:column;gap:3px}
+.heat i,.hl{display:block;aspect-ratio:1;border-radius:3px;background:var(--chip)}
+.hl{display:inline-block;width:10px;vertical-align:-1px}
+.h1{background:color-mix(in srgb,var(--good) 30%,var(--chip)) !important}.h2{background:color-mix(in srgb,var(--good) 55%,var(--chip)) !important}.h3{background:color-mix(in srgb,var(--good) 80%,var(--chip)) !important}.h4{background:var(--good) !important}
+.heat i.now{outline:2px solid var(--accent);outline-offset:-1px}
+.pset summary,.phow summary{cursor:pointer;list-style:none}.pset[open]{gap:10px}
+.phow p{margin:6px 0 0;line-height:1.55}
 </style>
 
 <div class="wrap" id="app"></div>
@@ -371,6 +410,7 @@ const dueAll = (t=today()) => DECKS.reduce((a,d)=>a+dueItems(d,t).length,0);
 const mastered = d => d.items.filter(w=>lvOf(d,w)>=3).length;
 function grade(d,w,ok){
   const s=SRS(d.id), t=today(), r=s[w.id];
+  logAct('q'); if(!r && ok) logAct('n',1,false); else if(r && r.due<=t) logAct('r',1,false);
   if(ok){
     if(!r) s[w.id]={lv:1,due:t+1};
     else if(r.due<=t){ r.lv=Math.min(r.lv+1,INT.length-1); r.due=t+INT[r.lv]; }
@@ -482,17 +522,6 @@ function kanaView(){
 }
 
 /* ---------- progres ---------- */
-function stats(){
-  const tot=DECKS.reduce((a,d)=>a+mastered(d),0), all=DECKS.reduce((a,d)=>a+d.items.length,0);
-  const dist = d => { const c=[0,0,0]; d.items.forEach(w=>{const l=lvOf(d,w); if(l>=5)c[2]++; else if(l>=3)c[1]++; else if(l>=1)c[0]++;}); return c; };
-  app.innerHTML = `
-    <div class="hero"><div class="eyebrow">Progres</div><h1>${tot} kata & huruf dikuasai</h1>
-      <p class="sub">Dikuasai artinya sudah lolos ulasan sampai jarak 7 hari. Jarak ulasan: 1 → 3 → 7 → 14 hari → 1 → 2 → 4 → 8 bulan. Salah saat ulasan, jaraknya mundur.</p></div>
-    <div class="score"><div><b>${dueAll()}</b><span>Ulasan hari ini</span></div><div><b>${dueAll(today()+1)-dueAll()}</b><span>Besok</span></div><div><b>${DECKS.reduce((a,d)=>a+Object.keys(SRS(d.id)).length,0)}</b><span>Sudah dipelajari</span></div></div>
-    <div class="panel">${DECKS.map(d=>{const m=mastered(d),n=d.items.length;const c=dist(d);return `<div class="statrow" style="--c:var(--${d.color})"><b>${esc(d.title)}</b><span class="num">${m} / ${n}</span><span class="bar"><i style="width:${pct(m,n)}%"></i></span><span class="num lv">Belajar ${c[0]} · Mengingat ${c[1]} · Kuat ${c[2]}</span></div>`}).join('')}</div>
-    <span class="num">Total ${tot} / ${all}. Progres tersimpan di browser HP ini.</span>`;
-}
-
 /* ---------- pengaturan ronde ---------- */
 let CUR=null, S=null;
 function setup(d){
@@ -801,6 +830,170 @@ function strokeSheet(w){
   sh.querySelector('#ksx').onclick=()=>sh.remove();
   sh.querySelector('#ksre').onclick=()=>demoStrokes(svg,G);
   sh.querySelector('#kssay').onclick=()=>speak(w.kana);
+}
+
+
+/* ---------- catatan aktivitas harian ---------- */
+function logAct(k,n=1,cnt=true){
+  try{ const L=store.get('log',{}), t=today(), e=L[t]||(L[t]={});
+    e[k]=(e[k]||0)+n; if(cnt) e.a=(e.a||0)+n;
+    const ks=Object.keys(L).map(Number).sort((a,b)=>a-b); while(ks.length>420) delete L[ks.shift()];
+    store.set('log',L); }catch(e){}
+}
+const dayOf = s => { const [y,m,d]=s.split('-').map(Number); return Math.round(Date.UTC(y,m-1,d)/864e5); };
+const isoOf = n => new Date(n*864e5).toISOString().slice(0,10);
+const BULAN=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+const fmtDay = n => { const d=new Date(n*864e5); return `${d.getUTCDate()} ${BULAN[d.getUTCMonth()]} ${d.getUTCFullYear()}`; };
+const fmtShort = n => { const d=new Date(n*864e5); return `${d.getUTCDate()} ${BULAN[d.getUTCMonth()]}`; };
+function jlptDates(){ /* JLPT: Minggu pertama Juli & Desember */
+  const out=[], y0=new Date().getFullYear();
+  for(let y=y0;y<=y0+3;y++) for(const m of [6,11]){ const d=new Date(Date.UTC(y,m,1)); const n=Math.round(d.getTime()/864e5)+((7-d.getUTCDay())%7); if(n>today()) out.push(n); }
+  return out;
+}
+const LVORD=['n5','n4','n3','n2','n1'];
+function planGet(){
+  const p=store.get('plan',null);
+  if(p && p.targets && p.targets.length) return p;
+  return {start:'2026-10-01', targets:[{lv:'n4',date:'2027-07-04'},{lv:'n3',date:'2027-12-05'}]};
+}
+/* ---- ukuran kemajuan tiap komponen (0..1) ---- */
+function itemsProg(d){ let l=0,h=0; d.items.forEach(w=>{ const v=lvOf(d,w); if(v>=1) l++; if(v>=3) h++; }); const n=d.items.length; return {n,learned:l,hafal:h,p:n?(l*.5+h*.5)/n:1, lp:n?l/n:1, rest:n-l}; }
+function gramProg(lv){ const pts=GPTS[lv]||[]; let t=0,done=0,tried=0; pts.forEach(p=>{ const b=gBest(lv,p.i); if(b!=null){ tried++; if(b>=80) done++; } }); const n=pts.length; return {n,done,tried,p:n?(done+ (tried-done)*.5)/n:1, lp:n?done/n:1, rest:n-done}; }
+function convProg(lv){ const id=lv; const L=CONV[id]||[]; let done=0,tried=0; L.forEach((_,i)=>{ const b=convBest(id,i); if(b!=null){ tried++; if(b>=80) done++; } }); const n=L.length; return {n,done,tried,p:n?(done+(tried-done)*.5)/n:1, lp:n?done/n:1}; }
+function examProg(lv){ const L=XL[lv]; const h=store.get('exhist',[]).filter(x=>(x.lv||'n5')===lv && x.score!=null); const best=h.reduce((a,x)=>Math.max(a,x.score),0); return {best: h.length?best:null, pass:L.pass_, n:h.length, p: h.length? Math.min(1,best/L.pass_) : 0, passed: h.some(x=>x.pass)}; }
+/* ---- susun fase rencana ---- */
+function buildPlan(P){
+  const start=dayOf(P.start), T=[...P.targets].filter(t=>t.lv&&t.date).sort((a,b)=>a.date<b.date?-1:1);
+  const phases=[]; let from=start, covered=-1;
+  T.forEach((tg,ti)=>{
+    const end=dayOf(tg.date), lvIdx=LVORD.indexOf(tg.lv), win=Math.max(14,end-from);
+    const prepDays=Math.max(14,Math.round(win*.12)), studyEnd=end-prepDays;
+    const work=[];
+    if(ti===0) work.push({key:'kana',title:'Huruf & salam dasar',icon:'あ',color:'n4',
+      comps:[{t:'Hiragana',k:'deck',d:DECK.hira},{t:'Katakana',k:'deck',d:DECK.kata},{t:'Kosakata Custom (salam)',k:'deck',d:DECK.salam},{t:'Percakapan Sehari-hari',k:'conv',lv:'salam'}]});
+    for(let i=covered+1;i<=lvIdx;i++){ const lv=LVORD[i];
+      work.push({key:lv,title:'Materi '+lv.toUpperCase(),icon:lv.toUpperCase(),color:lv,
+        comps:[{t:'Kosakata '+lv.toUpperCase(),k:'deck',d:DECK[lv]},{t:'Tata bahasa '+lv.toUpperCase(),k:'gram',lv},{t:'Percakapan '+lv.toUpperCase(),k:'conv',lv}]}); }
+    covered=Math.max(covered,lvIdx);
+    work.forEach(ph=>{ ph.comps.forEach(c=>{
+      if(c.k==='deck'){ c.pr=itemsProg(c.d); c.u=c.pr.n; c.txt=`${c.pr.learned}/${c.pr.n} dipelajari · ${c.pr.hafal} hafal`; }
+      else if(c.k==='gram'){ c.pr=gramProg(c.lv); c.u=c.pr.n*6; c.txt=`${c.pr.done}/${c.pr.n} pola lulus kuis`; }
+      else { c.pr=convProg(c.lv); c.u=c.pr.n*2; c.txt=`${c.pr.done}/${c.pr.n} dialog ≥80%`; }
+    }); ph.u=ph.comps.reduce((a,c)=>a+c.u,0); ph.done=ph.comps.reduce((a,c)=>a+c.u*c.pr.p,0); ph.lu=ph.comps.reduce((a,c)=>a+c.u*c.pr.lp,0); });
+    const U=work.reduce((a,p)=>a+p.u,0)||1; let cur=from;
+    work.forEach(ph=>{ ph.from=cur; ph.to=Math.round(cur+(studyEnd-from)*ph.u/U); cur=ph.to; ph.target=tg; phases.push(ph); });
+    const ex=examProg(tg.lv);
+    phases.push({key:'exam-'+tg.lv,title:'Persiapan ujian JLPT '+tg.lv.toUpperCase(),icon:'試',color:'n5',exam:true,ex,from:studyEnd,to:end,target:tg,
+      comps:[{t:'Simulasi '+tg.lv.toUpperCase()+' (skor terbaik)',k:'exam',pr:ex,txt: ex.best==null?`belum pernah · lulus ≥ ${ex.pass}/180`:`${ex.best}/180 · lulus ≥ ${ex.pass}`}],
+      u:0, done:0});
+    from=end;
+  });
+  phases.forEach(ph=>{ ph.p = ph.exam ? ph.ex.p : (ph.u? ph.done/ph.u : 1); });
+  return {start,phases,targets:T};
+}
+function planStatus(PL){
+  const t=today(), study=PL.phases.filter(p=>!p.exam);
+  const total=study.reduce((a,p)=>a+p.u,0)||1, doneU=study.reduce((a,p)=>a+p.done,0), learnU=study.reduce((a,p)=>a+p.lu,0);
+  let exp=0; study.forEach(p=>{ const f = t<=p.from?0 : t>=p.to?1 : (t-p.from)/Math.max(1,p.to-p.from); exp+=p.u*f; });
+  const cur=study.find(p=>p.lu<p.u-0.5) || study.find(p=>p.p<0.999) || null;
+  const pace = cur ? cur.u/Math.max(1,cur.to-cur.from) : total/Math.max(1,(study.at(-1)?.to||t)-PL.start);
+  const diffDays = Math.round((learnU-exp)/Math.max(.01,pace));
+  return {doneU,total,exp,diffDays,cur};
+}
+function dailyTarget(PL){
+  const t=today(); const tg=PL.targets.find(x=>dayOf(x.date)>t) || PL.targets.at(-1);
+  if(!tg) return null;
+  const studyPh=PL.phases.filter(p=>!p.exam && p.target===tg);
+  const prep=PL.phases.find(p=>p.exam && p.target===tg);
+  const daysLeft=Math.max(1,(prep?prep.from:dayOf(tg.date))-t);
+  let newItems=0,gram=0;
+  studyPh.forEach(p=>p.comps.forEach(c=>{ if(c.k==='deck') newItems+=c.pr.rest; if(c.k==='gram') gram+=c.pr.rest; }));
+  const cur=studyPh.find(p=>p.comps.some(c=>c.k==='deck'&&c.pr.rest>0));
+  const phNeed = cur ? Math.ceil(cur.comps.reduce((a,c)=>a+(c.k==='deck'?c.pr.rest:0),0)/Math.max(1,cur.to-t)) : 0;
+  return {tg, daysLeft, examDays:dayOf(tg.date)-t, perDay: Math.min(40,Math.max(Math.ceil(newItems/daysLeft),phNeed)), perWeek: Math.ceil(gram/(daysLeft/7)), newItems, gram};
+}
+function streakDays(L){ let s=0, t=today(); if(!(L[t]&&L[t].a)) t--; while(L[t]&&L[t].a){ s++; t--; } return s; }
+/* ---------- halaman progres ---------- */
+function stats(){
+  const P=planGet(), PL=buildPlan(P), ST=planStatus(PL), DT=dailyTarget(PL), L=store.get('log',{}), t=today(), td=L[t]||{};
+  const due=dueAll(), first=PL.targets[0];
+  const ovRaw=ST.doneU/ST.total*100, overall=Math.round(ovRaw), ovTxt= ovRaw>0&&ovRaw<10 ? ovRaw.toFixed(1).replace('.',',') : String(overall);
+  const stTxt = ST.diffDays>=3 ? `🚀 Lebih cepat ${ST.diffDays} hari dari jadwal` : ST.diffDays<=-3 ? `⚠️ Tertinggal ${-ST.diffDays} hari dari jadwal` : '✅ Sesuai jadwal';
+  const stCls = ST.diffDays>=3 ? 'good' : ST.diffDays<=-3 ? 'bad' : 'ok';
+  const newGoal = DT ? Math.max(5,DT.perDay) : 10;
+  const tasks=[
+    {ok: due===0, t: due? `Selesaikan ${due} ulasan` : 'Ulasan hari ini beres', s:`${td.r||0} ulasan dikerjakan hari ini`, act: due?'rev':null},
+    {ok: (td.n||0)>=newGoal, t:`Pelajari ${newGoal} kata/huruf baru`, s:`${td.n||0} / ${newGoal} hari ini`, act:'new'},
+    {ok: (td.c||0)>=10 || (td.g||0)>=1, t:'Latihan bicara atau tata bahasa', s:`${td.c||0} giliran bicara · ${td.g||0} kuis tata bahasa`, act:'talk'},
+  ];
+  const doneTasks=tasks.filter(x=>x.ok).length;
+  const curPh=ST.cur;
+  const heat=[]; const startW=t-83-((new Date(t*864e5).getUTCDay()+6)%7);
+  for(let n=startW;n<=t;n++){ const a=(L[n]&&L[n].a)||0; heat.push(`<i class="h${a===0?0:a<20?1:a<60?2:a<120?3:4}${n===t?' now':''}" title="${fmtShort(n)}: ${a} aktivitas"></i>`); }
+  const studied=Object.values(L).filter(e=>e.a).length;
+  app.innerHTML = `
+    <div class="hero"><div class="eyebrow">Progres · rencana belajar</div>
+      <h1>Target: JLPT ${first?first.lv.toUpperCase():'—'}</h1>
+      <p class="sub">${first?`Ujian ${fmtDay(dayOf(first.date))} · <b>${Math.max(0,dayOf(first.date)-t)} hari lagi</b>`:''}</p></div>
+    <div class="panel pgoal">
+      <div class="pring" style="--p:${ovRaw.toFixed(1)}"><b>${ovTxt}%</b><span>dari seluruh rencana</span></div>
+      <div class="pstat ${stCls}"><b>${stTxt}</b><span>${curPh?`Sekarang di fase <b>${esc(curPh.title)}</b> (target selesai ${fmtShort(curPh.to)}).`:'Semua materi sudah dipelajari — fokus ke simulasi ujian.'}</span>
+        <span class="num">🔥 ${streakDays(L)} hari beruntun · ${studied} hari belajar total</span></div>
+    </div>
+
+    <h2>Tugas hari ini <span class="num" style="font-weight:600">${doneTasks}/3 selesai</span></h2>
+    <div class="ptasks">${tasks.map((x,i)=>`<button type="button" class="ptask ${x.ok?'done':''}" data-act="${x.act||''}" ${x.act?'':'disabled'}><span class="pchk">${x.ok?'✓':i+1}</span><span><b>${esc(x.t)}</b><small>${esc(x.s)}</small></span>${x.act&&!x.ok?'<span class="chev">›</span>':''}</button>`).join('')}</div>
+    ${DT?`<p class="num pnote">Supaya siap ujian ${DT.tg.lv.toUpperCase()} tepat waktu: <b>${DT.perDay} kata/huruf baru per hari</b> dan <b>${DT.perWeek} pola tata bahasa per minggu</b> (sisa ${DT.newItems} kata/huruf & ${DT.gram} pola dalam ${DT.daysLeft} hari sebelum masa persiapan ujian).</p>`:''}
+
+    <h2>Peta jalan</h2>
+    <div class="road">${PL.phases.map(ph=>{
+      const st = ph.p>=0.999 ? 'done' : (t>ph.to ? 'late' : (t>=ph.from ? 'now' : 'next'));
+      const chip = {done:'Selesai ✓', late:'Lewat target', now:'Sedang berjalan', next:'Berikutnya'}[st];
+      return `<div class="rph ${st}" style="--c:var(--${ph.color})">
+        <div class="rdot">${esc(ph.icon)}</div>
+        <div class="rbody"><div class="rtop"><b>${esc(ph.title)}</b><span class="rchip">${chip}</span></div>
+          <span class="num">${fmtShort(ph.from)} – ${fmtDay(ph.to)} · ${Math.round(ph.p*100)}%</span>
+          <span class="bar"><i style="width:${Math.round(ph.p*100)}%"></i></span>
+          ${(st==='now'||st==='late'||ph.exam)?`<div class="rcomps">${ph.comps.map(c=>`<div><span>${esc(c.t)}</span><span class="num">${esc(c.txt)}</span><span class="bar sm"><i style="width:${Math.round(c.pr.p*100)}%"></i></span></div>`).join('')}</div>`:''}
+        </div></div>`;}).join('')}</div>
+
+    <h2>Aktivitas 12 minggu terakhir</h2>
+    <div class="panel"><div class="heat">${heat.join('')}</div>
+      <div class="num" style="display:flex;justify-content:space-between;margin-top:6px"><span>${fmtShort(startW)}</span><span>Sedikit <i class="hl h1"></i><i class="hl h2"></i><i class="hl h3"></i><i class="hl h4"></i> Banyak</span><span>Hari ini</span></div></div>
+
+    <h2>Hafalan per materi</h2>
+    <div class="panel">${DECKS.map(d=>{const pr=itemsProg(d);return `<div class="statrow" style="--c:var(--${d.color})"><b>${esc(d.title)}</b><span class="num">${pr.hafal} hafal</span>
+      <span class="bar two"><i style="width:${pct(pr.hafal,pr.n)}%"></i><i class="l" style="width:${pct(pr.learned-pr.hafal,pr.n)}%"></i></span>
+      <span class="num lv">${pr.learned} dari ${pr.n} sudah dipelajari · ${pr.n-pr.learned} belum</span></div>`}).join('')}
+      <div class="num plegend"><span><i class="lg h"></i> Hafal (lolos ulasan 7 hari)</span><span><i class="lg l"></i> Sudah dipelajari, masih diulang</span></div></div>
+    <div class="score"><div><b>${due}</b><span>Ulasan hari ini</span></div><div><b>${dueAll(t+1)-due}</b><span>Ulasan besok</span></div><div><b>${DECKS.reduce((a,d)=>a+mastered(d),0)}</b><span>Total hafal</span></div></div>
+
+    <details class="panel pset"><summary><b>⚙️ Atur target & tanggal</b></summary>
+      <label class="lbl" for="pstart">MULAI BELAJAR</label><input type="date" id="pstart" class="cvname" value="${esc(P.start)}">
+      ${[0,1].map(i=>{const tg=P.targets[i]||{lv:'',date:''};return `<label class="lbl">${i?'TARGET LANJUTAN (opsional)':'TARGET UTAMA'}</label>
+        <div class="row" style="gap:8px;flex-wrap:nowrap"><select data-tlv="${i}" class="cvname" style="flex:1">${i?'<option value="">— tidak ada —</option>':''}${LVORD.map(l=>`<option value="${l}" ${tg.lv===l?'selected':''}>JLPT ${l.toUpperCase()}</option>`).join('')}</select>
+        <select data-tdt="${i}" class="cvname" style="flex:1.3">${[...new Set([...(tg.date?[dayOf(tg.date)]:[]),...jlptDates()])].sort((a,b)=>a-b).map(n=>`<option value="${isoOf(n)}" ${tg.date===isoOf(n)?'selected':''}>${fmtDay(n)}</option>`).join('')}</select></div>`}).join('')}
+      <span class="num">Tanggal ujian JLPT: Minggu pertama Juli & Desember. Jadwal tiap fase dihitung otomatis dari jumlah materi.</span>
+      <button class="btn" id="psave">Simpan target</button>
+      <details class="phow"><summary>Cara menghitung progres</summary>
+        <p class="num">• Kata/huruf: setengah nilai saat pertama kali dijawab benar (dipelajari), penuh saat lolos ulasan 7 hari (hafal). Jarak ulasan: 1 → 3 → 7 → 14 hari → 1 → 2 → 4 → 8 bulan; salah saat ulasan membuat jaraknya mundur.<br>
+        • Tata bahasa: penuh jika kuis pola ≥80%. • Percakapan: penuh jika dialog ≥80%.<br>
+        • Persiapan ujian: skor simulasi terbaik dibanding batas lulus.<br>
+        • "Sesuai jadwal" membandingkan jumlah materi yang sudah kamu pelajari dengan target yang seharusnya sudah tercapai hari ini (hafalan butuh waktu ulasan, jadi tidak dihitung di sini).</p></details>
+    </details>
+    <span class="num">Progres tersimpan di browser HP ini.</span>`;
+  app.querySelectorAll('[data-act]').forEach(b=>b.onclick=()=>{
+    const a=b.dataset.act; if(!a) return;
+    if(a==='rev') return startReview();
+    if(a==='new'){ const c=curPh&&curPh.comps.find(c=>c.k==='deck'&&c.pr.rest>0); const d=c?c.d:DECK.n5; const s=settingsFor(d); s.sec='new'; store.set('set:'+d.id,s); return setup(d); }
+    if(a==='talk'){ const lv=curPh&&curPh.comps.find(c=>c.k==='conv'); return convList(DECK[lv?lv.lv:'salam']); }
+  });
+  app.querySelector('#psave').onclick=()=>{
+    const np={start:app.querySelector('#pstart').value||P.start, targets:[]};
+    [0,1].forEach(i=>{ const lv=app.querySelector(`[data-tlv="${i}"]`).value, dt=app.querySelector(`[data-tdt="${i}"]`).value; if(lv&&dt) np.targets.push({lv,date:dt}); });
+    if(!np.targets.length) return;
+    store.set('plan',np); stats(); window.scrollTo(0,0);
+  };
 }
 
 /* ---------- pencocokan jawaban ---------- */
@@ -1193,6 +1386,7 @@ function exResult(){
     if(score<L.pass_) pass=false;
   }
   const label = EX.only ? L.secs.find(s=>s.key===EX.only).id : 'Simulasi lengkap';
+  logAct('e');
   const hist=store.get('exhist',[]); const d=new Date();
   hist.unshift({lv:L.id, date:d.toLocaleDateString('id-ID',{day:'numeric',month:'short'})+' '+d.toTimeString().slice(0,5), label, pct:percent, score, pass}); store.set('exhist',hist.slice(0,40));
   VIEW='examr';
@@ -1356,6 +1550,7 @@ function gCheck(ok){
 }
 function gDoneView(){
   foot.hidden=true; const {lv,i}=GQ, score=Math.round(GQ.ok/GQ.qs.length*100);
+  logAct('g');
   if(i!=null){ const b=gBest(lv,i); if(b==null||score>b) store.set(`g:${lv}:${i}`,score); }
   else { const seen=new Set(); GQ.qs.forEach(q=>{ if(seen.has(q.p.i)) return; seen.add(q.p.i); const okP=!GQ.missed.some(m=>m.p===q.p); const b=gBest(lv,q.p.i); if(okP && (b==null||b<80)) store.set(`g:${lv}:${q.p.i}`,Math.max(b||0,80)); }); }
   app.innerHTML = `
@@ -1795,6 +1990,7 @@ function convListen(x,show){
   try{ r.start(); }catch(e){ rec=null; clearTimeout(timer); CV.noMic=true; convAsk(); }
 }
 function convAnswer(ok,heard,skipped){
+  logAct('c');
   const x=CV.lines[CV.k].x, first= ok && CV.tries===0 && !CV.reveal, pg=CV.per[CV.gi];
   if(first){ CV.ok++; pg.ok++; } pg.n++;
   CV.msgs.push({who:'u',jp:x[1],kana:x[2],id:x[3],heard: heard||null, first, skipped:!!skipped});
