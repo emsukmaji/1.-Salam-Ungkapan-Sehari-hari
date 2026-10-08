@@ -566,11 +566,6 @@ function setup(d){
 /* ---------- ronde ---------- */
 let R=null, cur=null, answered=false;
 function poolFor(){
-  const p=poolFor0();
-  if(CUR.kind==='kana' && S.mode==='write'){ const one=p.filter(w=>[...w.kana].length===1); if(one.length) return one; const all=CUR.items.filter(w=>[...w.kana].length===1); return all; }
-  return p;
-}
-function poolFor0(){
   const d=CUR;
   if(S.sec==='all') return d.items;
   if(S.sec==='weak'){const p=d.items.filter(w=>lvOf(d,w)<3); return p.length?p:d.items;}
@@ -592,7 +587,7 @@ function pickType(w,d=CUR,review=false){
   const modes = review ? (d.kind==='kana'?['k2r','r2k','listen']:['id2jp','jp2id','sit']) : modesFor(d).map(m=>m[0]).filter(m=>m!=='mix');
   let t = (review || S.mode==='mix') ? modes[Math.random()*modes.length|0] : S.mode;
   if(t==='sit' && !w.sit) t='id2jp';
-  if(t==='write' && ([...w.kana].length!==1 || !hasStrokes(w.kana))) t='k2r';
+  if(t==='write' && !hasStrokes(w.kana)) t='k2r';
   return t;
 }
 function startRound(){
@@ -733,7 +728,7 @@ function resample(p,n){
 function glyph(kana){
   const chars=[...kana], strokes=[], offs=[]; let x=0;
   chars.forEach((c,i)=>{
-    const dx = i===0 ? 0 : x + (SMALLK.test(c) ? -14 : 0);
+    const dx = x;
     (STROKES[c]||[]).forEach(d=>{ const pts=pathPts(d).map(([a,b])=>[a+dx,b]); strokes.push({d,dx,pts,len:plen(pts),ch:c}); });
     offs.push(dx); x = dx + 109;
   });
