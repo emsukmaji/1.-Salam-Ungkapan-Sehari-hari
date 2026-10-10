@@ -986,6 +986,10 @@ function stats(){
         • Persiapan ujian: skor simulasi terbaik dibanding batas lulus.<br>
         • "Sesuai jadwal" membandingkan jumlah materi yang sudah kamu pelajari dengan target yang seharusnya sudah tercapai hari ini (hafalan butuh waktu ulasan, jadi tidak dihitung di sini).</p></details>
     </details>
+    <div class="panel pbak"><div><b>💾 Cadangan progres</b><span class="num" style="display:block;margin-top:4px">Progres hanya tersimpan di HP ini. Simpan cadangan secara berkala, dan wajib sebelum ganti HP, menghapus data Safari, atau pindah link aplikasi.</span></div>
+      <div class="row" style="gap:8px"><button class="btn" id="bakx" style="flex:1">Ekspor progres</button><button class="btn ghost" id="baki" style="flex:1">Impor progres</button></div>
+      <input type="file" id="bakf" accept=".json,application/json,text/plain" hidden>
+      <span class="num" id="bakmsg">${store.get('baklast',null)?'Cadangan terakhir: '+esc(store.get('baklast')):'Belum pernah membuat cadangan.'}</span></div>
     <span class="num">Progres tersimpan di browser HP ini.</span>`;
   app.querySelectorAll('[data-act]').forEach(b=>b.onclick=()=>{
     const a=b.dataset.act; if(!a) return;
@@ -993,12 +997,45 @@ function stats(){
     if(a==='new'){ const c=curPh&&curPh.comps.find(c=>c.k==='deck'&&c.pr.rest>0); const d=c?c.d:DECK.n5; const s=settingsFor(d); s.sec='new'; store.set('set:'+d.id,s); return setup(d); }
     if(a==='talk'){ const lv=curPh&&curPh.comps.find(c=>c.k==='conv'); return convList(DECK[lv?lv.lv:'salam']); }
   });
+  bakBind();
   app.querySelector('#psave').onclick=()=>{
     const np={start:app.querySelector('#pstart').value||P.start, targets:[]};
     [0,1].forEach(i=>{ const lv=app.querySelector(`[data-tlv="${i}"]`).value, dt=app.querySelector(`[data-tdt="${i}"]`).value; if(lv&&dt) np.targets.push({lv,date:dt}); });
     if(!np.targets.length) return;
     store.set('plan',np); stats(); window.scrollTo(0,0);
   };
+}
+
+
+/* ---------- cadangan progres ---------- */
+function bakData(){ const data={}; for(let i=0;i<localStorage.length;i++){ const k=localStorage.key(i); if(k && k.startsWith('aisatsu:')) data[k]=localStorage.getItem(k); } return {app:'nihongo-game',v:1,date:new Date().toISOString(),data}; }
+async function bakExport(msg){
+  const now=new Date(), stamp=now.toISOString().slice(0,10);
+  const txt=JSON.stringify(bakData()), name=`nihongo-progres-${stamp}.json`;
+  const done=how=>{ const s=now.toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'})+' '+now.toTimeString().slice(0,5); store.set('baklast',s); msg.textContent=`${how} Cadangan terakhir: ${s}`; };
+  try{
+    const file=new File([txt],name,{type:'application/json'});
+    if(navigator.canShare && navigator.canShare({files:[file]})){ await navigator.share({files:[file],title:'Cadangan progres Nihongo'}); return done('✓ Cadangan dibagikan/disimpan.'); }
+  }catch(e){ if(e && e.name==='AbortError'){ msg.textContent='Dibatalkan.'; return; } }
+  try{ const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([txt],{type:'application/json'})); a.download=name; document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(a.href); a.remove();},1500); done('✓ File cadangan diunduh.'); }
+  catch(e){ try{ await navigator.clipboard.writeText(txt); done('✓ Cadangan disalin ke clipboard (tempel ke Catatan untuk menyimpannya).'); }catch(_){ msg.textContent='Gagal membuat cadangan di perangkat ini.'; } }
+}
+function bakImport(txt,msg){
+  let o; try{ o=JSON.parse(txt); }catch(e){ msg.textContent='File tidak bisa dibaca. Pastikan memilih file cadangan .json dari aplikasi ini.'; return; }
+  if(!o || !o.data || typeof o.data!=='object'){ msg.textContent='Ini bukan file cadangan progres aplikasi ini.'; return; }
+  const n=Object.keys(o.data).filter(k=>k.startsWith('aisatsu:')).length;
+  if(!n){ msg.textContent='File cadangan kosong.'; return; }
+  const when=o.date? new Date(o.date).toLocaleString('id-ID',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '?';
+  if(!confirm(`Pulihkan progres dari cadangan ${when}?\nProgres di HP ini sekarang akan diganti dengan isi cadangan.`)) return;
+  Object.keys(localStorage).filter(k=>k.startsWith('aisatsu:')).forEach(k=>localStorage.removeItem(k));
+  Object.entries(o.data).forEach(([k,v])=>{ if(k.startsWith('aisatsu:')) localStorage.setItem(k,v); });
+  msg.textContent='✓ Progres dipulihkan. Memuat ulang…'; setTimeout(()=>location.reload(),600);
+}
+function bakBind(){
+  const msg=app.querySelector('#bakmsg'), f=app.querySelector('#bakf');
+  app.querySelector('#bakx').onclick=()=>bakExport(msg);
+  app.querySelector('#baki').onclick=()=>{ f.value=''; f.click(); };
+  f.onchange=()=>{ const file=f.files&&f.files[0]; if(!file) return; const r=new FileReader(); r.onload=()=>bakImport(String(r.result),msg); r.readAsText(file); };
 }
 
 /* ---------- pencocokan jawaban ---------- */
